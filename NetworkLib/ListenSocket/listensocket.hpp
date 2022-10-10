@@ -15,9 +15,11 @@
 
 #include <stdlib.h>
 #include <unistd.h>
+#include <vector>
+
+#include "../ServiceSocket/servicesocket.hpp"
 
 #define DEFAULT_PORT 50001
-
 
 using namespace std;
 
@@ -26,7 +28,7 @@ class ListenSocket
     private:
         int hsocket;
         struct sockaddr_in Adresse;
-        //vector<ServiceSocket> services Socket;
+        vector<ServiceSocket> services;
     
     public:
         ListenSocket();
@@ -58,7 +60,7 @@ class ListenSocket
         int& operator&(void);
 	    int* getRef();
 
-        void InitSocket(struct sockaddr_in adresseSocket);
+        void InitSocket();
 
         static struct sockaddr_in getHost(int port);
 

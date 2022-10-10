@@ -7,12 +7,30 @@
 
         ListenSocket::ListenSocket(int port)
         {
-            InitSocket(getHost(port)); 
+            Adresse = getHost(port);
+            InitSocket(); 
         }
 
         ListenSocket::ListenSocket(string socket)
         {
-            InitSocket(getHost(DEFAULT_PORT));
+            vector<string> Tokens = getTokens(socket, L":");
+
+            in_addr adresseip;
+            unsigned int tailleSock;
+            int port;
+
+            try{
+                port = stoi(Tokens[1]);
+            }
+            catch(...){
+                throw "ClientSocket.Constructor Error: Port is not an int";
+            }
+            
+            Adresse.sin_addr.s_addr = inet_addr(Tokens[0].c_str());
+            Adresse.sin_family = AF_INET;
+            Adresse.sin_port = htons(port);
+
+            InitSocket();
         }
 
         ListenSocket::ListenSocket(const ListenSocket &e)
@@ -20,9 +38,7 @@
             setSocket(e.getSocket());
         }
 
-        ListenSocket::~ListenSocket()
-        {
-        }
+        ListenSocket::~ListenSocket(){}
 
         //Setters and Getters
         void ListenSocket::setSocket(int c)
@@ -113,16 +129,15 @@
             else cerr << "ListeSocket.getHost Success" << endl;
             
             memcpy(&adresseIP, infosHost->h_addr, infosHost->h_length);            
-            memset(&adresseSocket, 0, sizeof(sockaddr_in));
-            adresseSocket.sin_family = AF_INET; /* Domaine */
-            adresseSocket.sin_port = htons(port);
-            memcpy(&adresseSocket.sin_addr, infosHost->h_addr,infosHost->h_length);
-
-            return adresseSocket;
+            memset(&Adresse, 0, sizeof(sockaddr_in));
+            Adresse.sin_family = AF_INET; /* Domaine */
+            Adresse.sin_port = htons(port);
+            memcpy(&Adresse.sin_addr, infosHost->h_addr,infosHost->h_length);
         }
 
         void ListenSocket::Accept()
         {
+            int newsocket;
             if(listen(getSocket(), SOMAXCONN) == -1 ){
                 string msg = "ListeSocket.Accept Error: ";
                 msg += (const char *)strerror(errno);
@@ -132,16 +147,16 @@
             else cerr << "ListenSocket.Listen Success"<<endl;
             
             socklen_t taille = sizeof(sockaddr_in);
-            if( (accept(getSocket(), (sockaddr *) &Adresse, &taille)) == -1 ){
+            if((newsocket = accept(getSocket(), (sockaddr *) &Adresse, &taille)) == -1 ){
                 string msg = "ListeSocket.Accept Error: ";
                 msg += (const char *)strerror(errno);
                 close();
                 throw msg;
             }
             else cerr << "ListenSocket.Accept Success"<<endl;
-
+            
             /*SocketServiceCréer*/
-
+            services.insert(ServiceSocket(newsocket));
         }
 
 //#{}

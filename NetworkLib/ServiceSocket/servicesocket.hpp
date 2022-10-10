@@ -33,8 +33,6 @@ class ServiceSocket
     public:
         ServiceSocket(int listen);
 
-        ServiceSocket(ListenSocket listen);
-
         ServiceSocket(const ServiceSocket &e);
 
         ~ServiceSocket();

@@ -4,19 +4,12 @@ ServiceSocket::ServiceSocket(int servicesocket)
     setSocket(servicesocket);
 }
 
-ServiceSocket::ServiceSocket(ListenSocket servicesocket)
-{
-    setSocket(servicesocket);
-}
-
 ServiceSocket::ServiceSocket(const ServiceSocket &e)
 {
     setSocket(e.getSocket());
 }
 
-ServiceSocket::~ServiceSocket()
-{
-}
+ServiceSocket::~ServiceSocket(){}
 
 //Setters and Getters
 void ServiceSocket::setSocket(int c)
@@ -85,8 +78,6 @@ string ServiceSocket::ReceiveString()
 
 void * Receive()
 {
-    void * pointer;
-    pointer = NULL;
-    
+    void * pointer = NULL;
     return pointer;
 }
