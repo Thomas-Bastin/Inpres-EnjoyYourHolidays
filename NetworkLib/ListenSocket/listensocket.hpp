@@ -17,6 +17,11 @@
 #include <unistd.h>
 #include <vector>
 
+#include <wchar.h>
+#include <sstream>
+#include <locale>
+#include <codecvt>
+
 #include "../ServiceSocket/servicesocket.hpp"
 
 #define DEFAULT_PORT 50001
@@ -65,6 +70,9 @@ class ListenSocket
         static struct sockaddr_in getHost(int port);
 
         void Accept();
+
+
+        static vector<string> getTokens(string line, const wchar_t * sep);
 };
 #endif
 
