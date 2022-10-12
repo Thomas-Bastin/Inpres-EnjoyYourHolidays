@@ -150,7 +150,7 @@ struct sockaddr_in ListenSocket::getHost(int port)
 }
 
 
-void ListenSocket::Accept()
+int ListenSocket::Accept()
 {
     int newsocket;
     if (listen(getSocket(), SOMAXCONN) == -1)
@@ -160,8 +160,7 @@ void ListenSocket::Accept()
         close();
         throw msg;
     }
-    else
-        cerr << "ListenSocket.Listen Success" << endl;
+    else cerr << "ListenSocket.Listen Success" << endl;
 
     socklen_t taille = sizeof(sockaddr_in);
     if ((newsocket = accept(getSocket(), (sockaddr *)&Adresse, &taille)) == -1)
@@ -171,11 +170,9 @@ void ListenSocket::Accept()
         close();
         throw msg;
     }
-    else
-        cerr << "ListenSocket.Accept Success" << endl;
+    else cerr << "ListenSocket.Accept Success" << endl;
 
-    /*SocketServiceCréer*/
-    services.push_back(ServiceSocket(newsocket));
+    return newsocket;
 }
 
 

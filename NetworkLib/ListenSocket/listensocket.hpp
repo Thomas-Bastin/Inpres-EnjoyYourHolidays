@@ -33,7 +33,7 @@ class ListenSocket
     private:
         int hsocket;
         struct sockaddr_in Adresse;
-        vector<ServiceSocket> services;
+        //vector<ServiceSocket> services;
     
     public:
         ListenSocket();
@@ -69,8 +69,7 @@ class ListenSocket
 
         static struct sockaddr_in getHost(int port);
 
-        void Accept();
-
+        int Accept();
 
         static vector<string> getTokens(string line, const wchar_t * sep);
 };

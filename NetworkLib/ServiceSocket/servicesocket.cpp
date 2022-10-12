@@ -60,24 +60,55 @@ void ServiceSocket::close()
 }
 
 
-//#{}
 void ServiceSocket::SendString(string s)
 {
-    
+    send(getSocket(), s.c_str(), s.length()-1, 1);
 }
 
-void ServiceSocket::Send(void *)
+
+void ServiceSocket::Send(void * message, size_t len)
 {
-    
+    send(getSocket(), message, len, 1);
 }
+
 
 string ServiceSocket::ReceiveString()
 {
-    return "s";
+    char buf[1024];
+    std::string data;
+
+    while( *(data.cend()-1) == '\n' == *data.cend() == '\r' ) { // what you wish to receive
+        ::ssize_t rcvd = ::recv(getSocket(), buf, sizeof(buf), 0);
+        if( rcvd < 0 ) {
+            string msg = "ListeSocket.Receive Error: ";
+            msg += (const char *)strerror(errno);
+            throw msg;
+            return "";
+        } else if( !rcvd ) {
+            break; // No data to receive, remote end closed connection, so quit.
+        } else {
+            data.append(buf, rcvd); // Received into buffer, attach to data buffer.
+        }
+    }
+    
+    return data;
 }
 
-void * Receive()
+void ServiceSocket::Receive(void * pointer, int SIZE)
 {
-    void * pointer = NULL;
-    return pointer;
+    int nbrbyterecus = 0;
+    int taillemsg = 0;
+
+    do{
+        if((nbrbyterecus = recv(getSocket(), (char *)pointer + taillemsg, SIZE - taillemsg, 0)) == -1){
+            string msg = "ListeSocket.Receive Error: ";
+            msg += (const char *)strerror(errno);
+            throw msg;
+        }
+        else{
+            taillemsg += nbrbyterecus;
+        }
+    }
+    while(nbrbyterecus != 0 && nbrbyterecus != -1 && taillemsg < SIZE);
 }
+//#{}

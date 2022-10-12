@@ -29,6 +29,7 @@ class ServiceSocket
 {
     private:
         int servicesocket;
+        bool used;
     
     public:
         ServiceSocket(int listen);
@@ -57,10 +58,10 @@ class ServiceSocket
 	    int* getRef();
 
         void SendString(string s);
-        void Send(void *);
+        void Send(void * message, size_t len);
 
         string ReceiveString();
-        void * Receive();
+        void Receive(void * pointer, int SIZE);
 };
 #endif
 
