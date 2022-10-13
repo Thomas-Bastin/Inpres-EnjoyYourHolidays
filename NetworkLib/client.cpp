@@ -9,12 +9,8 @@
 using namespace std;
 
 int main(){
-    string ssocket;
-    cout << "Entrez le socket " << endl;
-    cin >> ssocket; cin.get();
-
     try{
-        ClientSocket Csock = ClientSocket(ssocket);
+        ClientSocket Csock = ClientSocket("127.0.0.1:50001");
         Csock.SendString("Hello");
         cerr << "Send Hello"<<endl;
 
