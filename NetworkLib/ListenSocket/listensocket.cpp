@@ -34,7 +34,7 @@ ListenSocket::ListenSocket(string socket)
     }
     
     bzero((char *)&Adresse, sizeof(Adresse));
-    Adresse.sin_addr.s_addr = inet_addr(Tokens[0].c_str());
+    Adresse.sin_addr.s_addr = htonl(INADDR_ANY);
     Adresse.sin_family = AF_INET;
     Adresse.sin_port = htons(port);
 
