@@ -15,8 +15,11 @@
 
 #include <stdlib.h>
 #include <unistd.h>
-
-#include "../ListenSocket/listensocket.hpp"
+#include <vector>
+#include <wchar.h>
+#include <sstream>
+#include <locale>
+#include <codecvt>
 
 
 #define DEFAULT_PORT 50001
@@ -62,6 +65,9 @@ class ServiceSocket
 
         string ReceiveString();
         void Receive(void * pointer, int SIZE);
+
+
+        static vector<string> getTokens(string line, const wchar_t * sep);
 };
 #endif
 

@@ -9,7 +9,7 @@ ServiceSocket::ServiceSocket(const ServiceSocket &e)
     setSocket(e.getSocket());
 }
 
-ServiceSocket::~ServiceSocket(){}
+ServiceSocket::~ServiceSocket() {}
 
 //Setters and Getters
 void ServiceSocket::setSocket(int c)
@@ -54,61 +54,85 @@ void ServiceSocket::close()
     if (::close(getSocket()) == -1)
     {
         string msg = "ListeSocket.Close Error: ";
-        msg += (const char *)strerror(errno);
+        string tmp;
+        tmp = to_string(errno);
+        msg += tmp;
         throw msg;
     }
 }
 
-
 void ServiceSocket::SendString(string s)
 {
-    send(getSocket(), s.c_str(), s.length()-1, 1);
+    s += "~";
+    send(getSocket(), s.c_str(), s.length() - 1, 1);
 }
-
-
-void ServiceSocket::Send(void * message, size_t len)
-{
-    send(getSocket(), message, len, 1);
-}
-
 
 string ServiceSocket::ReceiveString()
 {
-    char buf[1024];
+    char last;
     std::string data;
+    bool AllGet = false;
+    int i = 0;
 
-    while( *(data.cend()-1) == '\n' == *data.cend() == '\r' ) { // what you wish to receive
-        ::ssize_t rcvd = ::recv(getSocket(), buf, sizeof(buf), 0);
-        if( rcvd < 0 ) {
+    while (AllGet != true && i < 5)
+    { // what you wish to receive
+        ssize_t rcvd;
+        rcvd = ::recv(getSocket(), &last, sizeof(char), 0);
+
+        if (rcvd < 0)
+        {
             string msg = "ListeSocket.Receive Error: ";
-            msg += (const char *)strerror(errno);
+            string tmp;
+            tmp = to_string(errno);
+            msg += tmp;
             throw msg;
             return "";
-        } else if( !rcvd ) {
+        }
+        else if (rcvd == 0)
+        {
+            i++;
+            cerr << "ListeSocket.Receive: Tentative n°" << i << " de réception de la fin du message." << endl;
             break; // No data to receive, remote end closed connection, so quit.
-        } else {
-            data.append(buf, rcvd); // Received into buffer, attach to data buffer.
+        }
+        else if (last == '~')
+        {
+            data[data.length() - 1] = '\0';
+            AllGet = true;
+            break;
+        }
+        else
+        {
+            data.append(last, rcvd); // Received into buffer, attach to data buffer.
         }
     }
-    
     return data;
 }
 
-void ServiceSocket::Receive(void * pointer, int SIZE)
+void ServiceSocket::Receive(void *pointer, int SIZE)
 {
-    int nbrbyterecus = 0;
-    int taillemsg = 0;
+    throw "Not Implemented Exception ServiceSocket.Receive(void)";
+}
 
-    do{
-        if((nbrbyterecus = recv(getSocket(), (char *)pointer + taillemsg, SIZE - taillemsg, 0)) == -1){
-            string msg = "ListeSocket.Receive Error: ";
-            msg += (const char *)strerror(errno);
-            throw msg;
-        }
-        else{
-            taillemsg += nbrbyterecus;
-        }
+void ServiceSocket::Send(void *message, size_t len)
+{
+    throw "Not Implemented Exception ServiceSocket.Send(void)";
+}
+
+vector<string> ServiceSocket::getTokens(string line, const wchar_t *sep)
+{
+    vector<string> tokens;
+    wstring temp;
+
+    //Convert string to wstring
+    wstringstream wss(wstring_convert<codecvt_utf8<wchar_t>>().from_bytes(line));
+
+    while (getline(wss, temp, *sep))
+    {
+        //1rst convert wstring to string
+        //2nd add to the tokens list
+        tokens.push_back(wstring_convert<codecvt_utf8<wchar_t>>().to_bytes(temp));
     }
-    while(nbrbyterecus != 0 && nbrbyterecus != -1 && taillemsg < SIZE);
+
+    return tokens;
 }
 //#{}

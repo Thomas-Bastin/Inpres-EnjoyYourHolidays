@@ -16,6 +16,9 @@ int main(){
     catch(const char * msg){
         cerr << msg << endl;
     }
+    catch(string t){
+        cerr << t << endl;
+    }
 
     try{
         listen.Accept();
@@ -23,7 +26,21 @@ int main(){
     catch(const char * msg){
         cerr << msg << endl;
     }
+    catch(string t){
+        cerr << t << endl;
+    }
 
+    try{
+        cerr <<"Serveur.Receive: " << ListenSocket::services[0].ReceiveString() << endl;
+        ListenSocket::services[0].SendString("Test");
+    }
+    catch(const char * msg){
+        cerr << msg << endl;
+    }
+    catch(string t){
+        cerr << t << endl;
+    }
+    
     cerr << "Serveur: Fermeture"<< endl;
 }
 

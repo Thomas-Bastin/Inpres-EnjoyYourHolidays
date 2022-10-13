@@ -67,11 +67,6 @@
 
         ClientSocket::operator int() const{
             return getSocket();
-        } 
-
-        int& ClientSocket::operator&(void){
-            int l = getSocket();
-            return l;
         }
 
 
@@ -81,7 +76,9 @@
             if(::close(getSocket()) == -1)
             {
                 string msg = "ListeSocket.Close Error: ";
-                msg += (const char *)strerror(errno);
+                string tmp;
+                tmp = to_string(errno);
+                msg += tmp;
                 throw msg;
             }
         }
@@ -92,13 +89,15 @@
             //1. Creation de la Socket
             setSocket(socket(AF_INET, SOCK_STREAM, 0));
             cerr << "InitSocket.CreationSocket Success" << endl;
-            
+
             
             //2. Bind de la socket
             if (bind(getSocket(), (struct sockaddr *) &Adresse, sizeof(struct sockaddr_in)) == -1)
             {
                 string msg = "InitSocket.BindSocket Error: ";
-                msg += (const char *)strerror(errno);
+                string tmp;
+                tmp = to_string(errno);
+                msg += tmp;
                 throw msg;
             }
             else cerr << "InitSocket.BindSocket Success" << endl;
@@ -108,13 +107,54 @@
             //3. Connexion
             if( connect(getSocket(), (struct sockaddr *) &Adresse, sizeof(sockaddr_in)) == -1 ){
                 string msg = "ClientSocket.Connect Error: ";
-                msg += (const char *)strerror(errno);
-                close();
+                string tmp;
+                tmp = to_string(errno);
+                msg += tmp;
                 throw msg;
             }
-            else cerr << "ClientSocket.Connect Sucess";
+            else cerr << "ClientSocket.Connect Sucess" << endl;
         }
         
+void ClientSocket::SendString(string s)
+{
+    s+="~";
+    send(getSocket(), s.c_str(), s.length()-1, 1);
+}
+
+string ClientSocket::ReceiveString()
+{
+    char last;
+    std::string data;
+    bool AllGet = false;
+    int i = 0;
+
+    while(AllGet != true && i < 5) { // what you wish to receive
+        ssize_t rcvd; 
+        rcvd = ::recv(getSocket(), &last, sizeof(char), 0);
+
+        if( rcvd < 0 ) {
+            string msg = "ListeSocket.Receive Error: ";
+            string tmp;
+            tmp = to_string(errno);
+            msg += tmp;
+            throw msg;
+        }
+        else if( rcvd == 0 ) {
+            i++;
+            cerr << "ListeSocket.Receive: Tentative n°" << i << " de réception de la fin du message." << endl; 
+            break; // No data to receive, remote end closed connection, so quit.
+        }
+        else if(last == '~'){
+            data[data.length()-1] = '\0';
+            AllGet = true;
+            break;
+        }
+        else {
+            data.append(last, rcvd); // Received into buffer, attach to data buffer.
+        }
+    }
+    return data;
+}
 
 
 

@@ -1,17 +1,19 @@
 #include "listensocket.hpp"
 
+int ListenSocket::Read = 0;
+int ListenSocket::Write = 0;
+vector<ServiceSocket> ListenSocket::services;
+
 ListenSocket::ListenSocket()
 {
     setSocket(-1);
 }
-
 
 ListenSocket::ListenSocket(int port)
 {
     Adresse = getHost(port);
     InitSocket();
 }
-
 
 ListenSocket::ListenSocket(string socket)
 {
@@ -37,15 +39,12 @@ ListenSocket::ListenSocket(string socket)
     InitSocket();
 }
 
-
 ListenSocket::ListenSocket(const ListenSocket &e)
 {
     setSocket(e.getSocket());
 }
 
-
 ListenSocket::~ListenSocket() {}
-
 
 //Setters and Getters
 void ListenSocket::setSocket(int c)
@@ -53,12 +52,10 @@ void ListenSocket::setSocket(int c)
     hsocket = c;
 }
 
-
 int ListenSocket::getSocket() const
 {
     return hsocket;
 }
-
 
 //OPPERATOR SURCHARGE
 //=
@@ -68,7 +65,6 @@ ListenSocket &ListenSocket::operator=(const ListenSocket &e)
     return *this;
 }
 
-
 //<<
 std::ostream &operator<<(std::ostream &s, const ListenSocket &t1)
 {
@@ -76,19 +72,16 @@ std::ostream &operator<<(std::ostream &s, const ListenSocket &t1)
     return s;
 }
 
-
 //Opérateur de Casting, retourne par valeur la valeur contenue dans pcur
 ListenSocket::operator int() const
 {
     return getSocket();
 }
 
-
 int &ListenSocket::operator&(void)
 {
     return hsocket;
 }
-
 
 void ListenSocket::close()
 {
@@ -100,7 +93,6 @@ void ListenSocket::close()
     }
 }
 
-
 void ListenSocket::InitSocket()
 {
     //1. Creation de la Socket
@@ -111,13 +103,14 @@ void ListenSocket::InitSocket()
     if (bind(hsocket, (struct sockaddr *)&Adresse, sizeof(struct sockaddr_in)) == -1)
     {
         string msg = "InitSocket.BindSocket Error: ";
-        msg += (const char *)strerror(errno);
+        string tmp;
+        tmp = to_string(errno);
+        msg += tmp;
         close();
         throw msg;
     }
     cerr << "InitSocket.BindSocket Success" << endl;
 }
-
 
 struct sockaddr_in ListenSocket::getHost(int port)
 {
@@ -128,53 +121,41 @@ struct sockaddr_in ListenSocket::getHost(int port)
     char chartmp[10000];
     string hostName;
 
-    //Recupération HostName
-    gethostname(chartmp, 10000);
-
-    //Récupération info Host
-    if ((infosHost = gethostbyname(chartmp)) == 0)
-    {
-        string msg = "ListeSocket.getHost Error: ";
-        msg += (const char *)strerror(errno);
-        throw msg;
-    }
-    else cerr << "ListeSocket.getHost Success" << endl;
-
-    memcpy(&adresseIP, infosHost->h_addr, infosHost->h_length);
-    memset(&adresseSocket, 0, sizeof(sockaddr_in));
+    adresseSocket.sin_addr.s_addr = htonl(INADDR_ANY);
     adresseSocket.sin_family = AF_INET; /* Domaine */
     adresseSocket.sin_port = htons(port);
-    memcpy(&adresseSocket.sin_addr, infosHost->h_addr, infosHost->h_length);
 
     return adresseSocket;
 }
 
-
-int ListenSocket::Accept()
+void ListenSocket::Accept()
 {
     int newsocket;
     if (listen(getSocket(), SOMAXCONN) == -1)
     {
         string msg = "ListeSocket.Accept Error: ";
-        msg += (const char *)strerror(errno);
-        close();
+        string tmp;
+        tmp = to_string(errno);
+        msg += tmp;
         throw msg;
     }
-    else cerr << "ListenSocket.Listen Success" << endl;
+    else
+        cerr << "ListenSocket.Listen Success" << endl;
 
     socklen_t taille = sizeof(sockaddr_in);
     if ((newsocket = accept(getSocket(), (sockaddr *)&Adresse, &taille)) == -1)
     {
         string msg = "ListeSocket.Accept Error: ";
-        msg += (const char *)strerror(errno);
-        close();
+        string tmp;
+        tmp = to_string(errno);
+        msg += tmp;
         throw msg;
     }
-    else cerr << "ListenSocket.Accept Success" << endl;
+    else
+        cerr << "ListenSocket.Accept Success" << endl;
 
-    return newsocket;
+    ListenSocket::services.push_back(ServiceSocket(newsocket));
 }
-
 
 vector<string> ListenSocket::getTokens(string line, const wchar_t *sep)
 {

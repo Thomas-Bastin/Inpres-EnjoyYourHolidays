@@ -62,17 +62,13 @@ class ClientSocket
 
         //() Casting
         operator int() const;
-        int& operator&(void);
 	    int* getRef();
-
-        void SendString(string s);
-        void Send(void *);
-
-        string ReceiveString();
-        void * Receive();
 
         void InitSocket();
         void Connect();
+
+        void SendString(string s);
+        string ReceiveString();
 
         static vector<string> getTokens(string line, const wchar_t * sep);
 };
