@@ -17,6 +17,7 @@ ListenSocket::ListenSocket(int port)
 
 ListenSocket::ListenSocket(string socket)
 {
+    bzero((char *)&Adresse, sizeof(Adresse));
     vector<string> Tokens = getTokens(socket, L":");
     if(Tokens.size() <= 1 ){ throw "Vous n'avez pas entrer un socket valide";}
 
@@ -33,8 +34,7 @@ ListenSocket::ListenSocket(string socket)
         throw "ListentSocket.Constructor Error: Port is not an int";
     }
     
-    bzero((char *)&Adresse, sizeof(Adresse));
-    Adresse.sin_addr.s_addr = htonl(INADDR_ANY);
+    Adresse.sin_addr.s_addr = htonl(inet_addr(Tokens[0].c_str()));
     Adresse.sin_family = AF_INET;
     Adresse.sin_port = htons(port);
 
@@ -102,7 +102,7 @@ void ListenSocket::InitSocket()
     cerr << "InitSocket.CreationSocket Success" << endl;
 
     //2. Bind de la socket
-    if (bind(hsocket, (struct sockaddr *)&Adresse, sizeof(struct sockaddr_in)) == -1)
+    if (bind(hsocket, (struct sockaddr *)&Adresse, sizeof(Adresse)) == -1)
     {
         string msg = "InitSocket.BindSocket Error: ";
         string tmp;
@@ -127,13 +127,14 @@ struct sockaddr_in ListenSocket::getHost(int port)
     gethostname(chartmp, 10000);
 
     //Récupération info Host
-    if ((infosHost = gethostbyname(chartmp)) == 0)
+    if((infosHost = gethostbyname(chartmp)) == 0)
     {
         string msg = "ListeSocket.getHost Error: ";
         msg += (const char *)strerror(errno);
         throw msg;
     }
     else cerr << "ListeSocket.getHost Success" << endl;
+
     bzero((char *)&adresseIP, sizeof(adresseIP));
     bzero((char *)&adresseSocket, sizeof(adresseSocket));
     memcpy(&adresseIP, infosHost->h_addr, infosHost->h_length);
@@ -159,7 +160,7 @@ void ListenSocket::Accept()
     else
         cerr << "ListenSocket.Listen Success" << endl;
 
-    socklen_t taille = sizeof(sockaddr_in);
+    socklen_t taille = sizeof(Adresse);
     if ((newsocket = accept(getSocket(), (sockaddr *)&Adresse, &taille)) == -1)
     {
         string msg = "ListeSocket.Accept Error: ";

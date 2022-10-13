@@ -11,7 +11,7 @@ int main(){
     ListenSocket listen;
     
     try{
-        listen = ListenSocket("192.168.1.10:50001");
+        listen = ListenSocket(50001);
     }
     catch(const char * msg){
         cerr << msg << endl;

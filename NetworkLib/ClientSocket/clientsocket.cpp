@@ -93,7 +93,7 @@
 
             
             //2. Bind de la socket
-            if (bind(getSocket(), (struct sockaddr *) &Adresse, sizeof(struct sockaddr_in)) == -1)
+            if (bind(getSocket(), (struct sockaddr *) &Adresse, sizeof(Adresse)) == -1)
             {
                 string msg = "InitSocket.BindSocket Error: ";
                 string tmp;
@@ -106,7 +106,7 @@
 
         void ClientSocket::Connect(){
             //3. Connexion
-            if( connect(getSocket(), (struct sockaddr *) &Adresse, sizeof(sockaddr_in)) == -1 ){
+            if( connect(getSocket(), (struct sockaddr *) &Adresse, sizeof(Adresse)) == -1 ){
                 string msg = "ClientSocket.Connect Error: ";
                 string tmp;
                 tmp = to_string(errno);
