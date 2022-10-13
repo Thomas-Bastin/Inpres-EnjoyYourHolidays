@@ -8,8 +8,6 @@
         ClientSocket::ClientSocket(string socket)
         {
             vector<string> Tokens = getTokens(socket, L":");
-
-            in_addr adresseip;
             unsigned int tailleSock;
             int port;
 
@@ -19,10 +17,10 @@
             catch(...){
                 throw "ClientSocket.Constructor Error: Port is not an int";
             }
-            bzero((char *)&Adresse, sizeof(Adresse));
-
+            memset(&Adresse, 0, sizeof(Adresse));
             Adresse.sin_family = AF_INET;
-            Adresse.sin_addr.s_addr = htonl(INADDR_ANY); //inet_addr(Tokens[0].c_str());
+            Adresse.sin_addr.s_addr = htonl(INADDR_ANY);
+            inet_aton(Tokens[0].c_str(), &Adresse.sin_addr);
             Adresse.sin_port = htons(port);
 
             InitSocket();
@@ -92,6 +90,7 @@
             cerr << "InitSocket.CreationSocket Success" << endl;
 
             
+
             //2. Bind de la socket
             if (bind(getSocket(), (struct sockaddr *) &Adresse, sizeof(Adresse)) == -1)
             {

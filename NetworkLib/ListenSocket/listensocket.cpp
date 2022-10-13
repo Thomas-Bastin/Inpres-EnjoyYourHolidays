@@ -17,13 +17,13 @@ ListenSocket::ListenSocket(int port)
 
 ListenSocket::ListenSocket(string socket)
 {
-    bzero((char *)&Adresse, sizeof(Adresse));
     vector<string> Tokens = getTokens(socket, L":");
     if(Tokens.size() <= 1 ){ throw "Vous n'avez pas entrer un socket valide";}
 
-    in_addr adresseip;
     unsigned int tailleSock;
     int port;
+
+    memset(&Adresse, 0, sizeof(Adresse));
 
     try
     {
@@ -33,11 +33,11 @@ ListenSocket::ListenSocket(string socket)
     {
         throw "ListentSocket.Constructor Error: Port is not an int";
     }
-    
-    Adresse.sin_addr.s_addr = htonl(inet_addr(Tokens[0].c_str()));
     Adresse.sin_family = AF_INET;
     Adresse.sin_port = htons(port);
-
+    Adresse.sin_addr.s_addr = htonl(INADDR_ANY);
+    inet_aton(Tokens[0].c_str(), &Adresse.sin_addr);
+    
     InitSocket();
 }
 
@@ -135,12 +135,13 @@ struct sockaddr_in ListenSocket::getHost(int port)
     }
     else cerr << "ListeSocket.getHost Success" << endl;
 
-    bzero((char *)&adresseIP, sizeof(adresseIP));
-    bzero((char *)&adresseSocket, sizeof(adresseSocket));
+    memset(&adresseIP, 0, sizeof(adresseIP));
+    memset(&adresseSocket, 0, sizeof(adresseSocket));
+
     memcpy(&adresseIP, infosHost->h_addr, infosHost->h_length);
-    memset(&adresseSocket, 0, sizeof(sockaddr_in));
     adresseSocket.sin_family = AF_INET; /* Domaine */
     adresseSocket.sin_port = htons(port);
+    adresseSocket.sin_addr.s_addr = htonl(INADDR_ANY);
     memcpy(&adresseSocket.sin_addr, infosHost->h_addr, infosHost->h_length);
 
     return adresseSocket;
