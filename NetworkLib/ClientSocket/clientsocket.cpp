@@ -20,8 +20,9 @@
                 throw "ClientSocket.Constructor Error: Port is not an int";
             }
             bzero((char *)&Adresse, sizeof(Adresse));
+
             Adresse.sin_family = AF_INET;
-            Adresse.sin_addr.s_addr = inet_addr(Tokens[0].c_str());
+            Adresse.sin_addr.s_addr = htonl(INADDR_ANY); //inet_addr(Tokens[0].c_str());
             Adresse.sin_port = htons(port);
 
             InitSocket();
