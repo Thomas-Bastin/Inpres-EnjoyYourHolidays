@@ -63,8 +63,9 @@ void ServiceSocket::close()
 
 void ServiceSocket::SendString(string s)
 {
+    cerr << "ListeSocket.Send: " << s << endl;
     s += "~";
-    send(getSocket(), s.c_str(), s.length() - 1, 1);
+    send(getSocket(), s.c_str(), strlen(s.c_str())+1, 1);
 }
 
 string ServiceSocket::ReceiveString()
@@ -77,7 +78,7 @@ string ServiceSocket::ReceiveString()
     while (AllGet != true && i < 5)
     { // what you wish to receive
         ssize_t rcvd;
-        rcvd = ::recv(getSocket(), &last, sizeof(char), 0);
+        rcvd = ::recv(getSocket(), &last, 1, 0);
 
         if (rcvd < 0)
         {
@@ -86,7 +87,6 @@ string ServiceSocket::ReceiveString()
             tmp = to_string(errno);
             msg += tmp;
             throw msg;
-            return "";
         }
         else if (rcvd == 0)
         {
@@ -96,15 +96,18 @@ string ServiceSocket::ReceiveString()
         }
         else if (last == '~')
         {
-            data[data.length() - 1] = '\0';
+            data[data.length()] = '\0';
             AllGet = true;
             break;
         }
         else
         {
-            data.append(last, rcvd); // Received into buffer, attach to data buffer.
+            data += last; // Received into buffer, attach to data buffer.
         }
     }
+
+    cerr <<"ListeSocket.Received: " << data << endl;
+
     return data;
 }
 

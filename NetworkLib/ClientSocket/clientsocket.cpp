@@ -22,9 +22,9 @@
             Adresse.sin_addr.s_addr = htonl(INADDR_ANY);
             inet_aton(Tokens[0].c_str(), &Adresse.sin_addr);
             Adresse.sin_port = htons(port);
+            
 
             InitSocket();
-            Connect();
         }
 
         ClientSocket::ClientSocket(const ClientSocket &e)
@@ -89,22 +89,7 @@
             setSocket(socket(AF_INET, SOCK_STREAM, 0));
             cerr << "InitSocket.CreationSocket Success" << endl;
 
-            
-
-            //2. Bind de la socket
-            if (bind(getSocket(), (struct sockaddr *) &Adresse, sizeof(Adresse)) == -1)
-            {
-                string msg = "InitSocket.BindSocket Error: ";
-                string tmp;
-                tmp = to_string(errno);
-                msg += tmp;
-                throw msg;
-            }
-            else cerr << "InitSocket.BindSocket Success" << endl;
-        }
-
-        void ClientSocket::Connect(){
-            //3. Connexion
+            //2. Connexion
             if( connect(getSocket(), (struct sockaddr *) &Adresse, sizeof(Adresse)) == -1 ){
                 string msg = "ClientSocket.Connect Error: ";
                 string tmp;
@@ -117,8 +102,9 @@
         
 void ClientSocket::SendString(string s)
 {
+    cerr << "ClientSocket.Send: " << s << endl;
     s+="~";
-    send(getSocket(), s.c_str(), s.length()-1, 1);
+    send(getSocket(), s.c_str(), strlen(s.c_str())+1, 1);
 }
 
 string ClientSocket::ReceiveString()
@@ -145,14 +131,17 @@ string ClientSocket::ReceiveString()
             break; // No data to receive, remote end closed connection, so quit.
         }
         else if(last == '~'){
-            data[data.length()-1] = '\0';
+            data[data.length()] = '\0';
             AllGet = true;
             break;
         }
         else {
-            data.append(last, rcvd); // Received into buffer, attach to data buffer.
+            data += last; // Received into buffer, attach to data buffer.
         }
     }
+
+    cerr << "ClientSocket.Receive: " << data << endl;
+
     return data;
 }
 

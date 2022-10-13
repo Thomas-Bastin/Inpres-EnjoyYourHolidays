@@ -11,11 +11,8 @@ using namespace std;
 int main(){
     try{
         ClientSocket Csock = ClientSocket("192.168.1.61:50001");
-        Csock.SendString("Hello");
-        cerr << "Send Hello"<<endl;
-
-        
-        cerr << Csock.ReceiveString() << endl; 
+        Csock.SendString("Hello");        
+        cout << Csock.ReceiveString() << endl; 
     }
     catch(const char * t){
         cerr << t << endl;

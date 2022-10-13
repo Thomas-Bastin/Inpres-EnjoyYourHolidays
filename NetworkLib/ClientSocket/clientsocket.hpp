@@ -65,7 +65,6 @@ class ClientSocket
 	    int* getRef();
 
         void InitSocket();
-        void Connect();
 
         void SendString(string s);
         string ReceiveString();
