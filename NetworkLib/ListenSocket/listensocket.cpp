@@ -32,7 +32,8 @@ ListenSocket::ListenSocket(string socket)
     {
         throw "ListentSocket.Constructor Error: Port is not an int";
     }
-
+    
+    bzero((char *)&Adresse, sizeof(Adresse));
     Adresse.sin_addr.s_addr = inet_addr(Tokens[0].c_str());
     Adresse.sin_family = AF_INET;
     Adresse.sin_port = htons(port);
@@ -133,7 +134,8 @@ struct sockaddr_in ListenSocket::getHost(int port)
         throw msg;
     }
     else cerr << "ListeSocket.getHost Success" << endl;
-
+    bzero((char *)&adresseIP, sizeof(adresseIP));
+    bzero((char *)&adresseSocket, sizeof(adresseSocket));
     memcpy(&adresseIP, infosHost->h_addr, infosHost->h_length);
     memset(&adresseSocket, 0, sizeof(sockaddr_in));
     adresseSocket.sin_family = AF_INET; /* Domaine */

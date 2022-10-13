@@ -10,7 +10,7 @@ using namespace std;
 
 int main(){
     try{
-        ClientSocket Csock = ClientSocket("127.0.0.1:50001");
+        ClientSocket Csock = ClientSocket("192.168.1.10:50001");
         Csock.SendString("Hello");
         cerr << "Send Hello"<<endl;
 
