@@ -23,7 +23,7 @@
             inet_aton(Tokens[0].c_str(), &Adresse.sin_addr);
             Adresse.sin_port = htons(port);
             
-
+            
             InitSocket();
         }
 
@@ -104,7 +104,7 @@ void ClientSocket::SendString(string s)
 {
     cerr << "ClientSocket.Send: " << s << endl;
     s+="~";
-    send(getSocket(), s.c_str(), strlen(s.c_str())+1, 1);
+    send(getSocket(), s.c_str(), strlen(s.c_str()), 1);
 }
 
 string ClientSocket::ReceiveString()
@@ -131,7 +131,6 @@ string ClientSocket::ReceiveString()
             break; // No data to receive, remote end closed connection, so quit.
         }
         else if(last == '~'){
-            data[data.length()] = '\0';
             AllGet = true;
             break;
         }
@@ -140,7 +139,6 @@ string ClientSocket::ReceiveString()
         }
     }
 
-    cerr << "ClientSocket.Receive: " << data << endl;
 
     return data;
 }

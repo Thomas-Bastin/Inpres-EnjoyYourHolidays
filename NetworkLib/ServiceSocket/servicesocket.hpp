@@ -35,6 +35,8 @@ class ServiceSocket
         bool used;
     
     public:
+        ServiceSocket();
+
         ServiceSocket(int listen);
 
         ServiceSocket(const ServiceSocket &e);
@@ -65,7 +67,7 @@ class ServiceSocket
 
         string ReceiveString();
         void Receive(void * pointer, int SIZE);
-
+        
 
         static vector<string> getTokens(string line, const wchar_t * sep);
 };

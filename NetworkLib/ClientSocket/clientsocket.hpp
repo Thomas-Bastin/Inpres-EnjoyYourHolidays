@@ -23,9 +23,6 @@
 #include <codecvt>
 
 
-#define DEFAULT_PORT 50001
-
-
 using namespace std;
 
 class ClientSocket

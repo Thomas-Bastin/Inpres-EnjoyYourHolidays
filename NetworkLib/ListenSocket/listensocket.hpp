@@ -24,8 +24,6 @@
 
 #include "../ServiceSocket/servicesocket.hpp"
 
-#define DEFAULT_PORT 50001
-
 using namespace std;
 
 class ListenSocket
@@ -72,7 +70,7 @@ class ListenSocket
 
         static struct sockaddr_in getHost(int port);
 
-        void Accept();
+        bool Accept();
 
         static vector<string> getTokens(string line, const wchar_t * sep);
 };

@@ -147,7 +147,7 @@ struct sockaddr_in ListenSocket::getHost(int port)
     return adresseSocket;
 }
 
-void ListenSocket::Accept()
+bool ListenSocket::Accept()
 {
     int newsocket;
     if (listen(getSocket(), SOMAXCONN) == -1)
@@ -174,6 +174,7 @@ void ListenSocket::Accept()
         cerr << "ListenSocket.Accept Success" << endl;
 
     ListenSocket::services.push_back(ServiceSocket(newsocket));
+    return true;
 }
 
 vector<string> ListenSocket::getTokens(string line, const wchar_t *sep)

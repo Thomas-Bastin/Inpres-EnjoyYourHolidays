@@ -1,4 +1,10 @@
 #include "servicesocket.hpp"
+
+ServiceSocket::ServiceSocket()
+{
+    setSocket(-1);
+}
+
 ServiceSocket::ServiceSocket(int servicesocket)
 {
     setSocket(servicesocket);
@@ -53,7 +59,7 @@ void ServiceSocket::close()
 {
     if (::close(getSocket()) == -1)
     {
-        string msg = "ListeSocket.Close Error: ";
+        string msg = "ServiceSocket.Close Error: ";
         string tmp;
         tmp = to_string(errno);
         msg += tmp;
@@ -63,9 +69,9 @@ void ServiceSocket::close()
 
 void ServiceSocket::SendString(string s)
 {
-    cerr << "ListeSocket.Send: " << s << endl;
+    cerr << "ServiceSocket.Send: " << s << endl;
     s += "~";
-    send(getSocket(), s.c_str(), strlen(s.c_str())+1, 1);
+    send(getSocket(), s.c_str(), strlen(s.c_str()), 1);
 }
 
 string ServiceSocket::ReceiveString()
@@ -76,13 +82,14 @@ string ServiceSocket::ReceiveString()
     int i = 0;
 
     while (AllGet != true && i < 5)
-    { // what you wish to receive
+    {   // what you wish to receive
         ssize_t rcvd;
+
         rcvd = ::recv(getSocket(), &last, 1, 0);
 
         if (rcvd < 0)
         {
-            string msg = "ListeSocket.Receive Error: ";
+            string msg = "ServiceSocket.Receive Error: ";
             string tmp;
             tmp = to_string(errno);
             msg += tmp;
@@ -91,12 +98,9 @@ string ServiceSocket::ReceiveString()
         else if (rcvd == 0)
         {
             i++;
-            cerr << "ListeSocket.Receive: Tentative n°" << i << " de réception de la fin du message." << endl;
-            break; // No data to receive, remote end closed connection, so quit.
         }
         else if (last == '~')
         {
-            data[data.length()] = '\0';
             AllGet = true;
             break;
         }
@@ -105,9 +109,6 @@ string ServiceSocket::ReceiveString()
             data += last; // Received into buffer, attach to data buffer.
         }
     }
-
-    cerr <<"ListeSocket.Received: " << data << endl;
-
     return data;
 }
 
@@ -138,4 +139,5 @@ vector<string> ServiceSocket::getTokens(string line, const wchar_t *sep)
 
     return tokens;
 }
+
 //#{}
