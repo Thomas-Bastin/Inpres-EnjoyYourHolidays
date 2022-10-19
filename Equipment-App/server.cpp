@@ -8,6 +8,7 @@
 
 #include "../NetworkLib/ListenSocket/listensocket.hpp"
 #include "../MyLibThread_POSIX/mylibthread_POSIX.h"
+#include "../UtilityLib/utilitylib.hpp"
 
 #define MAXCLIENT 5
 
@@ -19,6 +20,9 @@ void initMut(void);
 void initCond(void);
 void initServices(void);
 void SIG_INT(int sig_num);
+
+//Fonctionnalitée:
+int Login(vector<string> message);
 
 
 // Threads
@@ -33,6 +37,7 @@ pthread_mutex_t mutexService;
 pthread_cond_t condService;
 
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 int main(){
     initSig();
     initMut();
@@ -60,14 +65,20 @@ int main(){
 
     return 127;
 }
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Threads Services:
 // Gère un client de sa connexion a sa déconnexion.
 void ServiceThread(void){
     int LocalIndex;
     ServiceSocket socket;
     string msg;
+    vector<string> message;
     int test = 0;
 
     while(true){
@@ -89,22 +100,40 @@ void ServiceThread(void){
 
         while(true){
             msg = socket.ReceiveString();
-            cout << msg << endl;
+            cerr << "ReceptionMessage: " << msg << endl;
+            message = UtilityLib::getTokens(msg, L"#");
 
-            //Boucle de receive sur le socketservice
-            //Tout les traitements des requètes y sont effectué au besoin
+            if(message.size() == 0){
+                cerr << "Untokenized message" << endl;
+                exit(100);
+            }
+            
+            if(message[0].compare("LOGIN") == 0){
+                int check = Login(message);
 
-            //...
-            for(int i = 0 ; i < msg.length(); i ++) cerr << i << " " << msg[i] << endl;
+                if(check == 0){
+                    socket.SendString("LOGIN#true");
+                }
+                else if(check == 1){
+                    socket.SendString("LOGIN#false#password");
+                }
+                else{
+                    socket.SendString("LOGIN#false#login");
+                }
+            }
 
-            if(msg.compare("LOGOUT") == 0){
-                socket.close();
+            
+
+            if(message[0].compare("LOGOUT") == 0){
                 break;
             }
-            if(msg.compare("TIMEOUT") == 0) break;
+            if(message[0].compare("TIMEOUT") == 0){
+                break;
+            }
         }
+        socket.close();
+
         
-        cerr << "SortieBoucleLecture" << endl;
         cerr << "Write: " << ListenSocket::Write << ", Read: " << ListenSocket::Read << endl;
         cerr << "Socket: "<< endl;
         for(int i = 0 ; i<ListenSocket::services.size() ; i++){
@@ -115,11 +144,18 @@ void ServiceThread(void){
         //EndOfConnection retour dans VarCond
     }
 }
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Login Management:
+int Login(vector<string> message){
+    //CheckFile
 
-
+    //return Réponse
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 

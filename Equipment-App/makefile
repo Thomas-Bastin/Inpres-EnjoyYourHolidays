@@ -10,15 +10,19 @@ NetworkLib.Service = ../NetworkLib/ServiceSocket/servicesocket.hpp
 
 ThreadLib.objs = ../MyLibThread_POSIX/mylibthread_POSIX.o
 
+UtilityLib.objs = ../UtilityLib/UtilityLib.o
+UtilityLib.hpp = ../UtilityLib/utilitylib.hpp
+
+
 ALL: Client.app Server.app
 
-Client.app:		client.cpp $(NetworkLib.Client)
+Client.app:		client.cpp $(NetworkLib.Client) $(NetworkLib.hpp)
 				echo Client.app
-				g++	client.cpp $(NetworkLib.objs) -o Client.app -I -lnsl -I -lsocket -pthread -m64 -D SUN;
+				g++	client.cpp $(NetworkLib.objs) $(UtilityLib.objs) -o Client.app -I -lnsl -I -lsocket -pthread -m64 -D SUN;
 
-Server.app:		server.cpp $(NetworkLib.objs) $(NetworkLib.Listen) $(NetworkLib.Service) $(ThreadLib.objs)
+Server.app:		server.cpp $(NetworkLib.objs) $(NetworkLib.Listen) $(NetworkLib.Service) $(ThreadLib.objs) $(NetworkLib.hpp)
 				echo Server.app
-				g++	server.cpp $(NetworkLib.objs) $(ThreadLib.objs) -o Server.app -I -lnsl -I -lsocket -pthread -m64 -D SUN;
+				g++	server.cpp $(NetworkLib.objs) $(ThreadLib.objs) $(UtilityLib.objs) -o Server.app -I -lnsl -I -lsocket -pthread -m64 -D SUN;
 
 
 #Clean/Clear des .o et de l'application
