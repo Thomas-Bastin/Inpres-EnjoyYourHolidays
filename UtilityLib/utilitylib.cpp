@@ -61,7 +61,7 @@ void UtilityLib::replace_all( string& s, string const& toReplace, string const& 
 }
 
 
-void WaitEnterIsPressed(){
+void UtilityLib::WaitEnterIsPressed(){
 	std::string myString = "";
 	do {
 	     std::cout<< endl << "----Appuiez sur [Enter] pour continuer----" << std::endl;

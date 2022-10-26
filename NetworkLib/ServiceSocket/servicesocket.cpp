@@ -71,7 +71,7 @@ void ServiceSocket::SendString(string s)
 {
     cerr << "ServiceSocket.Send: " << s << endl;
     s += "~";
-    send(getSocket(), s.c_str(), strlen(s.c_str()), 1);
+    send(getSocket(), s.c_str(), strlen(s.c_str()), 0);
 }
 
 string ServiceSocket::ReceiveString()

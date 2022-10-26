@@ -104,7 +104,8 @@ void ClientSocket::SendString(string s)
 {
     cerr << "ClientSocket.Send: " << s << endl;
     s+="~";
-    send(getSocket(), s.c_str(), strlen(s.c_str()), 1);
+
+    send(getSocket(), s.c_str(), strlen(s.c_str()), 0);
 }
 
 string ClientSocket::ReceiveString()
