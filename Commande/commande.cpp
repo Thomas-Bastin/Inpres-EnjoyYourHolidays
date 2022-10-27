@@ -13,10 +13,7 @@
         Commande::idCount++;
         id = Commande::idCount;
 
-        if(scommande[1].compare("delivery")) action = Actions::delivery;
-        else if(scommande[1].compare("repair")) action = Actions::repair;
-        else if(scommande[1].compare("downgrade")) action = Actions::downgrade;
-        else throw "No Actions Found";
+        action = static_cast<Actions>(stoi(scommande[1]));
 
         equipmentKey = scommande[2];
         equipmentId = scommande[3];
@@ -30,10 +27,7 @@
 
         id = stoi(scommande[0]);
 
-        if(scommande[1].compare("delivery")) action = Actions::delivery;
-        else if(scommande[1].compare("repair")) action = Actions::repair;
-        else if(scommande[1].compare("downgrade")) action = Actions::downgrade;
-        else throw "No Actions Found";
+        action = static_cast<Actions>(stoi(scommande[1]));
 
         equipmentKey = scommande[2];
         equipmentId = scommande[3];
@@ -74,7 +68,7 @@
     Date Commande::getDate() const{
         return wishdate;
     }
-
+    
     //OPPERATOR SURCHARGE
     //=
     Commande& Commande::operator=(const Commande& t2){

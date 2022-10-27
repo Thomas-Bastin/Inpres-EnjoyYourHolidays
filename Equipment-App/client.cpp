@@ -20,6 +20,7 @@ void menu1();
 void AddAction();
 void ListAction();
 void DeleteAction();
+void AddEquipment();
 
 
 
@@ -123,7 +124,7 @@ void menu1(){
             break;
             
             case 4:
-                /* code */
+                AddEquipment();
             break;
 
 
@@ -253,8 +254,8 @@ void AddAction(){
         }while(todo.compare("livraison")!=0 && todo.compare("réparation")!=0 && todo.compare("déclassement")!=0);
 
         if(todo.compare("livraison") == 0) act = Actions::delivery;
-        if(todo.compare("réparation") == 0) act = Actions::repair;
-        if(todo.compare("déclassement") == 0) act = Actions::downgrade;
+        else if(todo.compare("réparation") == 0) act = Actions::repair;
+        else if(todo.compare("déclassement") == 0) act = Actions::downgrade;
 
 
         cout << "Entrez le Type de matériel: ";
@@ -415,9 +416,154 @@ void ListAction(){
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void DeleteAction(){
+    int id;
+    stringstream msg;
+    string recvmsg;
+    vector<string> recv;
     ListAction();
+    
+    while(true){
+        cout << "Entrez l'id a supprimé: " << endl;
+        cin >> id; cin.get();
 
-    cout << "Entrez l'id a supprimé: " << endl;
+        msg << "CHMAT#" << id;
+        Csock.SendString(msg.str());
+
+        recvmsg = Csock.ReceiveString();
+        recv = UtilityLib::getTokens(recvmsg, L"#");
+
+        if(recv.size() == 0){
+            cout << "Erreur: Message innatendus..." << endl;
+            return;
+        }
+
+        if(recv[0].compare("CHMAT") != 0){
+            cout << "Erreur: Commande inconnue..." << endl;
+            return;
+        }
+
+
+        if(recv[1].compare("ok") == 0){
+            cout << "Succès: Supression réussie" << endl;
+            return;
+        }
+        
+        if(recv[1].compare("ko") == 0 && recv[2].compare("notfound") == 0){
+            cout << "Erreur: L'id entrée n'a pas été trouvé..." << endl;
+            continue;
+        }
+        else{
+            cout << "Erreur: Raison inconnues" <<endl;
+            return;
+        }
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void AddEquipment(){
+    int GlobalTry = false;
+    bool fail = true;
+
+    do{
+        system("clear");
+
+        string type;
+        string libelle;
+        string marque;
+        float prix;
+        int n;
+        vector<string> accessoires;
+
+        cout << "Entrez le Type de matériel:" << endl;
+        cin>>type; cin.get();
+
+        cout << "Entrez le Nom du matériel (Unique par Type):" << endl;
+        cin>>libelle; cin.get();
+        
+        cout << "Entrez la marque du matériel:" << endl;
+        std::getline(std::cin, marque);
+
+
+        cout << "Entrez le prix du matériel:" << endl;
+        cin>>prix; cin.get();
+        
+        cout << "Entrez le nombre d'accessoire:"<<endl;
+        cin>>n; cin.get();
+        system("clear");
+
+        for(int i=0 ; i<n ; i++){
+            string tmp;
+            cout << "Accessoire n°" << i+1 << ":" << endl;
+            std::getline(std::cin, tmp);
+
+            accessoires.push_back(tmp);
+            system("clear");
+        }
+
+        system("clear");
+
+        stringstream message;
+        message << "ASKMAT#"<< type << "#" << libelle << "#" << marque << "#" << prix;
+
+        if(n != 0){
+            message << "#";
+            for(int i=0; i<accessoires.size() ; i++){
+                if(i == accessoires.size()-1){
+                    message << accessoires[i];
+                }
+                else{
+                    message << accessoires[i] << "$";
+                }
+            }
+        }
+
+
+        Csock.SendString(message.str());
+
+
+        string recv = Csock.ReceiveString();
+        vector<string> msgrecv = UtilityLib::getTokens(recv, L"#");
+        cerr << "MsgReceive: " << recv << endl;
+
+        if(msgrecv.size() == 0){
+            if(recv.compare("TIMEOUT") == 0){
+                cout << "Fin de connection avec le serveur..." << endl;
+                cerr << "TIMEOUT in Commande Actions on equipment" << endl;
+                Csock.close();
+                exit(120);
+            }
+            else{
+                cerr << "Unknown Message in Commande Actions on equipment" << endl;
+                Csock.close();
+                exit(125);
+            }
+        }
+
+        if(msgrecv[0].compare("ASKMAT") == 0){
+            if(msgrecv[1].compare("ok") == 0){
+                cout << "Matériel Enregistré: "<< endl;
+                cerr << "Equipment Success"<< endl;
+                fail = false;
+            }
+            else if(msgrecv[1].compare("ko") == 0){
+                cout << "Matériel non ajouté car " << msgrecv[2] << endl;
+                cerr << "Equipment Error: " << msgrecv[2] << endl;
+                fail = true;
+                UtilityLib::WaitEnterIsPressed();
+            }
+            else{
+                cerr << "Unknown Parameters in ASKMAT from server" << endl;
+                fail = true;
+                UtilityLib::WaitEnterIsPressed();
+            }
+        }
+
+        GlobalTry++;
+    }while(GlobalTry < 3 && fail == true);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

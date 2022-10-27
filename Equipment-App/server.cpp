@@ -235,22 +235,35 @@ void ServiceThread(void){
 
                 if(message[0].compare("CHMAT") == 0){
                     //Delete an asked action during this session
-                    
-                    // Client:  CHMAT#idaction
-                    // ACK:	    CHMAT#ok
-                    //          CHMAT#ko#reason
+                    int id = stoi(message[1]);
+
+                    mLock(&mutexDB);
+                    int retval = AccessMaterial::removeAction(id);
+                    mUnLock(&mutexDB);
+
+                    if(retval == 0){
+                        socket.SendString("CHMAT#ok");
+                    }
+                    else if(retval == 1){
+                        socket.SendString("CHMAT#ko#notfound");
+                    }
+                    else{
+                        socket.SendString("CHMAT#ko#unkownerror");
+                    }
                 }
 
                 if(message[0].compare("ASKMAT") == 0){
                     //Command new equipment with an already created category or not
+                    mLock(&mutexDB);
+                    int retval = AccessMaterial::addMaterial(message[1], Equipment(message));
+                    mUnLock(&mutexDB);
 
-                    // Client:	ASKMAT#type#libellé#marque#prix#accessoire1$accessoire2$accessoire3$... 
-
-                    // ACK:	    ASKMAT#ok#id
-                    //          ASKMAT#ko#reason
-                    
-
-                    //Matériel::Type(nomfichier) ID, Libellé, état(OK,KO,DES), Marque, Prix, Acessoires
+                    if(retval == 0){
+                        socket.SendString("ASKMAT#ok");
+                    }
+                    else if(retval == -1){
+                        socket.SendString("ASKMAT#ko#Le Matériel existe déjà dans cette catégorie.");
+                    }
                 }
             }          
             

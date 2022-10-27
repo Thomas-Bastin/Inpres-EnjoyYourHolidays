@@ -13,7 +13,10 @@
         libelle = scommande[2];
         marque = scommande[3];
         prix = stof(scommande[4]);
-        equipments = UtilityLib::getTokens(scommande[5], L"$");
+
+        if(scommande.size() == 6){
+            equipments = UtilityLib::getTokens(scommande[5], L"$");
+        }
     }
 
     Equipment::Equipment(string sline){
@@ -22,7 +25,10 @@
         libelle = scommande[0];
         marque = scommande[1];
         prix = stof(scommande[2]);
-        equipments = UtilityLib::getTokens(scommande[3], L"$");
+
+        if(scommande.size() == 4){
+            equipments = UtilityLib::getTokens(scommande[3], L"$");
+        }
     }
 
     //Constructeur de copie
@@ -66,16 +72,20 @@
 
     //<<
     std::ostream& operator<<(std::ostream& s, const Equipment& t1){
-        s << t1.libelle << ";" << t1.marque << ";" << t1.prix << ";";
+        s << t1.libelle << ";" << t1.marque << ";" << t1.prix;
 
-        for(int i = 0; i < t1.equipments.size() ; i++){
-            if(i == (t1.equipments.size()-1)){
-                s << t1.equipments[i];
-            }
-            else{
-                s << t1.equipments[i] << "$";
+        if(t1.equipments.size() != 0){
+            s << ";";
+
+            for(int i = 0; i < t1.equipments.size() ; i++){
+                if(i == (t1.equipments.size()-1)){
+                    s << t1.equipments[i];
+                }
+                else{
+                    s << t1.equipments[i] << "$";
+                }
             }
         }
-
+        
         return (s);
     }

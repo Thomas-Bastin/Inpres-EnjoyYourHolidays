@@ -24,7 +24,7 @@ int AccessMaterial::addMaterial(string key, Equipment mat){
     if(read.fail()){
         //Key not Exist; create file:
         write.open(path);
-        write << mat;
+        write << mat << endl;
         write.close();
         read.close();
         return 0;
@@ -45,8 +45,13 @@ int AccessMaterial::addMaterial(string key, Equipment mat){
         }
     }
 
-    write.open(path, ios_base::app);
-    write << mat;
+    Index.push_back(mat);
+    write.open(path);
+
+    for(int i=0 ; i<Index.size() ; i++){
+        write << Index[i] << endl;
+    }
+
     write.close();
     read.close();
     return 0;
@@ -123,12 +128,16 @@ int AccessMaterial::addAction(Commande cmd){
     }
 
     if(found == false && cmd.getAction() == 1){
-        write.open(ActionFilePath, ios::app);
-        write << cmd << endl;
+        write.open(ActionFilePath);
+        list.push_back(cmd);
+        for(int i = 0; i<list.size() ; i++){
+            write << list[i] << endl;
+        }
         write.close();
         read.close();
         return cmd.getId();
     }
+
 
   
     if(list[ind].getAction() != 1){
@@ -137,11 +146,16 @@ int AccessMaterial::addAction(Commande cmd){
         return -2;
     }
 
-    write.open(ActionFilePath, ios::app);
-    write << cmd << endl;
+    write.open(ActionFilePath);
+    list.push_back(cmd);
+        
+    for(int i = 0; i<list.size() ; i++){
+        write << list[i] << endl;
+    }
+
     write.close();
     read.close();
-    return cmd.getId();    
+    return cmd.getId(); 
 }
         
 int AccessMaterial::modifyAction(int id, Commande cmd){
