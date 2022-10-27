@@ -3,22 +3,37 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <signal.h>
 
 #include "../NetworkLib/ClientSocket/clientsocket.hpp"
 #include "../UtilityLib/utilitylib.hpp"
 #include "../Commande/commande.hpp"
+#include "../Commande/equipment.hpp"
 
 using namespace std;
 
 bool Login();
-void menu1();
-void AddAction();
 int checkLoginTrue(string, string);
+
+void menu1();
+
+void AddAction();
+void ListAction();
+void DeleteAction();
+
+
+
+void SIG_INT(int sig_num);
+void initSig(void);
+
+
 
 ClientSocket Csock;
 
+string const socketName = "192.168.1.61:50001";
 
 int main(){
+    initSig();
     timespec t;
     t.tv_nsec = 0;
     t.tv_sec = 5;
@@ -28,19 +43,22 @@ int main(){
     Date::setFormat(format);
 
     try{
-        Csock = ClientSocket("192.168.1.61:50001");
+        Csock = ClientSocket(socketName);
     }
     catch(const char * t){
         cerr << t << endl;
+        return 127;
     }
     catch(string t){
         cerr << t << endl;
+        return 126;
     }
     catch(...){
         cerr << "Unknown Exception"<<endl;
     }    
     
     try{
+        system("clear");
         while(true){
 
             if(Login()){
@@ -73,9 +91,9 @@ int main(){
 }
 
 void menu1(){
-    system("clear");
     int choix;
     do{
+        system("clear");
         cout << "|------------------------------------------------|" << endl;
         cout << "| Gestion Matériel :                             |" << endl;
         cout << "| ------------------                             |" << endl;
@@ -95,13 +113,13 @@ void menu1(){
             case 1:
                 AddAction();
             break;
-
+                
             case 2:
-                /* code */
+                ListAction();
             break;
             
             case 3:
-                /* code */
+                DeleteAction();
             break;
             
             case 4:
@@ -110,7 +128,10 @@ void menu1(){
 
 
             case 0:
-                cout << "Aurevoir :-)"<<endl;
+                Csock.SendString("LOGOUT");
+                cout << "Déconnection réussie :-)"<<endl;
+                UtilityLib::WaitEnterIsPressed();
+                system("clear");
                 return;
             break;
 
@@ -122,6 +143,9 @@ void menu1(){
     }while(true);
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool Login(){
@@ -153,7 +177,10 @@ bool Login(){
     }while(valid != 0 && tentativeCounter < 3);
 
     if(valid == 0) return true;
-    else return false;
+    else{
+        Csock.SendString("TIMEOUT");
+        exit(121);
+    }
 }
 
 int checkLoginTrue(string login, string password){
@@ -189,18 +216,18 @@ int checkLoginTrue(string login, string password){
     }
 }
 
-
-
-
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void AddAction(){
     int GlobalTry = false;
     bool fail = true;
 
     do{
+        system("clear");
+
         string todo;
         Actions act;
         string TypeKey;
@@ -210,7 +237,7 @@ void AddAction(){
 
         int CounTry = 0;
         do{
-            cout << "Entrez l'action a réalisé (livraison, réparation, déclassement):\t";
+            cout << "Entrez l'action a réalisé (livraison, réparation, déclassement):\n";
             cin >> todo;
             cin.get();
 
@@ -230,7 +257,7 @@ void AddAction(){
         if(todo.compare("déclassement") == 0) act = Actions::downgrade;
 
 
-        cout << "Entrez le Type de matériel:\t";
+        cout << "Entrez le Type de matériel: ";
         cin>>TypeKey;
         cin.get();
         cerr << "Entrée Utilisateur: " << TypeKey << endl;
@@ -240,10 +267,11 @@ void AddAction(){
         cin.get();
         cerr << "Entrée Utilisateur: " << Label << endl;
         
+
         bool ValidationDate;
-        int CounTry = 0;
+        CounTry = 0;
         do{
-            cout << "Entrez la date (jj-mm-yyyy):\t";
+            cout << "Entrez la date (jj-mm-yyyy): ";
             cin>>date;
             cin.get();
             CounTry ++;
@@ -271,6 +299,8 @@ void AddAction(){
 
         }while(ValidationDate == false);
 
+        system("clear");
+
         stringstream message;
         message << "HMAT#" << act << "#" << TypeKey << "#" << Label << "#" << wishdate;
         Csock.SendString(message.str());
@@ -278,6 +308,7 @@ void AddAction(){
 
         string recv = Csock.ReceiveString();
         vector<string> msgrecv = UtilityLib::getTokens(recv, L"#");
+        cerr << "MsgReceive: " << recv << endl;
 
         if(msgrecv.size() == 0){
             if(recv.compare("TIMEOUT") == 0){
@@ -294,23 +325,126 @@ void AddAction(){
         }
 
         if(msgrecv[0].compare("HMAT") == 0){
-            if(msgrecv[1].compare("ok")){
+            if(msgrecv[1].compare("ok") == 0){
                 cout << "Action Enregistré à l'id: " << msgrecv[2] << endl;
-                cerr << "Action Error: " << msgrecv[2] << endl;
+                cerr << "Action Success, Id: " << msgrecv[2] << endl;
                 fail = false;
             }
-            else if(msgrecv[1].compare("")){
+            else if(msgrecv[1].compare("ko") == 0){
                 cout << "Action non réussie car " << msgrecv[2] << endl;
                 cerr << "Action Error: " << msgrecv[2] << endl;
                 fail = true;
+                UtilityLib::WaitEnterIsPressed();
             }
             else{
                 cerr << "Unknown Parameters in HMAT from server" << endl;
                 fail = true;
+                UtilityLib::WaitEnterIsPressed();
             }
         }
 
         GlobalTry++;
     }while(GlobalTry < 3 && fail == true);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void ListAction(){
+    string receivedMsg;
+    vector<string> cmd;
+    vector<string> slist;
+    vector<Commande> Commandes;
+
+    Csock.SendString("LISTCMD");
+    receivedMsg = Csock.ReceiveString();
+
+    cmd = UtilityLib::getTokens(receivedMsg, L"#");
+
+
+    if(cmd[0].compare("LISTCMD") != 0){
+        cerr << "Unknown Message in LISTCMD" << endl;
+        Csock.SendString("TIMEOUT");
+        Csock.close();
+        exit(120);
+    }
+
+    if(cmd[1].compare("nocmd") == 0){
+        cout << "Il n'y a pas de commande actuellement." << endl;
+        return;
+    }
+
+    slist = UtilityLib::getTokens(cmd[1], L"$");
+
+    if(slist.size() == 0){ cout << "Erreur 404" << endl; return;}
+
+    for(int i = 0 ; i<slist.size() ; i++){
+        Commandes.push_back(Commande(slist[i]));
+    }
+
+    system("clear");
+    cout << "Id:     Actions:        Type Equipement:        Label Equipement:       Date:" << endl;
+
+    for(int i = 0 ; i<Commandes.size() ; i++){
+        Commande tmp = Commandes[i];
+
+        cout << tmp.getId() << "\t";
+        if(tmp.getAction() == Actions::delivery){
+            cout << "Livraison";
+        }
+        if(tmp.getAction() == Actions::downgrade){
+            cout << "Déclassement";
+        }
+        if(tmp.getAction() == Actions::repair){
+            cout << "Réparation";
+        }
+
+        cout << "\t" << tmp.getEquiKey() << "\t\t\t" << tmp.getEquiId();
+        cout << "\t\t\t" << tmp.getDate();
+        cout << endl;
+    }
+
+    return;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void DeleteAction(){
+    ListAction();
+
+    cout << "Entrez l'id a supprimé: " << endl;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void initSig(void){
+    /*SIGINT*/
+    sigset_t mask;
+    sigfillset(&mask);
+    sigdelset(&mask, SIGINT);
+    sigprocmask(SIG_SETMASK, &mask, NULL);
+
+    struct sigaction signal_action;                /* define table */
+    signal_action.sa_handler = SIG_INT;   /* insert handler function */
+    signal_action.sa_flags = 0;                    /* init the flags field */
+    sigemptyset( &signal_action.sa_mask );     /* are no masked interrupts */
+    sigaction( SIGINT, &signal_action, NULL ); /* install the signal_action */
+}
+
+
+
+void SIG_INT(int sig_num){
+    Csock.SendString("TIMEOUT");
+    Csock.close();
+    cerr<<"\nSIGINT Received"<<endl;
+    exit(0);
 }
 //#{}

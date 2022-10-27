@@ -11,7 +11,10 @@
 #include "../UtilityLib/utilitylib.hpp"
 #include "../UtilityLib/date.hpp"
 
-#define MAXCLIENT 5
+#include "../AccessMaterial/accessmaterial.hpp"
+#include "../Commande/commande.hpp"
+#include "../Commande/equipment.hpp"
+
 
 using namespace std;
 
@@ -25,8 +28,6 @@ void SIG_INT(int sig_num);
 //Fonctionnalitée:
 int Login(vector<string> message);
 
-int addAction(vector<string> message);
-
 // Threads
 void ServiceThread(void);
 
@@ -37,12 +38,17 @@ ifstream Readlogin;
 //MutexVarCond:
 pthread_mutex_t mutexLoginFile;
 pthread_mutex_t mutexService;
+pthread_mutex_t mutexDB;
 pthread_cond_t condService;
 
 
-
-const char LoginPath[] = "./login.csv";
-
+//ConfigVar will be read on configfile
+int const port = 50001;
+int const MAXCLIENT = 5;
+string const LoginPath = "./login.csv";
+string AccessMaterial::MaterialDirPath = "./DB/";
+string AccessMaterial::ActionFilePath = "./Actions.csv";
+//... /!\ CommandePath, EquipmentDirPath
 
 enum State
 {
@@ -51,6 +57,11 @@ enum State
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 int main(){
     initSig();
     initMut();
@@ -61,7 +72,7 @@ int main(){
     Date::setFormat(format);
 
     try{
-        lis = ListenSocket(50001);
+        lis = ListenSocket(port);
         while(lis.Accept()){
             ListenSocket::Write++;
             condSig(&condService);
@@ -81,16 +92,21 @@ int main(){
 
     return 127;
 }
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 // Threads Services:
 // Gère un client de sa connexion a sa déconnexion.
 void ServiceThread(void){
+    DateFormat format = DateFormat("dd-mm-yyyy");
+    Date::setFormat(format);
+
     int LocalIndex;
     ServiceSocket socket;
     string msg;
@@ -123,23 +139,26 @@ void ServiceThread(void){
 
 
             if(msg.compare("TIMEOUT") == 0){
-                cerr << "TIMEOUT catch, end of connexion" << endl;
+                cerr << "TIMEOUT, end of connexion" << endl;
                 break;
             }
             if(message[0].compare("TIMEOUT") == 0){
-                cerr << "TIMEOUT catch, end of connexion" << endl;
+                cerr << "TIMEOUT, end of connexion" << endl;
+                status = State::NotLogged;
                 break;
             }
 
 
             if(status == Logged){
                 if(msg.compare("LOGOUT") == 0){
-                    cerr << "LOGOUT catch, end of connexion" << endl;
-                    break;
+                    cerr << "LOGOUT, end of connexion" << endl;
+                    status = State::NotLogged;
+                    continue;
                 }
                 if(message[0].compare("LOGOUT") == 0){
-                    cerr << "LOGOUT catch, end of connexion" << endl;
-                    break;
+                    cerr << "LOGOUT, end of connexion" << endl;
+                    status = State::NotLogged;
+                    continue;
                 }
 
 
@@ -147,10 +166,21 @@ void ServiceThread(void){
                 if(message[0].compare("HMAT") == 0){
                     //Ask Action on equipment (livraison, réparation, déclassement)
                     // HMAT#action#matériel#date souhaitée
-                    int retval = addAction(message);
+
+                    mLock(&mutexDB);
+                    vector<Commande> tmp = AccessMaterial::getAllActions();
+                    
+                    for(int i = 0; i<tmp.size() ; i++){
+                        if(Commande::idCount < tmp[i].getId()){
+                            Commande::idCount = tmp[i].getId();
+                        }
+                    }
+
+                    int retval = AccessMaterial::addAction(Commande(message));
+                    mUnLock(&mutexDB);
 
                     // ACK:	HMAT#ok#id
-                    if(retval > 0){
+                    if(retval >= 0){
                         stringstream m;
                         m << "HMAT#ok#"<< retval;
                         socket.SendString(m.str());
@@ -178,21 +208,34 @@ void ServiceThread(void){
                 }
 
                 if(message[0].compare("LISTCMD") == 0){
-                    //List all asked action during this session
+                    stringstream s;
 
-                    //if list size == 0, send #nocmd 
+                    mLock(&mutexDB);
+                    vector<Commande> tmp = AccessMaterial::getAllActions();
+                    mUnLock(&mutexDB);
+                    
+                    if(tmp.size() == 0){
+                        socket.SendString("LISTCMD#nocmd");
+                        continue;
+                    }
 
-                    //List of actions (object)
-                    //Put all actions in string
-                    //Send actions
+                    s << "LISTCMD#";
 
-                    // ACK:  	LISTCMD#action1$action2$action3$...
-                    //          LISTCMD#nocmd
+                    for(int i = 0; i<tmp.size() ; i++){
+                        if(i == tmp.size()-1){
+                            s << tmp[i];
+                        }
+                        else{
+                            s << tmp[i] << "$";
+                        }
+                    }
+
+                    socket.SendString(s.str());
                 }
 
                 if(message[0].compare("CHMAT") == 0){
                     //Delete an asked action during this session
-
+                    
                     // Client:  CHMAT#idaction
                     // ACK:	    CHMAT#ok
                     //          CHMAT#ko#reason
@@ -233,23 +276,17 @@ void ServiceThread(void){
             }
         }
         socket.close();
-
-        
-        cerr << "Write: " << ListenSocket::Write << ", Read: " << ListenSocket::Read << endl;
-        cerr << "Socket: "<< endl;
-        for(int i = 0 ; i<ListenSocket::services.size() ; i++){
-            cerr << ListenSocket::services[i] << "\t";
-        }
-        cerr << endl;
-
         //EndOfConnection retour dans VarCond
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Login Management:
 int Login(vector<string> message){
     vector<string> TokenLine;
@@ -294,17 +331,13 @@ int Login(vector<string> message){
 
     return status;
 }
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// Add Action
-// Try to add an action to the list
-int addAction(vector<string> message){
-
-}
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // UtilityFunctions
 void initServices(void){
@@ -324,6 +357,18 @@ void initMut(void){
     if((error = mInitDef(&mutexService)) != 0){
         cerr << "(SERVEUR " << getTid() << ") Erreur Initialisation mutexService: "<<error<<endl;
         exit(2);
+    }
+
+    // Initialisation mutexService
+    if((error = mInitDef(&mutexLoginFile)) != 0){
+        cerr << "(SERVEUR " << getTid() << ") Erreur Initialisation mutexService: "<<error<<endl;
+        exit(5);
+    }
+
+    // Initialisation mutexService
+    if((error = mInitDef(&mutexDB)) != 0){
+        cerr << "(SERVEUR " << getTid() << ") Erreur Initialisation mutexService: "<<error<<endl;
+        exit(4);
     }
 }
 
@@ -354,9 +399,10 @@ void initSig(void){
 
 void SIG_INT(int sig_num){
 
-    for(int i = 0; i<lis.services.size() ; i++){
+    for(int i = ListenSocket::Read ; i<lis.services.size() ; i++){
         lis.services[i].close();
     }
+
     lis.close();
     cerr<<"\nSIGINT Received"<<endl;
     exit(0);

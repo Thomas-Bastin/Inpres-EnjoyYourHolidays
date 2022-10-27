@@ -37,7 +37,7 @@
 
         equipmentKey = scommande[2];
         equipmentId = scommande[3];
-        
+
         wishdate = Date(scommande[4].c_str());
     }
 

@@ -8,7 +8,7 @@
 #include <string>
 #include "../UtilityLib/date.hpp"
 #include "../UtilityLib/utilitylib.hpp"
-
+#include "./equipment.hpp"
 
 using namespace std;
 
@@ -17,8 +17,6 @@ enum Actions{
     repair = 2,
     downgrade = 3,
 };
-
-enum Equipment{ todo = 1 };
 
 class Commande{
     protected:

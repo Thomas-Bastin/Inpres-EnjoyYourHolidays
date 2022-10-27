@@ -18,6 +18,7 @@
 
 #include "../UtilityLib/utilitylib.hpp"
 #include "../Commande/commande.hpp"
+#include "../Commande/equipment.hpp"
 
 using namespace std;
 
@@ -30,9 +31,9 @@ class AccessMaterial{
         static int setMaterialDirPath(string path);
 
 
-        static int addMaterial(string key, string line);
+        static int addMaterial(string key, Equipment mat);
 
-        static int modifyMaterial(string key, int id, string line);
+        static int modifyMaterial(string key, int id, Equipment mat);
 
         static int removeMaterial(string key, int id);
 

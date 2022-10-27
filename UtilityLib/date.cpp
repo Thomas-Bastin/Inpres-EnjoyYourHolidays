@@ -1017,14 +1017,14 @@ ostream& operator<<(ostream& os, const Date& date)
     {
         if(strcmp(date.getDateFormat(),"d") == 0)
         {
-            os<<day<<" ";
+            os<<day<<"-";
         }
         else if(strcmp(date.getDateFormat(),"dd") == 0)
         {
             if(day < 10)
-                os<<"0"<<day<<" ";
+                os<<"0"<<day<<"-";
             else
-                os<<day<<" ";
+                os<<day<<"-";
         }
     }
 
@@ -1032,14 +1032,14 @@ ostream& operator<<(ostream& os, const Date& date)
     {
         if(strcmp(date.getMonthFormat(),"m") == 0)
         {
-            os<<month<<" ";
+            os<<month<<"-";
         }
         else if(strcmp(date.getMonthFormat(),"mm") == 0)
         {
             if(month < 10)
-                os<<"0"<<month<<" ";
+                os<<"0"<<month<<"-";
             else
-                os<<month<<" ";
+                os<<month<<"-";
         }
         else if(strcmp(date.getMonthFormat(),"mmm") == 0)
         {
@@ -1050,7 +1050,7 @@ ostream& operator<<(ostream& os, const Date& date)
     else
     {
         string monthFullName[]={"January","February","March","April","May","June","July","August","September","October","November","December"};
-        os<<monthFullName[month-1]<<" ";
+        os<<monthFullName[month-1]<<"-";
     }
 
     if(date.getYearFormat() != NULL)
