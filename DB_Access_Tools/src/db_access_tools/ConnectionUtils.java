@@ -49,6 +49,9 @@ public class ConnectionUtils {
         return null;
     }
 
+    
+    
+    
     public static TableModel select(Connection c, String select, String from, String where) {
         try {
             //Création d'un nouveau modèle

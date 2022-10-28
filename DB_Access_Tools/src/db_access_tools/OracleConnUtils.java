@@ -37,6 +37,7 @@ public class OracleConnUtils {
         Class.forName("oracle.jdbc.driver.OracleDriver");
         
         //Creation de la string
+        
         String connectionURL = "jdbc:oracle:thin:@" + hostName + ":1521:" + sid;
         
         //retourne Connexion

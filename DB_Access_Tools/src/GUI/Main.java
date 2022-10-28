@@ -373,8 +373,8 @@ public class Main extends javax.swing.JFrame {
         TableModel t = ConnectionUtils.select(connection, Select, From, Where);
         this.jTable.setModel(t); 
         
-        int tmp = ConnectionUtils.NumRow(connection, From, Where);
-        this.NumRow.setText(Integer.toString(tmp));
+        //int tmp = ConnectionUtils.NumRow(connection, From, Where);
+        //this.NumRow.setText(Integer.toString(tmp));
     }//GEN-LAST:event_Execute_SelectActionPerformed
 
     private void Execute_UpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Execute_UpdateActionPerformed

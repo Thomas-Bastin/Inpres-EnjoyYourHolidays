@@ -1,0 +1,37 @@
+50002
+ListeSocket.getHost Success
+InitSocket.CreationSocket Success
+InitSocket.BindSocket Success
+ListenSocket.Listen Success
+ListenSocket.Accept Success
+ListenSocket.Listen Success
+ReceptionMessage: LOGIN#t#t
+Login found in file
+Good PassWord
+ServiceSocket.Send: LOGIN#true
+ReceptionMessage: HMAT#1#Pedalo#Pedalo1#28-10-2022
+Action File lines: 3
+ServiceSocket.Send: HMAT#ok#9
+ReceptionMessage: LISTCMD
+Action File lines: 4
+ServiceSocket.Send: LISTCMD#3;1;Caddie;Ca-1;28-10-2022$1;1;Canoe1;Canoe;28-10-2022$8;2;Caddie;Ca-1;29-10-2022$9;1;Pedalo;Pedalo1;28-10-2022
+ReceptionMessage: HMAT#1#avion#av#22-11-2022
+Action File lines: 4
+ServiceSocket.Send: HMAT#ko#Le matériel référencier (clé,label) n'existe pas
+ReceptionMessage: ASKMAT#Avion#av1#superavion#2000#Voiture
+ServiceSocket.Send: ASKMAT#ok
+ReceptionMessage: LISTCMD
+Action File lines: 4
+ServiceSocket.Send: LISTCMD#3;1;Caddie;Ca-1;28-10-2022$1;1;Canoe1;Canoe;28-10-2022$8;2;Caddie;Ca-1;29-10-2022$9;1;Pedalo;Pedalo1;28-10-2022
+ReceptionMessage: LISTCMD
+Action File lines: 4
+ServiceSocket.Send: LISTCMD#3;1;Caddie;Ca-1;28-10-2022$1;1;Canoe1;Canoe;28-10-2022$8;2;Caddie;Ca-1;29-10-2022$9;1;Pedalo;Pedalo1;28-10-2022
+ReceptionMessage: CHMAT#8
+ServiceSocket.Send: CHMAT#ok
+ReceptionMessage: LISTCMD
+Action File lines: 3
+ServiceSocket.Send: LISTCMD#3;1;Ca-1;Caddie;28-10-2022$1;1;Canoe;Canoe1;28-10-2022$9;1;Pedalo1;Pedalo;28-10-2022
+ReceptionMessage: LOGOUT
+LOGOUT, end of connexion
+ReceptionMessage: TIMEOUT
+TIMEOUT, end of connexion
