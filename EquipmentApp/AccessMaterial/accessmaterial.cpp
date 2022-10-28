@@ -165,7 +165,7 @@ int AccessMaterial::addAction(Commande cmd){
 
 
   
-    if(list[ind].getAction() != 1){
+    if(list[ind].getAction() != Actions::delivery){
         //cerr << "Action ne peut être effectué, car le produit n'est pas encore commandée" << endl;
         read.close();
         return -2;
@@ -227,7 +227,7 @@ int AccessMaterial::removeAction(int id){
         vec[ind] = tmp;
 
         for(int i = 0; i<vec.size() ; i++){
-            write << vec[i];
+            write << vec[i]<<endl;
         }
         read.close();
         write.close();
