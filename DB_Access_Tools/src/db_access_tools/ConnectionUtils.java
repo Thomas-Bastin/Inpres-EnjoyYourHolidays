@@ -5,6 +5,7 @@
  */
 package db_access_tools;
 
+import static com.sun.org.apache.xerces.internal.util.FeatureState.is;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -29,9 +30,6 @@ public class ConnectionUtils {
         if (s.equals("Oracle")) {
             try {
                 return OracleConnUtils.getOracleConnection();
-            } catch (SQLException ex) {
-                Logger.getLogger(ConnectionUtils.class.getName()).log(Level.SEVERE, null, ex);
-                return null;
             } catch (ClassNotFoundException ex) {
                 Logger.getLogger(ConnectionUtils.class.getName()).log(Level.SEVERE, null, ex);
                 return null;
@@ -58,6 +56,8 @@ public class ConnectionUtils {
 
             Statement statement = c.createStatement();
             String sql = "SELECT " + select + " FROM " + from + " WHERE " + where;
+            
+            
             ResultSet rs = statement.executeQuery(sql);
 
             //Récupération du result set

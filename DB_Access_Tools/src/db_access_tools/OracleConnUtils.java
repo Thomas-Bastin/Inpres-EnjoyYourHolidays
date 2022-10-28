@@ -13,22 +13,24 @@ package db_access_tools;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class OracleConnUtils {
 
     // Connect to Oracle.
-    public static Connection getOracleConnection() throws SQLException, ClassNotFoundException 
+    public static Connection getOracleConnection() throws ClassNotFoundException 
     {
-        String hostName = "localhost";
-        String sid = "db11g";
-        String userName = "simplehr";
-        String password = "1234";
+        String hostName = "192.168.1.63";
+        String sid = "xe";
+        String userName = "C##DB_ACCESS_TOOLS";
+        String password = "7mqA";
 
         return getOracleConnection(hostName, sid, userName, password);
     }
 
     public static Connection getOracleConnection(String hostName, String sid, String userName, String password) 
-        throws ClassNotFoundException, SQLException 
+        throws ClassNotFoundException 
     {
        
         //Déclaration du Driver JDBC
@@ -38,7 +40,13 @@ public class OracleConnUtils {
         String connectionURL = "jdbc:oracle:thin:@" + hostName + ":1521:" + sid;
         
         //retourne Connexion
-        Connection conn = DriverManager.getConnection(connectionURL, userName, password);
+        Connection conn;
+        try {
+            conn = DriverManager.getConnection(connectionURL, userName, password);
+        } catch (SQLException ex) {
+            conn = null;
+            Logger.getLogger(OracleConnUtils.class.getName()).log(Level.SEVERE, null, ex);
+        }
         return conn;
     }
 }

@@ -23,6 +23,7 @@ void initSig(void);
 void initMut(void);
 void initCond(void);
 void initServices(void);
+void initConfig();
 void SIG_INT(int sig_num);
 
 //Fonctionnalitée:
@@ -43,12 +44,11 @@ pthread_cond_t condService;
 
 
 //ConfigVar will be read on configfile
-int const port = 50001;
-int const MAXCLIENT = 5;
-string const LoginPath = "./login.csv";
+int port;
+int MAXCLIENT;
+string LoginPath;
 string AccessMaterial::MaterialDirPath = "./DB/";
 string AccessMaterial::ActionFilePath = "./Actions.csv";
-//... /!\ CommandePath, EquipmentDirPath
 
 enum State
 {
@@ -64,9 +64,15 @@ enum State
 
 int main(){
     initSig();
+    
+    initConfig();
+
     initMut();
     initCond();
+
     initServices();
+
+    
 
     DateFormat format = DateFormat("dd-mm-yyyy");
     Date::setFormat(format);
@@ -419,4 +425,61 @@ void SIG_INT(int sig_num){
     lis.close();
     cerr<<"\nSIGINT Received"<<endl;
     exit(0);
+}
+
+
+void initConfig(){
+    ifstream read;
+    ofstream write;
+
+    read.open("./server.cfg");
+
+    if(read.fail()){
+        write.open("./server.cfg");
+        write << "Port=50001" << endl;
+        write << "MaxClient=5" << endl;
+        write << "LoginFilePath=./login.csv" << endl;
+        write << "MaterialDirPath=./DB/" <<endl;
+        write << "ActionFilePath=./Actions.csv" << endl;
+        
+        write.close();
+        read.open("./server.cfg");
+    }
+
+    vector<string> index;
+    string line;
+    while(getline(read, line)){
+        index.push_back(line);
+    }
+
+    for(int i = 0 ; i<index.size() ; i++){
+        vector<string> hashmap = UtilityLib::getTokens(index[i],L"#");
+        
+        if(hashmap[0].compare("Port") == 0){
+            port = stoi(index[1]);
+            continue;
+        }
+
+        if(hashmap[0].compare("MaxClient") == 0){
+            MAXCLIENT = stoi(index[1]);
+            continue;
+        }
+
+        if(hashmap[0].compare("LoginFilePath") == 0){
+            LoginPath = index[1];
+            continue;
+        }
+
+        if(hashmap[0].compare("MaterialDirPath") == 0){
+            AccessMaterial::MaterialDirPath = index[1];
+            continue;
+        }
+
+        if(hashmap[0].compare("ActionFilePath") == 0){
+            AccessMaterial::ActionFilePath = index[1];
+            continue;
+        }
+    }
+
+    read.close();
 }

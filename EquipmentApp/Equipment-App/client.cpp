@@ -12,6 +12,7 @@
 
 using namespace std;
 
+
 bool Login();
 int checkLoginTrue(string, string);
 
@@ -26,15 +27,16 @@ void AddEquipment();
 
 void SIG_INT(int sig_num);
 void initSig(void);
-
+void initConfig();
 
 
 ClientSocket Csock;
 
-string const socketName = "192.168.1.61:50001";
+string socketName;
 
 int main(){
     initSig();
+    initConfig();
     timespec t;
     t.tv_nsec = 0;
     t.tv_sec = 5;
@@ -594,3 +596,49 @@ void SIG_INT(int sig_num){
     exit(0);
 }
 //#{}
+
+
+void initConfig(){
+    ifstream read;
+    ofstream write;
+
+    read.open("./server.cfg");
+
+    if(read.fail()){
+        write.open("./server.cfg");
+        write << "Port=50001" << endl;
+        write << "Ip=192.168.1.61" << endl;
+        
+        write.close();
+        read.open("./server.cfg");
+    }
+
+    vector<string> index;
+    string line;
+    while(getline(read, line)){
+        index.push_back(line);
+    }
+
+    string port;
+    string ip;
+
+    for(int i = 0 ; i<index.size() ; i++){
+        vector<string> hashmap = UtilityLib::getTokens(index[i],L"#");
+        
+        if(hashmap[0].compare("Port") == 0){
+            port = stoi(index[1]);
+            continue;
+        }
+
+        if(hashmap[0].compare("Ip") == 0){
+            ip = stoi(index[1]);
+            continue;
+        }
+    }
+
+    socketName = ip;
+    socketName +=":";
+    socketName += port;
+
+    read.close();
+}
