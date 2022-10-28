@@ -33,8 +33,7 @@
         }
 
         ClientSocket::~ClientSocket()
-        {
-        }
+        {}
 
         //Setters and Getters
         void ClientSocket::setSocket(int c)
