@@ -35,8 +35,12 @@ ClientSocket Csock;
 string socketName;
 
 int main(){
-    initSig();
     initConfig();
+
+    cerr<<socketName<<endl;
+
+    initSig();
+
     timespec t;
     t.tv_nsec = 0;
     t.tv_sec = 5;
@@ -602,43 +606,32 @@ void initConfig(){
     ifstream read;
     ofstream write;
 
-    read.open("./server.cfg");
+    read.open("./client.cfg");
 
     if(read.fail()){
-        write.open("./server.cfg");
-        write << "Port=50001" << endl;
-        write << "Ip=192.168.1.61" << endl;
-        
+        write.open("./client.cfg");
+        write << "Socket=192.168.1.61:50001" << endl;
         write.close();
-        read.open("./server.cfg");
+        read.open("./client.cfg");
     }
 
     vector<string> index;
     string line;
+
     while(getline(read, line)){
         index.push_back(line);
     }
 
-    string port;
-    string ip;
 
     for(int i = 0 ; i<index.size() ; i++){
-        vector<string> hashmap = UtilityLib::getTokens(index[i],L"#");
+        vector<string> hashmap = UtilityLib::getTokens(index[i],L"=");
         
-        if(hashmap[0].compare("Port") == 0){
-            port = stoi(index[1]);
-            continue;
-        }
-
-        if(hashmap[0].compare("Ip") == 0){
-            ip = stoi(index[1]);
+        if(hashmap[0].compare("Socket") == 0){
+            socketName = hashmap[1];
             continue;
         }
     }
 
-    socketName = ip;
-    socketName +=":";
-    socketName += port;
-
     read.close();
+    return;
 }

@@ -22,8 +22,8 @@ using namespace std;
 void initSig(void);
 void initMut(void);
 void initCond(void);
-void initServices(void);
 void initConfig();
+void initServices(void);
 void SIG_INT(int sig_num);
 
 //Fonctionnalitée:
@@ -78,6 +78,7 @@ int main(){
     Date::setFormat(format);
 
     try{
+        cerr << port<<endl;
         lis = ListenSocket(port);
         while(lis.Accept()){
             ListenSocket::Write++;
@@ -453,30 +454,30 @@ void initConfig(){
     }
 
     for(int i = 0 ; i<index.size() ; i++){
-        vector<string> hashmap = UtilityLib::getTokens(index[i],L"#");
+        vector<string> hashmap = UtilityLib::getTokens(index[i],L"=");
         
         if(hashmap[0].compare("Port") == 0){
-            port = stoi(index[1]);
+            port = stoi(hashmap[1]);
             continue;
         }
 
         if(hashmap[0].compare("MaxClient") == 0){
-            MAXCLIENT = stoi(index[1]);
+            MAXCLIENT = stoi(hashmap[1]);
             continue;
         }
 
         if(hashmap[0].compare("LoginFilePath") == 0){
-            LoginPath = index[1];
+            LoginPath = hashmap[1];
             continue;
         }
 
         if(hashmap[0].compare("MaterialDirPath") == 0){
-            AccessMaterial::MaterialDirPath = index[1];
+            AccessMaterial::MaterialDirPath = hashmap[1];
             continue;
         }
 
         if(hashmap[0].compare("ActionFilePath") == 0){
-            AccessMaterial::ActionFilePath = index[1];
+            AccessMaterial::ActionFilePath = hashmap[1];
             continue;
         }
     }
