@@ -31,7 +31,7 @@ class AccessMaterial{
         static int setMaterialDirPath(string path);
 
 
-        static bool AccessMaterial::MaterialExist(string key,  string label);
+        static bool MaterialExist(string key,  string label);
 
         static int addMaterial(string key, Equipment mat);
 

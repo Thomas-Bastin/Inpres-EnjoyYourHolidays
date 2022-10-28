@@ -387,9 +387,6 @@ void ListAction(){
 
     if(slist.size() == 0){ cout << "Erreur 404" << endl; return;}
 
-    if(slist.compare("TIMEOUT")==0 || slist.compare("LOGOUT") == 0){
-        return;
-    }
 
     for(int i = 0 ; i<slist.size() ; i++){
         Commandes.push_back(Commande(slist[i]));
