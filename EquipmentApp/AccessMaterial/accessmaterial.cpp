@@ -11,6 +11,37 @@ int AccessMaterial::setMaterialDirPath(string path){
 }
 
 
+bool AccessMaterial::MaterialExist(string key,  string label){
+    ifstream read;
+    stringstream tmp;
+    tmp << AccessMaterial::MaterialDirPath << key << ".csv";
+
+    string path = tmp.str();
+
+    read.open(path);
+    if(read.fail()){
+        read.close();
+        return false;
+    }
+
+    vector<Equipment> vec;
+    string line;
+    while (getline(read, line))
+    {
+        vec.push_back(Equipment(line));
+    }
+
+    for(int i=0 ; i<vec.size(); i++){
+        if(vec[i].getLibelle().compare(label) == 0){
+            read.close();
+            return true;
+        }
+    }
+
+    read.close();
+    return false;
+}
+
 int AccessMaterial::addMaterial(string key, Equipment mat){
     ifstream read;
     ofstream write;
@@ -68,21 +99,15 @@ int AccessMaterial::removeMaterial(string key, int id){
 
 
 int AccessMaterial::addAction(Commande cmd){
-
-    //Check si Materiel existe:
-    //Si non return -3;
-
-    //Check si Actions possible (Date)
-    //sinon return -4;
-
-
     ifstream read;
     ofstream write;
-
     string line;
     vector<Commande> list;
-    
     int idfound = -1;
+
+    if(!(AccessMaterial::MaterialExist(cmd.getEquiKey(), cmd.getEquiId()))){
+        return -3;
+    }
 
     read.open(ActionFilePath);
     
@@ -144,6 +169,13 @@ int AccessMaterial::addAction(Commande cmd){
         //cerr << "Action ne peut être effectué, car le produit n'est pas encore commandée" << endl;
         read.close();
         return -2;
+    }
+
+    //Check si Actions possible (Date)
+    //sinon return -4;
+    if(list[ind].getDate() > cmd.getDate()){
+        read.close();
+        return -4;
     }
 
     write.open(ActionFilePath);

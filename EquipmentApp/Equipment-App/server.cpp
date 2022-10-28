@@ -209,6 +209,11 @@ void ServiceThread(void){
                             m << "HMAT#ko#"<< "Le matériel référencier (clé,label) n'existe pas";
                             socket.SendString(m.str());
                         }
+                        if(retval == -4){
+                            stringstream m;
+                            m << "HMAT#ko#"<< "La date d'exécution demandée est antérieur a la commande.";
+                            socket.SendString(m.str());
+                        }
                     }
                     
                     
