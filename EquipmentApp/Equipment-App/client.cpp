@@ -29,12 +29,16 @@ void SIG_INT(int sig_num);
 void initSig(void);
 void initConfig();
 
-
+fstream mylog;
 ClientSocket Csock;
 
 string socketName;
 
 int main(){
+    mylog.open("Clientlog.txt", ios::out);
+    // Redirect cerr to file
+    cerr.rdbuf(mylog.rdbuf());
+
     initConfig();
 
     cerr<<socketName<<endl;
@@ -597,6 +601,7 @@ void initSig(void){
 void SIG_INT(int sig_num){
     Csock.SendString("TIMEOUT");
     Csock.close();
+    mylog.close();
     cerr<<"\nSIGINT Received"<<endl;
     exit(0);
 }

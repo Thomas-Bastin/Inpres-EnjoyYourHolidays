@@ -49,12 +49,14 @@ int MAXCLIENT;
 string LoginPath;
 string AccessMaterial::MaterialDirPath = "./DB/";
 string AccessMaterial::ActionFilePath = "./Actions.csv";
+fstream mylog;
 
 enum State
 {
     NotLogged=0,
     Logged=1,
 };
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -63,6 +65,15 @@ enum State
 
 
 int main(){
+
+    mylog.open("Servlog.txt", ios::out);
+    // Redirect cerr to file
+    cerr.rdbuf(mylog.rdbuf());
+
+
+    string line;
+
+
     initSig();
     
     initConfig();
@@ -427,7 +438,7 @@ void SIG_INT(int sig_num){
     for(int i = ListenSocket::Read ; i<lis.services.size() ; i++){
         lis.services[i].close();
     }
-
+    mylog.close();
     lis.close();
     cerr<<"\nSIGINT Received"<<endl;
     exit(0);
