@@ -5,65 +5,39 @@
  */
 package networklib.Server;
 
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.Vector;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.io.*;
 
 /**
  *
  * @author Thomas
  */
-public abstract class ThreadSocketService extends Thread implements ServiceTCP {
+public class ThreadSocketService extends Thread {    
+    private final TasksSource tasks;
+    private final String name;
     
-    private Socket service;
-    
-    ThreadSocketService(){}
-    
-    @Override
-    public void run() {
-        while(true){
-            this.SocketBuisnessLogic();
-        }
-    }
-    
-    public abstract void SocketBuisnessLogic();
-
-    @Override
-    public Socket GetSocket() {
-        return service;
-    }
-
-    @Override
-    public void SetSocket(Socket s) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public int GetPort() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public String receiveMessage() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void sendMessage(String msg) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public Object receiveObject() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void sendObject() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+    private Runnable currentTask;
     
     
+    public ThreadSocketService(TasksSource t, String n){
+        tasks = t;
+        name = n;
+    }
+    
+    public void run(){
+        while (!isInterrupted()){
+            try{
+                currentTask = tasks.getTask();
+            }
+            catch (InterruptedException e){
+                System.out.println("Interruption: " + e.getMessage());
+            }
+
+            System.out.println("Start the Current Task: ");
+            currentTask.run();
+        } 
+    }
+    
+    public void Shutdown() throws IOException{
+        super.stop();
+    }
 }
