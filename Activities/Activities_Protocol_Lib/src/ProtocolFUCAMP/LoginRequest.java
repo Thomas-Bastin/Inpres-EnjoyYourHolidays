@@ -53,40 +53,45 @@ public class LoginRequest implements Requete, Serializable, Login{
         
         log.Trace(sock.getRemoteSocketAddress().toString() + "#Login "+ login +"#" + Thread.currentThread().getName());
         
-        //Check Login & Password on SGBD
+        //Recuperation du hash enregistrer en db
+        String hashdb = "";
         try {
-            if(!db.checkLogin(login)){
+            hashdb = db.getPassword(login, hash);
+        } catch (Exception ex) {
+            
+            if(ex instanceof SQLException){
+                log.Trace(sock.getRemoteSocketAddress().toString() + "#Login " + login + ": DB Error#" + Thread.currentThread().getName());
+                oos.writeObject((Object) new LoginResponse(LoginResponse.BADDB, ex.getMessage()));
+                oos.flush();
+                oos.close();
+                return;
+            }
+            if(ex.getMessage().equals("badlogin")){ 
                 log.Trace(sock.getRemoteSocketAddress().toString() + "#Login "+ login +": Unkown Email#" + Thread.currentThread().getName());
                 oos.writeObject((Object) new LoginResponse(LoginResponse.BADMAIL, "Unkown Email"));
                 oos.flush();
                 oos.close();
                 return;
             }
-        } catch (SQLException ex) {
-            log.Trace(sock.getRemoteSocketAddress().toString() + "#Login " + login + ": DB Error#" + Thread.currentThread().getName());
-            oos.writeObject((Object) new LoginResponse(LoginResponse.BADDB, "DB Error"));
-            oos.flush();
-            oos.close();
-            return;
+            if(ex.getMessage().equals("toomanylogin")){
+                log.Trace(sock.getRemoteSocketAddress().toString() + "#Login "+ login +": Too Many Email#" + Thread.currentThread().getName());
+                oos.writeObject((Object) new LoginResponse(LoginResponse.BADMAIL, "Too Many Email"));
+                oos.flush();
+                oos.close();
+                return;
+            } 
         }
         
-        try {
-            //Si hash != db.checkPassword(hash);
-            if (db.checkPassword(login, hash)) {
-                log.Trace(sock.getRemoteSocketAddress().toString() + "#Login " + login + ": BadPassword#" + Thread.currentThread().getName());
-                oos.writeObject((Object) new LoginResponse(LoginResponse.BADPSWD, "Bad Password"));
-                oos.flush();
-                oos.close();
-            } else {
-                log.Trace(sock.getRemoteSocketAddress().toString() + "#Login " + login + ": Success#" + Thread.currentThread().getName());
-                oos.writeObject((Object) new LoginResponse(LoginResponse.SUCCESS, "Login Success"));
-                oos.flush();
-                oos.close();
-            }
-        } catch (SQLException ex) {
-            //Si Exception DB:
-            log.Trace(sock.getRemoteSocketAddress().toString() + "#Login " + login + ": DB Error#" + Thread.currentThread().getName());
-            oos.writeObject((Object) new LoginResponse(LoginResponse.BADDB, "DB Error"));
+        
+        //Check Login & Password on SGBD
+        if(hash.equals(hashdb)){
+            log.Trace(sock.getRemoteSocketAddress().toString() + "#Login " + login + ": Success#" + Thread.currentThread().getName());
+            oos.writeObject((Object) new LoginResponse(LoginResponse.SUCCESS, "Login Success"));
+            oos.flush();
+            oos.close();
+        }else{
+            log.Trace(sock.getRemoteSocketAddress().toString() + "#Login " + login + ": BadPassword#" + Thread.currentThread().getName());
+            oos.writeObject((Object) new LoginResponse(LoginResponse.BADPSWD, "Bad Password"));
             oos.flush();
             oos.close();
         }

@@ -37,16 +37,11 @@ public class db {
     }
     
     
-    public static boolean checkLogin(String login) throws SQLException{
-        // LinkedList cur = select("","","", false);
-        
-        return true;
-    }
-    
-    public static boolean checkPassword(String login, String hash) throws SQLException{
-        // LinkedList cur = select("","","", false);
-        
-        return true;
+    public static String getPassword(String login, String hash) throws Exception, SQLException{
+        LinkedList cur = select("passwd","employes","email = " + login, false);
+        if(cur.isEmpty()) throw new Exception("badlogin");
+        if(cur.size() > 1) throw new Exception("toomanylogin");
+        return (String) ((Vector) cur.getFirst()).get(0);
     }
 
     
