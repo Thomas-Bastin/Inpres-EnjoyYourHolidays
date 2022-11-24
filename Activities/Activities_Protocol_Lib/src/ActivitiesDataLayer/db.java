@@ -43,10 +43,45 @@ public class db {
         if(cur.size() > 1) throw new Exception("toomanylogin");
         return (String) ((Vector) cur.getFirst()).get(0);
     }
+    
+    public static boolean isAcredited(String login) throws SQLException{
+        LinkedList cur = select("acred","employes INNER JOIN Acreditation","email =  AND Acred = Activities" + login, false);
+        return !cur.isEmpty();
+    }
 
+    public static boolean RegisterToActivities(boolean isDay, Activities act, Date dateDebut, Client cl){
+        return true;
+    }
+    
+    public static boolean UnlistToActivities(Activities act, Client cl, Date dateDebut){
+        return true;
+    }
     
     
     
+    public static LinkedList getClient() throws SQLException{
+        return select("*","client",null, false);
+    }
+    
+    public static LinkedList getClientWithHeader() throws SQLException{
+        return select("*","client",null, true);
+    }
+    
+    public static LinkedList getActivities() throws SQLException{
+        return select("*","activities",null, false);
+    }
+    
+    public static LinkedList getActivitiesWithHeader() throws SQLException{
+        return select("*","activities",null, true);
+    }
+    
+    public static LinkedList getRegisteredClient(Activities act) throws SQLException{
+        return select("*","activities",null, false);
+    }
+    
+    public static LinkedList getRegisteredClientWithHeader(Activities act) throws SQLException{
+        return select("*","activities",null, true);
+    }
     
     
     
@@ -62,8 +97,14 @@ public class db {
         LinkedList list = new LinkedList();
 
         Statement statement = mysql.createStatement();
-        String sql = "SELECT " + select + " FROM " + from + " WHERE " + where;
-
+        String sql;
+        if(where.equals("") || where == null){
+            sql = "SELECT " + select + " FROM " + from;
+        }
+        else{
+            sql = "SELECT " + select + " FROM " + from + " WHERE " + where;
+        }
+        
         ResultSet rs = statement.executeQuery(sql);
 
         //Récupération du result set
