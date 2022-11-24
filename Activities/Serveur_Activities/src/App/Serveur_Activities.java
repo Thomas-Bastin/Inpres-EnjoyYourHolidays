@@ -5,9 +5,14 @@
  */
 package App;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.logging.Level;
@@ -23,13 +28,39 @@ import networklib.Server.*;
 public class Serveur_Activities extends javax.swing.JFrame implements ServerConsole{
     
     private ServerTCP serveur;
-    
+    private Properties config;
     
     /**
      * Creates new form Serveur_Activities
      */
     public Serveur_Activities() {
         initComponents();
+        
+        loadProperties();
+    }
+    
+    private synchronized void loadProperties(){
+        File f = new File("server.cfg");
+        config = new Properties();
+        
+        try {
+            if(f.createNewFile()){
+                OutputStream os = new FileOutputStream(f.getPath());
+                config.setProperty("server_port", "50005");
+                config.setProperty("dbSocket", "192.168.1.63:3560");
+                config.setProperty("dbName", "bd_holidays");
+                config.setProperty("dbUserName", "db_access_tools");
+                config.setProperty("dbPassword", "p11eYu");
+                
+                config.store(os, "Configuration du Serveur:");
+            }
+            else{
+                FileInputStream fis = new FileInputStream(f.getPath());
+                config.load(fis);
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(Serveur_Activities.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**

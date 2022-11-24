@@ -6,13 +6,20 @@
 package ProtocolFUCAMP;
 
 import java.io.Serializable;
+import networklib.Server.Login;
 import networklib.Server.Response;
 
 /**
  *
  * @author Arkios
  */
-public class LoginResponse implements Response, Serializable{
+public class LoginResponse implements Response, Serializable, Login{
+    public static final int SUCCESS = 200;
+    public static final int BADMAIL = 401;
+    public static final int BADPSWD = 402;
+    public static final int BADDB = 403;
+    public static final int UNKOWN = 404;
+    
     private int Code;
     private String Msg;
     

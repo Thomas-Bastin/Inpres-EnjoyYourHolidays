@@ -109,11 +109,15 @@ public class ServerTCP extends Thread {
             Runnable todo = req.createRunnable(serviceSock, Log);
             if (todo != null)
             {
-                //On ajoute la nouvelle Connexion dans la liste des requètes a traitée
-                tasks.recordTask(todo);
-                
-                System.out.println("Nouvelle Connexion mise dans la File d'attente.");
-                Log.Trace(serviceSock.getRemoteSocketAddress().toString()+"#Tentative Nouvelle Connexion Réussie#thread serveur");
+                if(!(todo instanceof Requete)){
+                    Log.Trace(serviceSock.getRemoteSocketAddress().toString()+"#Tentative de Hack: Runnable Inconnus#thread serveur");
+                }
+                else{
+                    //On ajoute la nouvelle Connexion dans la liste des requètes a traitée
+                    tasks.recordTask(todo);
+                    System.out.println("Nouvelle Connexion mise dans la File d'attente.");
+                    Log.Trace(serviceSock.getRemoteSocketAddress().toString()+"#Tentative Nouvelle Connexion Réussie#thread serveur");
+                }
             }
             else{
                 //On ne fait rien
