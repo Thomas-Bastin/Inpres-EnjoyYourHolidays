@@ -27,14 +27,6 @@ import javax.swing.table.TableModel;
 public class ConnectionUtils {
 
     public static Connection getMyConnection(String s) {
-        if (s.equals("Oracle")) {
-            try {
-                return OracleConnUtils.getOracleConnection();
-            } catch (ClassNotFoundException ex) {
-                Logger.getLogger(ConnectionUtils.class.getName()).log(Level.SEVERE, null, ex);
-                return null;
-            }
-        }
         if (s.equals("MySQL")) {
             try {
                 return MySQLConnUtils.getMySQLConnection();
