@@ -59,11 +59,11 @@ public class db {
     
     
     
-    public static LinkedList getClient() throws SQLException{
+    public static LinkedList getClients() throws SQLException{
         return select("*","client",null, false);
     }
     
-    public static LinkedList getClientWithHeader() throws SQLException{
+    public static LinkedList getClientsWithHeader() throws SQLException{
         return select("*","client",null, true);
     }
     
@@ -75,11 +75,11 @@ public class db {
         return select("*","activities",null, true);
     }
     
-    public static LinkedList getRegisteredClient(Activities act) throws SQLException{
+    public static LinkedList getRegisteredClients(Activities act) throws SQLException{
         return select("*","activities",null, false);
     }
     
-    public static LinkedList getRegisteredClientWithHeader(Activities act) throws SQLException{
+    public static LinkedList getRegisteredClientsWithHeader(Activities act) throws SQLException{
         return select("*","activities",null, true);
     }
     

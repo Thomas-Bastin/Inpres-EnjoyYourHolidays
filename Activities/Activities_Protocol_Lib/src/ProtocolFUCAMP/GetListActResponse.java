@@ -23,8 +23,7 @@ public class GetListActResponse implements Response{
     
     GetListActResponse(int c, String m){
         code = c;
-        message = m;
-        
+        message = m;    
         list = new LinkedList();
     }
     
@@ -53,5 +52,4 @@ public class GetListActResponse implements Response{
     public LinkedList getList(){
         return list;
     }
-    
 }

@@ -43,7 +43,6 @@ public class GetListActRequest implements Request{
         
         try {
             list = db.getActivitiesWithHeader();
-            
             if(list != null){
                 oos.writeObject(new GetListActResponse(GetListActResponse.SUCCESS, "row: " + list.size(), list));
             }
