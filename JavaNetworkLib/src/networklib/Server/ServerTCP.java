@@ -89,7 +89,7 @@ public class ServerTCP extends Thread {
             
             
             ObjectInputStream ois;
-            Requete req;
+            Request req;
             
             //Récupération de l'objet qui compose la requète de nouvelle connexion:
             try {
@@ -97,7 +97,7 @@ public class ServerTCP extends Thread {
                 
                 System.out.println("Serveur: AttenteObjet en entrée");
                 
-                req = (Requete) ois.readObject();
+                req = (Request) ois.readObject();
                 System.out.println("Requete lue par le serveur, instance de " + req.getClass().getName());
                 
             } catch (IOException | ClassNotFoundException ex) {
@@ -109,7 +109,7 @@ public class ServerTCP extends Thread {
             Runnable todo = req.createRunnable(serviceSock, Log);
             if (todo != null)
             {
-                if(!(todo instanceof Requete)){
+                if(!(todo instanceof Request)){
                     Log.Trace(serviceSock.getRemoteSocketAddress().toString()+"#Tentative de Hack: Runnable Inconnus#thread serveur");
                 }
                 else{

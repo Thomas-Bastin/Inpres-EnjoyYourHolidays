@@ -1,5 +1,5 @@
 /*
- * Requete.java
+ * Request.java
 */
 package networklib.Server;
 import java.net.*;
@@ -7,7 +7,7 @@ import java.net.*;
  * @author Vilvens
  */
 
-public interface Requete
+public interface Request
 {
  // Ce qui va être exécuté doit connaître la socket du client distant
  // ainsi que le GUI qui affiche les traces

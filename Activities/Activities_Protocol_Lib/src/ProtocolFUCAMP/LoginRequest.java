@@ -14,14 +14,14 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import networklib.Server.Login;
-import networklib.Server.Requete;
 import networklib.Server.ServerConsole;
+import networklib.Server.Request;
 
 /**
  *
  * @author Arkios
  */
-public class LoginRequest implements Requete, Serializable, Login{
+public class LoginRequest implements Request, Serializable, Login{
     private final String login;
     private final String hash;
     

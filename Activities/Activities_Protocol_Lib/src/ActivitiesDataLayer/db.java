@@ -49,11 +49,11 @@ public class db {
         return !cur.isEmpty();
     }
 
-    public static boolean RegisterToActivities(boolean isDay, Activities act, Date dateDebut, Client cl){
+    public static boolean RegisterToActivities(boolean isDay, Activities act, Date dateDebut, Client cl) throws SQLException{
         return true;
     }
     
-    public static boolean UnlistToActivities(Activities act, Client cl, Date dateDebut){
+    public static boolean UnlistToActivities(Activities act, Client cl, Date dateDebut) throws SQLException{
         return true;
     }
     
