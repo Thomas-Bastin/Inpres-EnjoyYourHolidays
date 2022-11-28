@@ -45,8 +45,8 @@ public class Client_Main extends javax.swing.JDialog {
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
         jMenuBar1 = new javax.swing.JMenuBar();
-        menu_Quitter = new javax.swing.JMenu();
-        jMenuItem1 = new javax.swing.JMenuItem();
+        menu_File = new javax.swing.JMenu();
+        Menu_Quitter = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -63,17 +63,17 @@ public class Client_Main extends javax.swing.JDialog {
         ));
         jScrollPane1.setViewportView(jTable1);
 
-        menu_Quitter.setText("File");
-        menu_Quitter.addActionListener(new java.awt.event.ActionListener() {
+        menu_File.setText("File");
+
+        Menu_Quitter.setText("Quitter");
+        Menu_Quitter.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menu_QuitterActionPerformed(evt);
+                Menu_QuitterActionPerformed(evt);
             }
         });
+        menu_File.add(Menu_Quitter);
 
-        jMenuItem1.setText("Quitter");
-        menu_Quitter.add(jMenuItem1);
-
-        jMenuBar1.add(menu_Quitter);
+        jMenuBar1.add(menu_File);
 
         setJMenuBar(jMenuBar1);
 
@@ -97,29 +97,29 @@ public class Client_Main extends javax.swing.JDialog {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void menu_QuitterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menu_QuitterActionPerformed
-        try {
-            Shutdown();
-        } catch (IOException ex) {
-            Logger.getLogger(Client_Main.class.getName()).log(Level.SEVERE, null, ex);
-            System.exit(100);
-        }
-    }//GEN-LAST:event_menu_QuitterActionPerformed
-    private void Shutdown() throws IOException{
-        socket.close();
+    private void Menu_QuitterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Menu_QuitterActionPerformed
         this.dispose();
-    }
+    }//GEN-LAST:event_Menu_QuitterActionPerformed
     
     @Override
     public void dispose(){
-        menu_QuitterActionPerformed(null);
+        try {
+            socket.close();
+        } catch (IOException ex) {
+            Logger.getLogger(Client_Main.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        Client_Login log = new Client_Login();
+        log.setVisible(true);
+        
+        super.dispose();
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenuItem Menu_Quitter;
     private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
-    private javax.swing.JMenu menu_Quitter;
+    private javax.swing.JMenu menu_File;
     // End of variables declaration//GEN-END:variables
 }

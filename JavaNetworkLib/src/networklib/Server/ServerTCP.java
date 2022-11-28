@@ -84,7 +84,7 @@ public class ServerTCP extends Thread {
                 
             } catch (IOException ex) {
                 Logger.getLogger(ServerTCP.class.getName()).log(Level.SEVERE, null, ex);
-                return;
+                continue;
             }
             
             
@@ -102,22 +102,23 @@ public class ServerTCP extends Thread {
                 
             } catch (IOException | ClassNotFoundException ex) {
                 Logger.getLogger(ServerTCP.class.getName()).log(Level.SEVERE, null, ex);
-                return;
+                continue;
             }
+            
+            if(!(req instanceof Request)){
+                    Log.Trace(serviceSock.getRemoteSocketAddress().toString()+"#Tentative de Hack: Runnable Inconnus#thread serveur");
+                    continue;
+            }
+            
             
             //Création d'un Runnable sur base de la requete de nouvelle connexion récupéré a l'instant.
             Runnable todo = req.createRunnable(serviceSock, Log);
             if (todo != null)
             {
-                if(!(todo instanceof Request)){
-                    Log.Trace(serviceSock.getRemoteSocketAddress().toString()+"#Tentative de Hack: Runnable Inconnus#thread serveur");
-                }
-                else{
                     //On ajoute la nouvelle Connexion dans la liste des requètes a traitée
                     tasks.recordTask(todo);
                     System.out.println("Nouvelle Connexion mise dans la File d'attente.");
-                    Log.Trace(serviceSock.getRemoteSocketAddress().toString()+"#Tentative Nouvelle Connexion Réussie#thread serveur");
-                }
+                    Log.Trace(serviceSock.getRemoteSocketAddress().toString()+"#Tentative Nouvelle Connexion Réussie#thread serveur");   
             }
             else{
                 //On ne fait rien

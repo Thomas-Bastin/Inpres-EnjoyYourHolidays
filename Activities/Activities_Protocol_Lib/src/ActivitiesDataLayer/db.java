@@ -5,8 +5,10 @@
  */
 package ActivitiesDataLayer;
 
+import ActivitiesDataLayer.entities.*;
 import JDBC.MySqlConnexion;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -15,18 +17,16 @@ import java.util.LinkedList;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JOptionPane;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 
 /**
  *
  * @author Thomas
  */
 public class db {
+    
     private static Connection mysql;
     
-    static{
+    public static void initdatabase(){
         try {
             mysql = MySqlConnexion.getMySQLConnection();
         } catch (SQLException ex) {
@@ -37,51 +37,86 @@ public class db {
     }
     
     
-    public static String getPassword(String login, String hash) throws Exception, SQLException{
-        LinkedList cur = select("passwd","employes","email = " + login, false);
-        if(cur.isEmpty()) throw new Exception("badlogin");
-        if(cur.size() > 1) throw new Exception("toomanylogin");
-        return (String) ((Vector) cur.getFirst()).get(0);
+    public synchronized static String getPassword(String login) throws Exception, SQLException{
+        //Création d'un nouveau modèle
+        LinkedList list = new LinkedList();
+        
+        
+        Statement statement = mysql.createStatement();
+        String sql = "SELECT password" + " FROM employes" + " WHERE email = \""+ login +"\"" ;        
+        ResultSet rs = statement.executeQuery(sql);
+
+        //Récupération du result set
+        ResultSetMetaData metaData = rs.getMetaData();
+        //récupéaration nombre de colonne
+        int columnCount = metaData.getColumnCount();
+
+        
+        //Création d'un vecteur d'objet de la taille du nombre de colonne
+        Object[] row = new Object[columnCount];
+
+        //Déplacement du curseur sur le résult set
+        while (rs.next()) {
+            String hash = null;
+            //Récupération des objets dans une ligne.
+            for (int i = 0; i < columnCount; i++) {
+                hash = (String) rs.getObject(1);
+            }
+            //ajout de la ligne au modèle
+            list.add(hash);
+        }
+        //return du modèle
+
+        if(list.isEmpty()) throw new Exception("badlogin");
+        if(list.size() > 1) throw new Exception("toomanylogin");
+        
+        return (String) list.get(0);
     }
     
-    public static boolean isAcredited(String login) throws SQLException{
+    public synchronized static boolean isAcredited(String login) throws SQLException{
         LinkedList cur = select("acred","employes INNER JOIN Acreditation","email =  AND Acred = Activities" + login, false);
         return !cur.isEmpty();
     }
 
-    public static boolean RegisterToActivities(boolean isDay, Activities act, Date dateDebut, Client cl) throws SQLException{
+    
+    
+    public synchronized static boolean RegisterToActivities(Activites act,  Voyageurs cl, int nbrePart, boolean payed) throws SQLException{
+        
         return true;
     }
     
-    public static boolean UnlistToActivities(Activities act, Client cl, Date dateDebut) throws SQLException{
+    public synchronized static boolean UnlistToActivities(Activites act, Voyageurs cl, Date dateDebut) throws SQLException{
         return true;
     }
     
     
     
-    public static LinkedList getClients() throws SQLException{
+    public synchronized static LinkedList getClients() throws SQLException{
         return select("*","client",null, false);
     }
     
-    public static LinkedList getClientsWithHeader() throws SQLException{
+    public synchronized static LinkedList getClientsWithHeader() throws SQLException{
         return select("*","client",null, true);
     }
     
-    public static LinkedList getActivities() throws SQLException{
+    
+    
+    public synchronized static LinkedList getActivities() throws SQLException{
         return select("*","activities",null, false);
     }
     
-    public static LinkedList getActivitiesWithHeader() throws SQLException{
+    public synchronized static LinkedList getActivitiesWithHeader() throws SQLException{
         return select("*","activities",null, true);
     }
     
-    public static LinkedList getRegisteredClients(Activities act) throws SQLException{
-        return select("*","activities",null, false);
+    
+    
+    
+    
+    public synchronized static LinkedList getRegisteredClients(Activites act) throws SQLException{
+        return null;
     }
     
-    public static LinkedList getRegisteredClientsWithHeader(Activities act) throws SQLException{
-        return select("*","activities",null, true);
-    }
     
     
     

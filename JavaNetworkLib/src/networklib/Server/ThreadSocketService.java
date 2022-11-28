@@ -28,14 +28,8 @@ public class ThreadSocketService extends Thread {
             try{
                 currentTask = tasks.getTask();
                 //Pour éviter tout hack, nous vérifier que la tache enregistrée est bien une de nos Request.
-                if(!(currentTask instanceof Request)){
-                    continue;
-                }
+
                 
-                if(currentTask instanceof Login){
-                    currentTask.run();
-                    continue;
-                }
             }
             catch (InterruptedException e){
                 System.out.println("Interruption: " + e.getMessage());

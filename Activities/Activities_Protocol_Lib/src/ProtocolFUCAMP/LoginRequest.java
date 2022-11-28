@@ -21,7 +21,7 @@ import networklib.Server.Request;
  *
  * @author Arkios
  */
-public class LoginRequest implements Request, Serializable, Login{
+public class LoginRequest implements Request, Serializable{
     private final String login;
     private final String hash;
     
@@ -32,13 +32,16 @@ public class LoginRequest implements Request, Serializable, Login{
     
     @Override
     public Runnable createRunnable(Socket s, ServerConsole cs){
-        return () -> {
-            System.out.println("Serveur: Execution d'une Tache");
-            try {
-                s.getOutputStream().flush();
-                LoginTask(s, cs);
-            } catch (IOException ex) {
-                Logger.getLogger(LoginRequest.class.getName()).log(Level.SEVERE, null, ex);
+        return new Runnable() {
+            @Override
+            public void run() {
+                System.out.println("Serveur: Execution d'une Tache");
+                try {
+                    s.getOutputStream().flush();
+                    LoginTask(s, cs);
+                } catch (IOException ex) {
+                    Logger.getLogger(LoginRequest.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         };
     }
@@ -54,13 +57,13 @@ public class LoginRequest implements Request, Serializable, Login{
         log.Trace(sock.getRemoteSocketAddress().toString() + "#Login "+ login +"#" + Thread.currentThread().getName());
         
         //Recuperation du hash enregistrer en db
-        String hashdb = "";
+        String hashdb = null;
         try {
-            hashdb = db.getPassword(login, hash);
+            hashdb = db.getPassword(login);
         } catch (Exception ex) {
             
             if(ex instanceof SQLException){
-                log.Trace(sock.getRemoteSocketAddress().toString() + "#Login " + login + ": DB Error#" + Thread.currentThread().getName());
+                log.Trace(sock.getRemoteSocketAddress().toString() + "#Login " + login + ": " + ex.getMessage() + "#" + Thread.currentThread().getName());
                 oos.writeObject((Object) new LoginResponse(LoginResponse.BADDB, ex.getMessage()));
                 oos.flush();
                 oos.close();
@@ -82,6 +85,8 @@ public class LoginRequest implements Request, Serializable, Login{
             } 
         }
         
+        System.err.println("hash App: " + hash);
+        System.err.println("hash DB: " + hashdb);
         
         //Check Login & Password on SGBD
         if(hash.equals(hashdb)){

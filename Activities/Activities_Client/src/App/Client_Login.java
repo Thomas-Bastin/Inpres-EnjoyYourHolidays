@@ -130,7 +130,7 @@ public class Client_Login extends javax.swing.JFrame {
     }//GEN-LAST:event_KOActionPerformed
 
     private void LoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LoginActionPerformed
-        String login = Login.getText();
+        String login = email.getText();
         String hash = "";
         
         System.out.println("Debut Hashage");
@@ -140,6 +140,7 @@ public class Client_Login extends javax.swing.JFrame {
             Logger.getLogger(Client_Login.class.getName()).log(Level.SEVERE, null, ex);
             System.exit(0);
         }
+        
         System.out.println("Fin Hashage: " + hash);
         
         Socket sock;
@@ -230,7 +231,7 @@ public class Client_Login extends javax.swing.JFrame {
                     break;
                     
                 case 403:
-                        JOptionPane.showMessageDialog(this, "Une erreur lors de la connexion de la base de donnée", "Erreur", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(this, "Erreur Base de Donnée: " + lr.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
                     break;
                     
                 case 404:                   

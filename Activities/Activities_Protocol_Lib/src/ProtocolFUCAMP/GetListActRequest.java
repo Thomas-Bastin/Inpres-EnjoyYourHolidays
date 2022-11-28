@@ -8,6 +8,7 @@ package ProtocolFUCAMP;
 import ActivitiesDataLayer.db;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.Socket;
 import java.sql.SQLException;
 import java.util.LinkedList;
@@ -20,7 +21,7 @@ import networklib.Server.ServerConsole;
  *
  * @author Thomas
  */
-public class GetListActRequest implements Request{
+public class GetListActRequest implements Request, Serializable{
     
     public GetListActRequest(){}
     

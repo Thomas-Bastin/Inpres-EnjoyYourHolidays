@@ -5,6 +5,7 @@
  */
 package ProtocolFUCAMP;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 import networklib.Server.Response;
 
@@ -12,7 +13,7 @@ import networklib.Server.Response;
  *
  * @author Thomas
  */
-public class GetListActResponse implements Response{
+public class GetListActResponse implements Response, Serializable{
     public static final int SUCCESS = 200;
     public static final int BADDB = 403;
     public static final int UNKOWN = 404;

@@ -13,7 +13,7 @@ import networklib.Server.Response;
  *
  * @author Arkios
  */
-public class LoginResponse implements Response, Serializable, Login{
+public class LoginResponse implements Response, Serializable{
     public static final int SUCCESS = 200;
     public static final int BADMAIL = 401;
     public static final int BADPSWD = 402;
