@@ -13,19 +13,15 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
-import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
  * @author Arkios
  */
 @Entity
-@Table(name = "accessemployes", catalog = "bd_holidays", schema = "")
-@XmlRootElement
+@Table(name = "accessemployes")
 @NamedQueries({
-    @NamedQuery(name = "Accessemployes.findAll", query = "SELECT a FROM Accessemployes a")
-    , @NamedQuery(name = "Accessemployes.findByNumeroEmploye", query = "SELECT a FROM Accessemployes a WHERE a.accessemployesPK.numeroEmploye = :numeroEmploye")
-    , @NamedQuery(name = "Accessemployes.findByHabilitation", query = "SELECT a FROM Accessemployes a WHERE a.accessemployesPK.habilitation = :habilitation")})
+    @NamedQuery(name = "Accessemployes.findAll", query = "SELECT a FROM Accessemployes a")})
 public class Accessemployes implements Serializable {
 
     private static final long serialVersionUID = 1L;

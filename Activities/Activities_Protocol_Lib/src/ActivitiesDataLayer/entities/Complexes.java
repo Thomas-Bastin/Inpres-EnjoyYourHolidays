@@ -18,21 +18,15 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
  * @author Arkios
  */
 @Entity
-@Table(name = "complexes", catalog = "bd_holidays", schema = "")
-@XmlRootElement
+@Table(name = "complexes")
 @NamedQueries({
-    @NamedQuery(name = "Complexes.findAll", query = "SELECT c FROM Complexes c")
-    , @NamedQuery(name = "Complexes.findByIdComplexe", query = "SELECT c FROM Complexes c WHERE c.idComplexe = :idComplexe")
-    , @NamedQuery(name = "Complexes.findByNomComplexe", query = "SELECT c FROM Complexes c WHERE c.nomComplexe = :nomComplexe")
-    , @NamedQuery(name = "Complexes.findByTypeComplexe", query = "SELECT c FROM Complexes c WHERE c.typeComplexe = :typeComplexe")})
+    @NamedQuery(name = "Complexes.findAll", query = "SELECT c FROM Complexes c")})
 public class Complexes implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -87,7 +81,6 @@ public class Complexes implements Serializable {
         this.typeComplexe = typeComplexe;
     }
 
-    @XmlTransient
     public List<Chambres> getChambresList() {
         return chambresList;
     }

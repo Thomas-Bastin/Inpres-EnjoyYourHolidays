@@ -4,17 +4,14 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/C:/Users/Arkios/Desktop/Inpres-EnjoyYourHolidays/Activities/Activities_Protocol_Lib/src/ProtocolFUCAMP/LoginResponse.java</file>
+            <file>file:/C:/Users/Arkios/Desktop/Inpres-EnjoyYourHolidays/Activities/Activities_Protocol_Lib/src/ActivitiesDataLayer/entities/Activities.java</file>
             <file>file:/C:/Users/Arkios/Desktop/Inpres-EnjoyYourHolidays/Activities/Activities_Protocol_Lib/src/ProtocolFUCAMP/TimeOut.java</file>
-            <file>file:/C:/Users/Arkios/Desktop/Inpres-EnjoyYourHolidays/Activities/Activities_Protocol_Lib/src/ActivitiesDataLayer/entities/Accessemployes.java</file>
             <file>file:/C:/Users/Arkios/Desktop/Inpres-EnjoyYourHolidays/Activities/Activities_Protocol_Lib/src/ProtocolFUCAMP/GetListActRequest.java</file>
-            <file>file:/C:/Users/Arkios/Desktop/Inpres-EnjoyYourHolidays/Activities/Activities_Protocol_Lib/src/ActivitiesDataLayer/entities/Chambres.java</file>
-            <file>file:/C:/Users/Arkios/Desktop/Inpres-EnjoyYourHolidays/Activities/Activities_Protocol_Lib/src/ActivitiesDataLayer/entities/Employes.java</file>
-            <file>file:/C:/Users/Arkios/Desktop/Inpres-EnjoyYourHolidays/Activities/Activities_Protocol_Lib/src/ActivitiesDataLayer/entities/Activites.java</file>
+            <file>file:/C:/Users/Arkios/Desktop/Inpres-EnjoyYourHolidays/Activities/Activities_Protocol_Lib/src/ActivitiesDataLayer/entities/Voyageurs.java</file>
+            <file>file:/C:/Users/Arkios/Desktop/Inpres-EnjoyYourHolidays/Activities/Activities_Protocol_Lib/src/ActivitiesDataLayer/testApp.java</file>
             <file>file:/C:/Users/Arkios/Desktop/Inpres-EnjoyYourHolidays/Activities/Activities_Protocol_Lib/src/ProtocolFUCAMP/GetListActResponse.java</file>
             <file>file:/C:/Users/Arkios/Desktop/Inpres-EnjoyYourHolidays/Activities/Activities_Protocol_Lib/src/ActivitiesDataLayer/db.java</file>
-            <file>file:/C:/Users/Arkios/Desktop/Inpres-EnjoyYourHolidays/Activities/Activities_Protocol_Lib/src/ActivitiesDataLayer/entities/Reservationactivite.java</file>
             <file>file:/C:/Users/Arkios/Desktop/Inpres-EnjoyYourHolidays/Activities/Activities_Protocol_Lib/src/ProtocolFUCAMP/LoginRequest.java</file>
-            <file>file:/C:/Users/Arkios/Desktop/Inpres-EnjoyYourHolidays/Activities/Activities_Protocol_Lib/src/ActivitiesDataLayer/entities/Complexes.java</file>
         </group>
     </open-files>
 </project-private>

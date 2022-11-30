@@ -6,19 +6,49 @@
 package ActivitiesDataLayer.entities;
 
 import java.io.Serializable;
+import java.util.List;
+import javax.persistence.Basic;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 /**
  *
  * @author Arkios
  */
+@Entity
+@Table(name = "employes")
+@NamedQueries({
+    @NamedQuery(name = "Employes.findAll", query = "SELECT e FROM Employes e")})
 public class Employes implements Serializable {
 
     private static final long serialVersionUID = 1L;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Basic(optional = false)
+    @Column(name = "numeroEmploye")
     private Integer numeroEmploye;
+    @Basic(optional = false)
+    @Column(name = "nomEmploye")
     private String nomEmploye;
+    @Basic(optional = false)
+    @Column(name = "prenomEmploye")
     private String prenomEmploye;
+    @Basic(optional = false)
+    @Column(name = "email")
     private String email;
+    @Basic(optional = false)
+    @Column(name = "password")
     private String password;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "employes")
+    private List<Accessemployes> accessemployesList;
 
     public Employes() {
     }
@@ -74,7 +104,15 @@ public class Employes implements Serializable {
     public void setPassword(String password) {
         this.password = password;
     }
-    
+
+    public List<Accessemployes> getAccessemployesList() {
+        return accessemployesList;
+    }
+
+    public void setAccessemployesList(List<Accessemployes> accessemployesList) {
+        this.accessemployesList = accessemployesList;
+    }
+
     @Override
     public int hashCode() {
         int hash = 0;

@@ -12,34 +12,47 @@ import java.util.Date;
  *
  * @author Arkios
  */
-public class Activites implements Serializable {
 
+public class Activities implements Serializable {
     private static final long serialVersionUID = 1L;
+    
     private Integer idActivite;
     private String typeActivite;
     private int nombreMaxParticipants;
     private int nombreParticipantsInscrits;
+    private Date dateDebut;
     private int dureeActivite;
     private float prixHTVA;
-    private Date dateDebut;
+    private Integer voyageurReferent;
 
-    public Activites() {
+    public Activities() {
     }
 
-    public Activites(Integer idActivite) {
+    public Activities(Integer idActivite) {
         this.idActivite = idActivite;
     }
 
-    public Activites(Integer idActivite, String typeActivite, Integer nombreMaxParticipants, Integer nombreParticipantsInscrits, Integer dureeActivite, Float prixHTVA, Date dateDebut) {
+    public Activities(Integer idActivite, String typeActivite, int nombreMaxParticipants, int nombreParticipantsInscrits, Date dateDebut, int dureeActivite, float prixHTVA) {
         this.idActivite = idActivite;
         this.typeActivite = typeActivite;
         this.nombreMaxParticipants = nombreMaxParticipants;
         this.nombreParticipantsInscrits = nombreParticipantsInscrits;
+        this.dateDebut = dateDebut;
         this.dureeActivite = dureeActivite;
         this.prixHTVA = prixHTVA;
-        this.dateDebut = dateDebut;
     }
 
+    public Activities(Integer idActivite, String typeActivite, int nombreMaxParticipants, int nombreParticipantsInscrits, Date dateDebut, int dureeActivite, float prixHTVA, Integer voyageurReferent) {
+        this.idActivite = idActivite;
+        this.typeActivite = typeActivite;
+        this.nombreMaxParticipants = nombreMaxParticipants;
+        this.nombreParticipantsInscrits = nombreParticipantsInscrits;
+        this.dateDebut = dateDebut;
+        this.dureeActivite = dureeActivite;
+        this.prixHTVA = prixHTVA;
+        this.voyageurReferent = voyageurReferent;
+    }
+    
     public Integer getIdActivite() {
         return idActivite;
     }
@@ -72,6 +85,14 @@ public class Activites implements Serializable {
         this.nombreParticipantsInscrits = nombreParticipantsInscrits;
     }
 
+    public Date getDateDebut() {
+        return dateDebut;
+    }
+
+    public void setDateDebut(Date dateDebut) {
+        this.dateDebut = dateDebut;
+    }
+
     public int getDureeActivite() {
         return dureeActivite;
     }
@@ -88,12 +109,12 @@ public class Activites implements Serializable {
         this.prixHTVA = prixHTVA;
     }
 
-    public Date getDateDebut() {
-        return dateDebut;
+    public Integer getVoyageurReferent() {
+        return voyageurReferent;
     }
 
-    public void setDateDebut(Date dateDebut) {
-        this.dateDebut = dateDebut;
+    public void setVoyageurReferent(Integer voyageurReferent) {
+        this.voyageurReferent = voyageurReferent;
     }
 
     @Override
@@ -106,10 +127,10 @@ public class Activites implements Serializable {
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Activites)) {
+        if (!(object instanceof Activities)) {
             return false;
         }
-        Activites other = (Activites) object;
+        Activities other = (Activities) object;
         if ((this.idActivite == null && other.idActivite != null) || (this.idActivite != null && !this.idActivite.equals(other.idActivite))) {
             return false;
         }
@@ -118,7 +139,9 @@ public class Activites implements Serializable {
 
     @Override
     public String toString() {
-        return "ActivitiesDataLayer.entities.Activites[ idActivite=" + idActivite + " ]";
+        return "Activites{" + "idActivite=" + idActivite + ", typeActivite=" + typeActivite + ", nombreMaxParticipants=" + nombreMaxParticipants + ", nombreParticipantsInscrits=" + nombreParticipantsInscrits + ", dateDebut=" + dateDebut + ", dureeActivite=" + dureeActivite + ", prixHTVA=" + prixHTVA + ", voyageurReferent=" + voyageurReferent + '}';
     }
+    
+    
     
 }

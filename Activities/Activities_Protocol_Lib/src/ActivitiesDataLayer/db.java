@@ -38,13 +38,8 @@ public class db {
     
     
     public synchronized static String getPassword(String login) throws Exception, SQLException{
-        //Création d'un nouveau modèle
         LinkedList list = new LinkedList();
-        
-        
-        Statement statement = mysql.createStatement();
-        String sql = "SELECT password" + " FROM employes" + " WHERE email = \""+ login +"\"" ;        
-        ResultSet rs = statement.executeQuery(sql);
+        ResultSet rs = mysql.createStatement().executeQuery("SELECT password FROM employes WHERE email = \""+ login +"\"");
 
         //Récupération du result set
         ResultSetMetaData metaData = rs.getMetaData();
@@ -80,22 +75,58 @@ public class db {
 
     
     
-    public synchronized static boolean RegisterToActivities(Activites act,  Voyageurs cl, int nbrePart, boolean payed) throws SQLException{
-        return true;
+    public synchronized static void RegisterToActivities(Activities act,  Voyageurs cl, int nbrePart, boolean payed) throws SQLException{
+        return;
     }
     
-    public synchronized static boolean UnlistToActivities(Activites act, Voyageurs cl, Date dateDebut) throws SQLException{
-        return true;
+    public synchronized static void UnlistToActivities(Activities act, Voyageurs cl, Date dateDebut) throws SQLException{
+        return;
     }
     
     
     
     public synchronized static LinkedList<Voyageurs> getClients() throws SQLException{
-        String sql="SELECT * FROM voyageurs"; 
-        
-        //Création d'un nouveau modèle
+        String sql="SELECT * FROM voyageurs";
         LinkedList<Voyageurs> list = new LinkedList<Voyageurs>();
         ResultSet rs = mysql.createStatement().executeQuery(sql);
+        
+        while (rs.next()) {    
+            Voyageurs v = new Voyageurs(rs.getInt("numeroClient") , rs.getString("nomVoyageur"), rs.getString("prenomVoyageur"),
+                                        rs.getString("nomRue"), rs.getInt("numHabitation"), rs.getInt("numBoiteHabitation"), 
+                                        rs.getInt("codePostal"), rs.getString("commune"), rs.getString("nationalite"), rs.getDate("dateNaissance"), rs.getString("email"), rs.getInt("voyageurReferent"));
+            list.add(v);
+        }
+        //return du modèle
+        return list;
+    }
+    
+    
+    
+    public synchronized static LinkedList<Activities> getActivities() throws SQLException{
+        String sql="SELECT * FROM activites";
+        LinkedList<Activities> list = new LinkedList<Activities>();
+        ResultSet rs = mysql.createStatement().executeQuery(sql);
+        
+        while (rs.next()) {
+            Activities a = new Activities(rs.getInt("idActivite"), rs.getString("typeActivite"), rs.getInt("nombreMaxParticipants"), 
+                                        rs.getInt("nombreParticipantsInscrits"),rs.getDate("dateDebut"), rs.getInt("dureeActivite"), 
+                                        rs.getFloat("prixHTVA"), rs.getInt("voyageurReferent"));
+            list.add(a);
+        }
+        //return du modèle
+        return list;
+    }
+    
+    
+    public synchronized static LinkedList<Voyageurs> getRegisteredClients(Activities act) throws SQLException{
+        int id = act.getIdActivite();
+        LinkedList<Voyageurs> list = new LinkedList<Voyageurs>();
+        String sqlRequest = "SELECT voyageurs.* "
+                          + "FROM voyageurs INNER JOIN inscriptionactivites "
+                          + "ON(voyageurs.numeroClient = inscriptionactivites.voyageurRef) "
+                          + "WHERE inscriptionactivites.activiteRef = " + act.getIdActivite();
+        
+        ResultSet rs = mysql.createStatement().executeQuery(sqlRequest);
 
         
         while (rs.next()) {    
@@ -110,28 +141,6 @@ public class db {
     
     
     
-    public synchronized static LinkedList<Activites> getActivities() throws SQLException{
-        String sql="SELECT * FROM activites"; 
-        
-        //Création d'un nouveau modèle
-        LinkedList<Activites> list = new LinkedList<Activites>();
-        ResultSet rs = mysql.createStatement().executeQuery(sql);
-        
-        
-        while (rs.next()) {    
-            Activites a = new Activites(rs.getInt("idActivite"), rs.getString("typeActivite"), rs.getInt("nombreMaxParticipants"), 
-                                        rs.getInt("nombreParticipantsInscrits"), rs.getInt("dureeActivite"), rs.getFloat("prixHTVA"), 
-                                        rs.getDate("dateDebut"));
-            list.add(a);
-        }
-        //return du modèle
-        return list;
-    }
-    
-    
-    public synchronized static LinkedList getRegisteredClients(Activites act) throws SQLException{
-        return null;
-    }
     
     
     

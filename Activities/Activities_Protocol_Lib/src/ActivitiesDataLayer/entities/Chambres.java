@@ -14,22 +14,15 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
-import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  *
  * @author Arkios
  */
 @Entity
-@Table(name = "chambres", catalog = "bd_holidays", schema = "")
-@XmlRootElement
+@Table(name = "chambres")
 @NamedQueries({
-    @NamedQuery(name = "Chambres.findAll", query = "SELECT c FROM Chambres c")
-    , @NamedQuery(name = "Chambres.findByNumChambre", query = "SELECT c FROM Chambres c WHERE c.chambresPK.numChambre = :numChambre")
-    , @NamedQuery(name = "Chambres.findByEquipements", query = "SELECT c FROM Chambres c WHERE c.equipements = :equipements")
-    , @NamedQuery(name = "Chambres.findByNombreLits", query = "SELECT c FROM Chambres c WHERE c.nombreLits = :nombreLits")
-    , @NamedQuery(name = "Chambres.findByPrixHTVA", query = "SELECT c FROM Chambres c WHERE c.prixHTVA = :prixHTVA")
-    , @NamedQuery(name = "Chambres.findByIdComplexe", query = "SELECT c FROM Chambres c WHERE c.chambresPK.idComplexe = :idComplexe")})
+    @NamedQuery(name = "Chambres.findAll", query = "SELECT c FROM Chambres c")})
 public class Chambres implements Serializable {
 
     private static final long serialVersionUID = 1L;

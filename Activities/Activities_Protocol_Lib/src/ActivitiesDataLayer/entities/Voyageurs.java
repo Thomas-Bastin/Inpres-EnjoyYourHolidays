@@ -7,16 +7,34 @@ package ActivitiesDataLayer.entities;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 /**
  *
  * @author Arkios
  */
-
+@Entity
+@Table(name = "voyageurs")
+@NamedQueries({
+    @NamedQuery(name = "Voyageurs.findAll", query = "SELECT v FROM Voyageurs v")})
 public class Voyageurs implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
+    
     private Integer numeroClient;
     private String nomVoyageur;
     private String prenomVoyageur;
@@ -30,6 +48,7 @@ public class Voyageurs implements Serializable {
     private String email;
     private Integer voyageurReferent;
 
+
     public Voyageurs() {
     }
 
@@ -42,9 +61,7 @@ public class Voyageurs implements Serializable {
         this.nomVoyageur = nomVoyageur;
         this.prenomVoyageur = prenomVoyageur;
     }
-
     
-
     public Voyageurs(Integer numeroClient, String nomVoyageur, String prenomVoyageur, String nomRue, Integer numHabitation, Integer numBoiteHabitation, Integer codePostal, String commune, String nationalite, Date dateNaissance, String email, Integer voyageurReferent) {
         this.numeroClient = numeroClient;
         this.nomVoyageur = nomVoyageur;
@@ -59,7 +76,6 @@ public class Voyageurs implements Serializable {
         this.email = email;
         this.voyageurReferent = voyageurReferent;
     }
-    
     
     
 
@@ -150,7 +166,7 @@ public class Voyageurs implements Serializable {
     public void setEmail(String email) {
         this.email = email;
     }
-
+    
     public Integer getVoyageurReferent() {
         return voyageurReferent;
     }
@@ -158,7 +174,7 @@ public class Voyageurs implements Serializable {
     public void setVoyageurReferent(Integer voyageurReferent) {
         this.voyageurReferent = voyageurReferent;
     }
-
+    
     @Override
     public int hashCode() {
         int hash = 0;
