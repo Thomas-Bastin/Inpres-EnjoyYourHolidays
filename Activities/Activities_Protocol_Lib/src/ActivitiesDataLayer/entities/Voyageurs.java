@@ -7,82 +7,28 @@ package ActivitiesDataLayer.entities;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
  * @author Arkios
  */
-@Entity
-@Table(name = "voyageurs", catalog = "bd_holidays", schema = "")
-@XmlRootElement
-@NamedQueries({
-    @NamedQuery(name = "Voyageurs.findAll", query = "SELECT v FROM Voyageurs v")
-    , @NamedQuery(name = "Voyageurs.findByNumeroClient", query = "SELECT v FROM Voyageurs v WHERE v.numeroClient = :numeroClient")
-    , @NamedQuery(name = "Voyageurs.findByNomVoyageur", query = "SELECT v FROM Voyageurs v WHERE v.nomVoyageur = :nomVoyageur")
-    , @NamedQuery(name = "Voyageurs.findByPrenomVoyageur", query = "SELECT v FROM Voyageurs v WHERE v.prenomVoyageur = :prenomVoyageur")
-    , @NamedQuery(name = "Voyageurs.findByNomRue", query = "SELECT v FROM Voyageurs v WHERE v.nomRue = :nomRue")
-    , @NamedQuery(name = "Voyageurs.findByNumHabitation", query = "SELECT v FROM Voyageurs v WHERE v.numHabitation = :numHabitation")
-    , @NamedQuery(name = "Voyageurs.findByNumBoiteHabitation", query = "SELECT v FROM Voyageurs v WHERE v.numBoiteHabitation = :numBoiteHabitation")
-    , @NamedQuery(name = "Voyageurs.findByCodePostal", query = "SELECT v FROM Voyageurs v WHERE v.codePostal = :codePostal")
-    , @NamedQuery(name = "Voyageurs.findByCommune", query = "SELECT v FROM Voyageurs v WHERE v.commune = :commune")
-    , @NamedQuery(name = "Voyageurs.findByNationalite", query = "SELECT v FROM Voyageurs v WHERE v.nationalite = :nationalite")
-    , @NamedQuery(name = "Voyageurs.findByDateNaissance", query = "SELECT v FROM Voyageurs v WHERE v.dateNaissance = :dateNaissance")
-    , @NamedQuery(name = "Voyageurs.findByEmail", query = "SELECT v FROM Voyageurs v WHERE v.email = :email")})
+
 public class Voyageurs implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Basic(optional = false)
-    @Column(name = "numeroClient")
+
     private Integer numeroClient;
-    @Basic(optional = false)
-    @Column(name = "nomVoyageur")
     private String nomVoyageur;
-    @Basic(optional = false)
-    @Column(name = "prenomVoyageur")
     private String prenomVoyageur;
-    @Column(name = "nomRue")
     private String nomRue;
-    @Column(name = "numHabitation")
     private Integer numHabitation;
-    @Column(name = "numBoiteHabitation")
     private Integer numBoiteHabitation;
-    @Column(name = "codePostal")
     private Integer codePostal;
-    @Column(name = "commune")
     private String commune;
-    @Column(name = "nationalite")
     private String nationalite;
-    @Column(name = "dateNaissance")
-    @Temporal(TemporalType.DATE)
     private Date dateNaissance;
-    @Column(name = "email")
     private String email;
-    @OneToMany(mappedBy = "voyageurTitulaire")
-    private List<Reservationactivite> reservationactiviteList;
-    @OneToMany(mappedBy = "voyageurReferent")
-    private List<Voyageurs> voyageursList;
-    @JoinColumn(name = "voyageurReferent", referencedColumnName = "numeroClient")
-    @ManyToOne
-    private Voyageurs voyageurReferent;
+    private Integer voyageurReferent;
 
     public Voyageurs() {
     }
@@ -96,6 +42,26 @@ public class Voyageurs implements Serializable {
         this.nomVoyageur = nomVoyageur;
         this.prenomVoyageur = prenomVoyageur;
     }
+
+    
+
+    public Voyageurs(Integer numeroClient, String nomVoyageur, String prenomVoyageur, String nomRue, Integer numHabitation, Integer numBoiteHabitation, Integer codePostal, String commune, String nationalite, Date dateNaissance, String email, Integer voyageurReferent) {
+        this.numeroClient = numeroClient;
+        this.nomVoyageur = nomVoyageur;
+        this.prenomVoyageur = prenomVoyageur;
+        this.nomRue = nomRue;
+        this.numHabitation = numHabitation;
+        this.numBoiteHabitation = numBoiteHabitation;
+        this.codePostal = codePostal;
+        this.commune = commune;
+        this.nationalite = nationalite;
+        this.dateNaissance = dateNaissance;
+        this.email = email;
+        this.voyageurReferent = voyageurReferent;
+    }
+    
+    
+    
 
     public Integer getNumeroClient() {
         return numeroClient;
@@ -185,29 +151,11 @@ public class Voyageurs implements Serializable {
         this.email = email;
     }
 
-    @XmlTransient
-    public List<Reservationactivite> getReservationactiviteList() {
-        return reservationactiviteList;
-    }
-
-    public void setReservationactiviteList(List<Reservationactivite> reservationactiviteList) {
-        this.reservationactiviteList = reservationactiviteList;
-    }
-
-    @XmlTransient
-    public List<Voyageurs> getVoyageursList() {
-        return voyageursList;
-    }
-
-    public void setVoyageursList(List<Voyageurs> voyageursList) {
-        this.voyageursList = voyageursList;
-    }
-
-    public Voyageurs getVoyageurReferent() {
+    public Integer getVoyageurReferent() {
         return voyageurReferent;
     }
 
-    public void setVoyageurReferent(Voyageurs voyageurReferent) {
+    public void setVoyageurReferent(Integer voyageurReferent) {
         this.voyageurReferent = voyageurReferent;
     }
 

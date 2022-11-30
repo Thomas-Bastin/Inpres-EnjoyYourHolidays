@@ -43,7 +43,7 @@ public class GetListActRequest implements Request, Serializable{
         LinkedList list = null;
         
         try {
-            list = db.getActivitiesWithHeader();
+            list = db.getActivities();
             if(list != null){
                 oos.writeObject(new GetListActResponse(GetListActResponse.SUCCESS, "row: " + list.size(), list));
             }
