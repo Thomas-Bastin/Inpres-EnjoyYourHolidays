@@ -14,31 +14,20 @@ import networklib.Server.Response;
  *
  * @author Thomas
  */
-public class GetListActResponse implements Response, Serializable{
+public class RegisterResponse implements Response, Serializable{
     public static final int SUCCESS = 200;
     public static final int BADDB = 403;
     public static final int UNKOWN = 404;
+    public static final int UNKNOWNCLIENT = 405;
+    public static final int UNKOWNACTIVITIES = 406;
+    public static final int WRONGDAY = 407;
     
     private final int code;
     private final String message;
-    private final LinkedList<Activities> list;
     
-    GetListActResponse(int c, String m){
-        code = c;
-        message = m;    
-        list = new LinkedList<Activities>();
-    }
-    
-    GetListActResponse(int c, String m, LinkedList<Activities> l){
+    RegisterResponse(int c, String m){
         code = c;
         message = m;
-        
-        if(c == SUCCESS){
-            list = l;
-        }
-        else{
-            list = new LinkedList<Activities>();
-        }
     }
 
     @Override
@@ -49,9 +38,5 @@ public class GetListActResponse implements Response, Serializable{
     @Override
     public String getMessage() {
         return message;
-    }
-    
-    public LinkedList<Activities> getList(){
-        return list;
     }
 }

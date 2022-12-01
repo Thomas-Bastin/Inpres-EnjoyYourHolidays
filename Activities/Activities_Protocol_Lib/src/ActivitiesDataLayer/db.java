@@ -72,10 +72,15 @@ public class db {
         LinkedList cur = select("acred","employes INNER JOIN Acreditation","email =  AND Acred = Activities" + login, false);
         return !cur.isEmpty();
     }
-
     
-    
-    public synchronized static void RegisterToActivities(Activities act,  Voyageurs cl, int nbrePart, boolean payed) throws SQLException{
+    public synchronized static void RegisterToActivities(Activities act,  Voyageurs cl, boolean payed) throws SQLException{
+        Statement statement = mysql.createStatement();
+        int bool;
+        if(payed){ bool = 1; } else{ bool = 0; }
+        
+        String sql = "INSERT INTO inscriptionactivites ( voyageurRef, activiteRef, paye) VALUES ("+ cl.getNumeroClient() 
+                   + ", "+ act.getIdActivite() + ", " + bool + ")";
+        statement.execute(sql);
         return;
     }
     

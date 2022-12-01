@@ -22,9 +22,12 @@ import networklib.Server.ServerConsole;
  *
  * @author Thomas
  */
-public class GetListActRequest implements Request, Serializable{
+public class GetListPartRequest implements Request, Serializable{
+    private final Activities activities;
     
-    public GetListActRequest(){}
+    public GetListPartRequest(Activities act){
+        activities = act;
+    }
     
     @Override
     public Runnable createRunnable(Socket s, ServerConsole cs) {
@@ -32,31 +35,30 @@ public class GetListActRequest implements Request, Serializable{
             System.out.println( Thread.currentThread().getName() + ": Execution d'une Tache pour " +  s.getRemoteSocketAddress().toString());
             try {
                 s.getOutputStream().flush();
-                GetListActTASK(s,cs);
+                task(s,cs);
             } catch (IOException ex) {
-                Logger.getLogger(GetListActRequest.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(GetListPartRequest.class.getName()).log(Level.SEVERE, null, ex);
             }
         };
     }
     
-    private void GetListActTASK(Socket sock, ServerConsole log) throws IOException{
+    private void task(Socket sock, ServerConsole log) throws IOException{
         ObjectOutputStream oos = new ObjectOutputStream( sock.getOutputStream());
-        LinkedList<Activities> list = null;
+        LinkedList list = null;
         
         try {
-            list = db.getActivities();
+            list = db.getRegisteredClients(activities);
             if(list != null){
-                oos.writeObject(new GetListActResponse(GetListActResponse.SUCCESS, "row: " + list.size(), list));
+                oos.writeObject(new GetListPartResponse(GetListPartResponse.SUCCESS, "row: " + list.size(), list));
                 return;
             }
-            
             throw new Exception("La liste récupéré est égal à NULL");
         } catch (SQLException ex) {
-            log.Trace(sock.getRemoteSocketAddress().toString() + "# GetListACT SQL Error: " + ex.getErrorCode() + " #" + Thread.currentThread().getName());
-            oos.writeObject(new GetListActResponse(GetListActResponse.BADDB, ex.getMessage()));
+            log.Trace(sock.getRemoteSocketAddress().toString() + "# GetListPART SQL Error: " + ex.getErrorCode() + " #" + Thread.currentThread().getName());
+            oos.writeObject(new GetListPartResponse(GetListPartResponse.BADDB, ex.getMessage()));
         } catch(Exception ex){
-            log.Trace(sock.getRemoteSocketAddress().toString() + "# GetListACT Unkown Error: " + ex.getMessage() + " #" + Thread.currentThread().getName());
-            oos.writeObject(new GetListActResponse(GetListActResponse.UNKOWN, ex.getMessage()));
+            log.Trace(sock.getRemoteSocketAddress().toString() + "# GetListPART Unkown Error: " + ex.getMessage() + " #" + Thread.currentThread().getName());
+            oos.writeObject(new GetListPartResponse(GetListPartResponse.UNKOWN, ex.getMessage()));
         }
     }
 }

@@ -6,6 +6,7 @@
 package ProtocolFUCAMP;
 
 import ActivitiesDataLayer.entities.Activities;
+import ActivitiesDataLayer.entities.Voyageurs;
 import java.io.Serializable;
 import java.util.LinkedList;
 import networklib.Server.Response;
@@ -14,31 +15,27 @@ import networklib.Server.Response;
  *
  * @author Thomas
  */
-public class GetListActResponse implements Response, Serializable{
+public class GetListPartResponse implements Response, Serializable{
     public static final int SUCCESS = 200;
     public static final int BADDB = 403;
     public static final int UNKOWN = 404;
     
     private final int code;
     private final String message;
-    private final LinkedList<Activities> list;
+    private final LinkedList<Voyageurs> list;
     
-    GetListActResponse(int c, String m){
+    GetListPartResponse(int c, String m){
         code = c;
         message = m;    
-        list = new LinkedList<Activities>();
+        list = new LinkedList<Voyageurs>();
     }
     
-    GetListActResponse(int c, String m, LinkedList<Activities> l){
+    GetListPartResponse(int c, String m, LinkedList<Voyageurs> l){
         code = c;
         message = m;
         
-        if(c == SUCCESS){
-            list = l;
-        }
-        else{
-            list = new LinkedList<Activities>();
-        }
+        if(c == SUCCESS){ list = l; }
+        else{ list = new LinkedList<Voyageurs>(); }
     }
 
     @Override
@@ -51,7 +48,7 @@ public class GetListActResponse implements Response, Serializable{
         return message;
     }
     
-    public LinkedList<Activities> getList(){
+    public LinkedList<Voyageurs> getList(){
         return list;
     }
 }

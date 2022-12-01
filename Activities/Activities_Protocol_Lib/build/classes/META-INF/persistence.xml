@@ -16,6 +16,8 @@
     <class>ActivitiesDataLayer.entities.Complexes</class>
     <class>ActivitiesDataLayer.entities.Accessemployes</class>
     <class>ActivitiesDataLayer.entities.Activities</class>
+    <class>ActivitiesDataLayer.entities.Activites</class>
+    <class>ActivitiesDataLayer.entities.Inscriptionactivites</class>
     <properties>
       <property name="javax.persistence.jdbc.url" value="jdbc:mysql://192.168.1.63:3560/bd_holidays?zeroDateTimeBehavior=convertToNull"/>
       <property name="javax.persistence.jdbc.user" value="db_access_tools"/>

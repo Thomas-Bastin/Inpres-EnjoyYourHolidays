@@ -7,6 +7,7 @@ package ActivitiesDataLayer.entities;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Vector;
 
 /**
  *
@@ -14,8 +15,7 @@ import java.util.Date;
  */
 
 public class Activities implements Serializable {
-    private static final long serialVersionUID = 1L;
-    
+
     private Integer idActivite;
     private String typeActivite;
     private int nombreMaxParticipants;
@@ -143,5 +143,16 @@ public class Activities implements Serializable {
     }
     
     
-    
+    public Vector<String> toVector(){
+        Vector<String> vec = new Vector<String>();
+        
+        vec.add(typeActivite.toString());
+        vec.add("" + nombreMaxParticipants);
+        vec.add("" + nombreParticipantsInscrits);
+        vec.add(dateDebut.toString());
+        vec.add("" + dureeActivite);
+        vec.add("" + prixHTVA);
+        
+        return vec;
+    }
 }

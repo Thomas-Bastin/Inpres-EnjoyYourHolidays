@@ -88,15 +88,18 @@ public class ServerTCP extends Thread {
             }
             
             
-            ObjectInputStream ois;
-            Request req;
+            ObjectInputStream ois = null;
+            try {    
+                ois = new ObjectInputStream(serviceSock.getInputStream());
+            } catch (IOException ex) {
+                Logger.getLogger(ServerTCP.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            System.out.println("Serveur: AttenteObjet en entrée");
             
+
+            Request req;
             //Récupération de l'objet qui compose la requète de nouvelle connexion:
             try {
-                ois = new ObjectInputStream(serviceSock.getInputStream());
-                
-                System.out.println("Serveur: AttenteObjet en entrée");
-                
                 req = (Request) ois.readObject();
                 System.out.println("Requete lue par le serveur, instance de " + req.getClass().getName());
                 

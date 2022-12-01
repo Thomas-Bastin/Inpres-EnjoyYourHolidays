@@ -7,33 +7,13 @@ package ActivitiesDataLayer.entities;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import java.util.Vector;
 
 /**
  *
  * @author Arkios
  */
-@Entity
-@Table(name = "voyageurs")
-@NamedQueries({
-    @NamedQuery(name = "Voyageurs.findAll", query = "SELECT v FROM Voyageurs v")})
 public class Voyageurs implements Serializable {
-
-    private static final long serialVersionUID = 1L;
     
     private Integer numeroClient;
     private String nomVoyageur;
@@ -197,7 +177,32 @@ public class Voyageurs implements Serializable {
 
     @Override
     public String toString() {
-        return "ActivitiesDataLayer.entities.Voyageurs[ numeroClient=" + numeroClient + " ]";
+        return "Voyageurs{" + "numeroClient=" + numeroClient + ", nomVoyageur=" + nomVoyageur + ", prenomVoyageur=" + prenomVoyageur + ", nomRue=" + nomRue + ", numHabitation=" + numHabitation + ", numBoiteHabitation=" + numBoiteHabitation + ", codePostal=" + codePostal + ", commune=" + commune + ", nationalite=" + nationalite + ", dateNaissance=" + dateNaissance + ", email=" + email + ", voyageurReferent=" + voyageurReferent + '}';
     }
     
+    public Vector<String> toVector(){
+        Vector<String> vec = new Vector<String>();
+        
+        vec.add(nomVoyageur);
+        vec.add(prenomVoyageur);
+        
+        if(numBoiteHabitation != null && numBoiteHabitation.intValue() != 0){
+            vec.add(numHabitation + "/" +
+                numBoiteHabitation + " " + nomRue + ", "
+              + codePostal + " " + commune
+            );
+        }
+        else{
+            vec.add(numHabitation + " " + nomRue + ", "
+              + codePostal + " " + commune
+            );
+        }
+        
+        
+        vec.add(codePostal.toString());
+        vec.add(nationalite.toString());
+        vec.add(dateNaissance.toString());
+        
+        return vec;
+    }
 }

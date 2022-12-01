@@ -20,8 +20,8 @@ public class LoginResponse implements Response, Serializable{
     public static final int BADDB = 403;
     public static final int UNKOWN = 404;
     
-    private int Code;
-    private String Msg;
+    private final int Code;
+    private final String Msg;
     
     LoginResponse(int c, String m){
         Code = c;
