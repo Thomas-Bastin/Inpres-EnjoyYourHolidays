@@ -27,11 +27,14 @@ public class ThreadSocketService extends Thread {
         while (!isInterrupted()){
             try{
                 currentTask = tasks.getTask();
+                //Pour éviter tout hack, nous vérifier que la tache enregistrée est bien une de nos Request.
+
+                
             }
             catch (InterruptedException e){
                 System.out.println("Interruption: " + e.getMessage());
             }
-
+            
             System.out.println("Start the Current Task: ");
             currentTask.run();
         } 

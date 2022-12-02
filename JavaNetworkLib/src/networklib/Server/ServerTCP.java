@@ -84,36 +84,44 @@ public class ServerTCP extends Thread {
                 
             } catch (IOException ex) {
                 Logger.getLogger(ServerTCP.class.getName()).log(Level.SEVERE, null, ex);
-                return;
+                continue;
             }
             
             
-            ObjectInputStream ois;
-            Requete req;
+            ObjectInputStream ois = null;
+            try {    
+                ois = new ObjectInputStream(serviceSock.getInputStream());
+            } catch (IOException ex) {
+                Logger.getLogger(ServerTCP.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            System.out.println("Serveur: AttenteObjet en entrée");
             
+
+            Request req;
             //Récupération de l'objet qui compose la requète de nouvelle connexion:
             try {
-                ois = new ObjectInputStream(serviceSock.getInputStream());
-                
-                System.out.println("Serveur: AttenteObjet en entrée");
-                
-                req = (Requete) ois.readObject();
+                req = (Request) ois.readObject();
                 System.out.println("Requete lue par le serveur, instance de " + req.getClass().getName());
                 
             } catch (IOException | ClassNotFoundException ex) {
                 Logger.getLogger(ServerTCP.class.getName()).log(Level.SEVERE, null, ex);
-                return;
+                continue;
             }
+            
+            if(!(req instanceof Request)){
+                    Log.Trace(serviceSock.getRemoteSocketAddress().toString()+"#Tentative de Hack: Runnable Inconnus#thread serveur");
+                    continue;
+            }
+            
             
             //Création d'un Runnable sur base de la requete de nouvelle connexion récupéré a l'instant.
             Runnable todo = req.createRunnable(serviceSock, Log);
             if (todo != null)
             {
-                //On ajoute la nouvelle Connexion dans la liste des requètes a traitée
-                tasks.recordTask(todo);
-                
-                System.out.println("Nouvelle Connexion mise dans la File d'attente.");
-                Log.Trace(serviceSock.getRemoteSocketAddress().toString()+"#Tentative Nouvelle Connexion Réussie#thread serveur");
+                    //On ajoute la nouvelle Connexion dans la liste des requètes a traitée
+                    tasks.recordTask(todo);
+                    System.out.println("Nouvelle Connexion mise dans la File d'attente.");
+                    Log.Trace(serviceSock.getRemoteSocketAddress().toString()+"#Tentative Nouvelle Connexion Réussie#thread serveur");   
             }
             else{
                 //On ne fait rien

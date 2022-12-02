@@ -4,6 +4,8 @@
  * and open the template in the editor.
  */
 package App;
+import ActivitiesDataLayer.entities.Activities;
+import ActivitiesDataLayer.entities.Voyageurs;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -24,6 +26,7 @@ import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.xml.bind.DatatypeConverter;
 import ProtocolFUCAMP.*;
+import java.util.LinkedList;
 
 /**
  *
@@ -32,6 +35,7 @@ import ProtocolFUCAMP.*;
 public class Client_Login extends javax.swing.JFrame {
     
     Properties config;
+    InetSocketAddress addr;
     
     /**
      * Creates new form Client_Activities
@@ -130,7 +134,7 @@ public class Client_Login extends javax.swing.JFrame {
     }//GEN-LAST:event_KOActionPerformed
 
     private void LoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LoginActionPerformed
-        String login = Login.getText();
+        String login = email.getText();
         String hash = "";
         
         System.out.println("Debut Hashage");
@@ -140,6 +144,7 @@ public class Client_Login extends javax.swing.JFrame {
             Logger.getLogger(Client_Login.class.getName()).log(Level.SEVERE, null, ex);
             System.exit(0);
         }
+        
         System.out.println("Fin Hashage: " + hash);
         
         Socket sock;
@@ -169,7 +174,8 @@ public class Client_Login extends javax.swing.JFrame {
         try {
             //Connect to the Server (from properties)
             sock = new Socket();
-            sock.connect(new InetSocketAddress(ip,port));
+            addr = new InetSocketAddress(ip,port);
+            sock.connect(addr);
             sock.getOutputStream().flush();
             
             System.out.println("Récupération des Output Stream");
@@ -210,15 +216,12 @@ public class Client_Login extends javax.swing.JFrame {
             
             oos.close();
             ios.close();
+            sock.close();
             
             //check login response:
             switch(lr.getCode()){
                 case 200:
-                        //Recuperation csocket
-                        System.out.println("LoginRéussi, construction de la fenètre main.");
-                        Client_Main window = new Client_Main(this, false, sock);
-                        this.setVisible(false);
-                        window.setVisible(true);
+                        loginchecked();
                     break;
                     
                 case 401:
@@ -230,13 +233,14 @@ public class Client_Login extends javax.swing.JFrame {
                     break;
                     
                 case 403:
-                        JOptionPane.showMessageDialog(this, "Une erreur lors de la connexion de la base de donnée", "Erreur", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(this, "Erreur Base de Donnée: " + lr.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
                     break;
                     
                 case 404:                   
                 default:
                     JOptionPane.showMessageDialog(this, "Erreur Inconnue", "Erreur", JOptionPane.ERROR_MESSAGE);
             }
+                    
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(this, "La connexion n'a pas réussie\n" + ex.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
         } catch (ClassNotFoundException ex) {
@@ -244,7 +248,61 @@ public class Client_Login extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_LoginActionPerformed
     
-    
+    private void loginchecked() throws IOException, ClassNotFoundException{
+        
+        Socket sock = new Socket();
+        sock.connect(addr);
+        
+        ObjectOutputStream oos = new ObjectOutputStream(sock.getOutputStream());
+        ObjectInputStream ios;
+        Object resp = null;
+        TimeOut to;
+        
+        System.out.println("Envoie d'un object GetListClientRequest");
+        //Send Login request 
+        oos.writeObject((Object) new GetListActRequest());
+        oos.flush();
+
+        
+        System.out.println("Récupération des Input Stream");
+        ios = new ObjectInputStream(sock.getInputStream());
+        resp = ios.readObject();
+        
+        LinkedList<Activities> activitiesList = null;
+        if (resp instanceof GetListActResponse) {
+            switch(((GetListActResponse) resp).getCode()){
+                case GetListActResponse.SUCCESS:
+                    activitiesList = ((GetListActResponse) resp).getList();
+                break;
+                
+                case GetListActResponse.BADDB:
+                    JOptionPane.showMessageDialog(this, "Erreur Base de Donnée: " + ((GetListActResponse) resp).getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+                break;
+                
+                case GetListActResponse.UNKOWN:
+                default:
+                    JOptionPane.showMessageDialog(this, "Erreur Inconnue", "Erreur", JOptionPane.ERROR_MESSAGE);
+                    break;
+            }
+        } else if (resp instanceof TimeOut) {
+            to = (TimeOut) resp;
+            if (to.getCode() == TimeOut.LOGOUT) {
+                //Logout :
+                this.KOActionPerformed(null);
+            }
+            JOptionPane.showMessageDialog(this, "Le Serveur c'est éteint", "Erreur", JOptionPane.ERROR_MESSAGE);
+            return;
+        } else {
+            JOptionPane.showMessageDialog(this, "Message reçus du Serveur Inconnus", "Erreur", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        System.out.println("LoginRéussi, construction de la fenètre main.");
+        Client_Main window = new Client_Main(addr, activitiesList);
+        this.setVisible(false);
+        window.setVisible(true);
+        this.dispose();
+    }
     
     /**
      * @param args the command line arguments

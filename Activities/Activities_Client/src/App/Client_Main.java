@@ -5,18 +5,27 @@
  */
 package App;
 
+import ActivitiesDataLayer.entities.Activities;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
  * @author Arkios
  */
-public class Client_Main extends javax.swing.JDialog {
+public class Client_Main extends javax.swing.JFrame {
     
-    private final Socket socket;
+    LinkedList<Activities> actList;
+    InetSocketAddress addr;
     
     /**
      * Creates new form Client_Main
@@ -24,12 +33,27 @@ public class Client_Main extends javax.swing.JDialog {
      * @param modal
      * @param sock
      */
-    public Client_Main(java.awt.Frame parent, boolean modal, Socket sock) {
-        super(parent, modal);
+    public Client_Main(InetSocketAddress ad, LinkedList<Activities> act) {
         initComponents();
         
-        socket = sock;
+        actList = act;
+        addr = ad;
+        initActivitiesTable();
     }
+    
+    private void initActivitiesTable(){
+        DefaultTableModel model = (DefaultTableModel) ActivitiesTable.getModel();
+        
+        for(Activities act : actList){
+            model.addRow(act.toVector());
+        }
+        
+        ActivitiesTable.setModel(model);
+    }
+    
+    
+    
+
     
     
     
@@ -43,37 +67,65 @@ public class Client_Main extends javax.swing.JDialog {
     private void initComponents() {
 
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        ActivitiesTable = new javax.swing.JTable();
         jMenuBar1 = new javax.swing.JMenuBar();
-        menu_Quitter = new javax.swing.JMenu();
-        jMenuItem1 = new javax.swing.JMenuItem();
+        menu_File = new javax.swing.JMenu();
+        Logout = new javax.swing.JMenuItem();
+        Quitter = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        ActivitiesTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+                "Nom Activitée", "Limite Participant", "Nombre Participant", "Date de début", "Duree Activitée", "Prix (HTVA)"
             }
-        ));
-        jScrollPane1.setViewportView(jTable1);
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Object.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false
+            };
 
-        menu_Quitter.setText("File");
-        menu_Quitter.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                menu_QuitterActionPerformed(evt);
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
             }
         });
+        ActivitiesTable.getTableHeader().setReorderingAllowed(false);
+        ActivitiesTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                ActivitiesTableMouseClicked(evt);
+            }
+        });
+        jScrollPane1.setViewportView(ActivitiesTable);
+        ActivitiesTable.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 
-        jMenuItem1.setText("Quitter");
-        menu_Quitter.add(jMenuItem1);
+        menu_File.setText("File");
 
-        jMenuBar1.add(menu_Quitter);
+        Logout.setText("Logout");
+        Logout.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                LogoutActionPerformed(evt);
+            }
+        });
+        menu_File.add(Logout);
+
+        Quitter.setText("Quitter");
+        Quitter.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                QuitterActionPerformed(evt);
+            }
+        });
+        menu_File.add(Quitter);
+
+        jMenuBar1.add(menu_File);
 
         setJMenuBar(jMenuBar1);
 
@@ -97,29 +149,45 @@ public class Client_Main extends javax.swing.JDialog {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void menu_QuitterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menu_QuitterActionPerformed
-        try {
-            Shutdown();
-        } catch (IOException ex) {
-            Logger.getLogger(Client_Main.class.getName()).log(Level.SEVERE, null, ex);
-            System.exit(100);
-        }
-    }//GEN-LAST:event_menu_QuitterActionPerformed
-    private void Shutdown() throws IOException{
-        socket.close();
+    private void LogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LogoutActionPerformed
+        Client_Login log = new Client_Login();
+        log.setVisible(true);
         this.dispose();
-    }
+    }//GEN-LAST:event_LogoutActionPerformed
+
+    private void ActivitiesTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ActivitiesTableMouseClicked
+
+        if (evt.getClickCount() == 2) {
+            Activities act = actList.get(ActivitiesTable.getSelectedRow());
+            
+            System.out.println("Selectionné: " + act);
+            Client_Activities window = null;
+            try {
+                window = new Client_Activities(this, true, addr, act);
+            } catch (IOException | ClassNotFoundException ex) {
+                Logger.getLogger(Client_Main.class.getName()).log(Level.SEVERE, null, ex);
+                System.exit(102);
+            }
+            window.setVisible(true);
+        }
+    }//GEN-LAST:event_ActivitiesTableMouseClicked
+
+    private void QuitterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_QuitterActionPerformed
+        this.dispose();
+    }//GEN-LAST:event_QuitterActionPerformed
     
     @Override
     public void dispose(){
-        menu_QuitterActionPerformed(null);
+        System.exit(0);
+        super.dispose();
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTable ActivitiesTable;
+    private javax.swing.JMenuItem Logout;
+    private javax.swing.JMenuItem Quitter;
     private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
-    private javax.swing.JMenu menu_Quitter;
+    private javax.swing.JMenu menu_File;
     // End of variables declaration//GEN-END:variables
 }
