@@ -47,6 +47,7 @@ public class GetListActRequest implements Request, Serializable{
             list = db.getActivities();
             if(list != null){
                 oos.writeObject(new GetListActResponse(GetListActResponse.SUCCESS, "row: " + list.size(), list));
+                log.Trace(sock.getRemoteSocketAddress().toString() + "# GetListActivitiesRequest #" + Thread.currentThread().getName());
                 return;
             }
             

@@ -16,6 +16,8 @@ import ProtocolFUCAMP.GetListPartResponse;
 import ProtocolFUCAMP.RegisterRequest;
 import ProtocolFUCAMP.RegisterResponse;
 import ProtocolFUCAMP.TimeOut;
+import ProtocolFUCAMP.UnlistRequest;
+import ProtocolFUCAMP.UnlistResponse;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -52,116 +54,6 @@ public class Client_Activities extends javax.swing.JDialog {
         
         refreshActivitiesTable();
         refreshVoyageursTable();
-    }
-    
-    private void refreshActivitiesTable() throws IOException, ClassNotFoundException{
-        Activities tmp = null;
-        Socket s = new Socket();
-        s.connect(address);
-        ObjectOutputStream oos = new ObjectOutputStream(s.getOutputStream());
-        //Envoie Req
-        oos.writeObject(new GetListActRequest());
-        oos.flush();
-        
-        
-        ObjectInputStream ios = new ObjectInputStream(s.getInputStream());
-        //Recep Rep
-        Object rep = null;
-        rep = ios.readObject();
-        
-        if(rep instanceof TimeOut){
-            System.out.println("To Do Timeout refreshActivities");
-            return;
-        }
-        
-        
-        if(!(rep instanceof GetListActResponse)){
-            System.out.println("To Do Other things: " + rep.getClass());
-            return;
-        }
-        
-        switch(((GetListActResponse) rep).getCode()){
-            case GetListActResponse.SUCCESS: 
-                    LinkedList<Activities> listact = ((GetListActResponse) rep).getList();
-                    
-                    //Recherche List
-                    for(Activities a : listact){
-                        if(a.getIdActivite().intValue() == selectActivities.getIdActivite().intValue()){
-                            tmp = a;
-                            System.out.println("Found: " + tmp);
-                            break;
-                        }
-                    }
-                    
-                    if(tmp == null){
-                        System.exit(100);
-                    }
-                    
-                    //Affichage
-                    DefaultTableModel model = (DefaultTableModel) ActivitiesTable.getModel();
-                    model.setRowCount(0);
-                    model.addRow(tmp.toVector());
-                    ActivitiesTable.setModel(model);
-                break;
-                
-            case GetListActResponse.BADDB:
-                JOptionPane.showMessageDialog(this, "Erreur Base de Donnée: " + ((GetListActResponse) rep).getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
-                break;
-                
-            case GetListActResponse.UNKOWN:
-            default:
-                JOptionPane.showMessageDialog(this, "Erreur Inconnue", "Erreur", JOptionPane.ERROR_MESSAGE);
-                break;
-        }
-    }
-    
-    private void refreshVoyageursTable() throws IOException, ClassNotFoundException{
-        Socket s = new Socket();
-        s.connect(address);
-        ObjectOutputStream oos = new ObjectOutputStream(s.getOutputStream());
-        //Envoie Req
-        oos.writeObject(new GetListPartRequest(selectActivities));
-        
-        ObjectInputStream ios = new ObjectInputStream(s.getInputStream());
-        //Recep Rep
-        Object rep = null;
-        
-        rep = ios.readObject();
-        
-        if(rep instanceof TimeOut){
-            System.out.println("To Do Timeout refreshActivities");
-            return;
-        }
-        
-        if(!(rep instanceof GetListPartResponse)){
-            System.out.println("To Do Other things: " + rep.getClass());
-            return;
-        }
-        s.close();
-        
-        GetListPartResponse listPartResponse = (GetListPartResponse) rep; 
-        
-        switch(listPartResponse.getCode()){
-        case GetListPartResponse.SUCCESS: 
-                    listVoyInscrit = listPartResponse.getList();
-                    //Affichage
-                    DefaultTableModel model = (DefaultTableModel) VoyageursTable.getModel();
-                    model.setRowCount(0);
-                    for(Voyageurs v : listVoyInscrit ){
-                        model.addRow(v.toVector());
-                    }
-                    VoyageursTable.setModel(model);
-                break;
-                
-            case GetListPartResponse.BADDB:
-                JOptionPane.showMessageDialog(this, "Erreur Base de Donnée: " + listPartResponse.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
-                break;
-                
-            case GetListPartResponse.UNKOWN:
-            default:
-                JOptionPane.showMessageDialog(this, "Erreur Inconnue: " + listPartResponse.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
-                break;
-        }
     }
     
     /**
@@ -314,7 +206,7 @@ public class Client_Activities extends javax.swing.JDialog {
         
         try {
             //Request clients:
-            listvoy = this.getClients();
+            listvoy = this.getComboClients();
             //Reception de tout les clients:
         } catch (IOException | ClassNotFoundException ex) {
             Logger.getLogger(Client_Activities.class.getName()).log(Level.SEVERE, null, ex);
@@ -349,8 +241,9 @@ public class Client_Activities extends javax.swing.JDialog {
         
         //En fonction d'index Envoie Requete Add
         Voyageurs toAdd = DisplayedVoy.get(retval);
+        
         try {
-            this.registerActivities(toAdd, false);
+            registerActivities(toAdd, false);
         } catch (IOException | ClassNotFoundException ex) {
             Logger.getLogger(Client_Activities.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -384,12 +277,19 @@ public class Client_Activities extends javax.swing.JDialog {
         
         switch(listPartResponse.getCode()){
         case RegisterResponse.SUCCESS:
-                JOptionPane.showMessageDialog(this, "Ajout avec succès", "Success", JOptionPane.INFORMATION_MESSAGE);
-                this.refreshVoyageursTable();
+                refreshVoyageursTable();
                 return;
                 
             case RegisterResponse.BADDB:
                 JOptionPane.showMessageDialog(this, "Erreur Base de Donnée: " + listPartResponse.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+                return;
+                
+            case RegisterResponse.UNKNOWNCLIENT:
+                JOptionPane.showMessageDialog(this, "Erreur: " + listPartResponse.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+                return;
+            
+            case RegisterResponse.UNKOWNACTIVITIES:
+                JOptionPane.showMessageDialog(this, "Erreur: " + listPartResponse.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
                 return;
                 
             case RegisterResponse.UNKOWN:
@@ -397,9 +297,195 @@ public class Client_Activities extends javax.swing.JDialog {
                 JOptionPane.showMessageDialog(this, "Erreur Inconnue: " + listPartResponse.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
                 return;
         }
+    }    
+
+
+    
+    private void Supprimer_ParticipantActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Supprimer_ParticipantActionPerformed
+        int selected = VoyageursTable.getSelectedRow();
+        if(selected <0){
+            return;
+        }
+        int retval = JOptionPane.showConfirmDialog(this, "Etes vous sur de vouloir supprimer ?");
+        if(retval != 0){
+            return;
+        }
+        
+        
+        Voyageurs v = listVoyInscrit.remove(selected);
+        
+        try {
+            UnlistClient(v);
+        } catch (IOException | ClassNotFoundException ex) {
+            Logger.getLogger(Client_Activities.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_Supprimer_ParticipantActionPerformed
+   
+    private void UnlistClient(Voyageurs v) throws IOException, ClassNotFoundException{
+        Socket s = new Socket();
+        s.connect(address);
+        ObjectOutputStream oos = new ObjectOutputStream(s.getOutputStream());
+        //Envoie Req
+        oos.writeObject(new UnlistRequest(selectActivities, v));
+        
+        ObjectInputStream ios = new ObjectInputStream(s.getInputStream());
+        //Recep Rep
+        Object rep = null;
+        
+        
+        rep = ios.readObject();
+        
+        if(rep instanceof TimeOut){
+            System.out.println("To Do Timeout refreshActivities");
+            return;
+        }
+        
+        if(!(rep instanceof UnlistResponse)){
+            System.out.println("To Do Other things: " + rep.getClass());
+            return;
+        }
+        s.close();
+        
+        UnlistResponse listPartResponse = (UnlistResponse) rep; 
+        
+        switch(listPartResponse.getCode()){
+        case UnlistResponse.SUCCESS:
+                this.refreshVoyageursTable();
+                return;
+                
+            case UnlistResponse.BADDB:
+                JOptionPane.showMessageDialog(this, "Erreur Base de Donnée: " + listPartResponse.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+                return;
+                
+            case UnlistResponse.UNKNOWNCLIENT:
+                JOptionPane.showMessageDialog(this, "Erreur: " + listPartResponse.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+                return;
+            
+            case UnlistResponse.UNKOWNACTIVITIES:
+                JOptionPane.showMessageDialog(this, "Erreur: " + listPartResponse.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+                return;
+                
+            case UnlistResponse.UNKOWN:
+            default:
+                JOptionPane.showMessageDialog(this, "Erreur Inconnue: " + listPartResponse.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+                return;
+        }
     }
     
-    private LinkedList<Voyageurs> getClients() throws IOException, ClassNotFoundException{
+    
+    
+    private void refreshActivitiesTable() throws IOException, ClassNotFoundException{
+        Activities tmp = null;
+        Socket s = new Socket();
+        s.connect(address);
+        ObjectOutputStream oos = new ObjectOutputStream(s.getOutputStream());
+        //Envoie Req
+        oos.writeObject(new GetListActRequest());
+        oos.flush();
+        
+        
+        ObjectInputStream ios = new ObjectInputStream(s.getInputStream());
+        //Recep Rep
+        Object rep = null;
+        rep = ios.readObject();
+        
+        if(rep instanceof TimeOut){
+            System.out.println("To Do Timeout refreshActivities");
+            return;
+        }
+        
+        
+        if(!(rep instanceof GetListActResponse)){
+            System.out.println("To Do Other things: " + rep.getClass());
+            return;
+        }
+        
+        switch(((GetListActResponse) rep).getCode()){
+            case GetListActResponse.SUCCESS: 
+                    LinkedList<Activities> listact = ((GetListActResponse) rep).getList();
+                    
+                    //Recherche List
+                    for(Activities a : listact){
+                        if(a.getIdActivite().intValue() == selectActivities.getIdActivite().intValue()){
+                            tmp = a;
+                            System.out.println("Found: " + tmp);
+                            break;
+                        }
+                    }
+                    
+                    if(tmp == null){
+                        System.exit(100);
+                    }
+                    
+                    //Affichage
+                    DefaultTableModel model = (DefaultTableModel) ActivitiesTable.getModel();
+                    model.setRowCount(0);
+                    model.addRow(tmp.toVector());
+                    ActivitiesTable.setModel(model);
+                break;
+                
+            case GetListActResponse.BADDB:
+                JOptionPane.showMessageDialog(this, "Erreur Base de Donnée: " + ((GetListActResponse) rep).getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+                break;
+                
+            case GetListActResponse.UNKOWN:
+            default:
+                JOptionPane.showMessageDialog(this, "Erreur Inconnue", "Erreur", JOptionPane.ERROR_MESSAGE);
+                break;
+        }
+    }
+    
+    private void refreshVoyageursTable() throws IOException, ClassNotFoundException{
+        Socket s = new Socket();
+        s.connect(address);
+        ObjectOutputStream oos = new ObjectOutputStream(s.getOutputStream());
+        //Envoie Req
+        oos.writeObject(new GetListPartRequest(selectActivities));
+        
+        ObjectInputStream ios = new ObjectInputStream(s.getInputStream());
+        //Recep Rep
+        Object rep = null;
+        
+        rep = ios.readObject();
+        
+        if(rep instanceof TimeOut){
+            System.out.println("To Do Timeout refreshActivities");
+            return;
+        }
+        
+        if(!(rep instanceof GetListPartResponse)){
+            System.out.println("To Do Other things: " + rep.getClass());
+            return;
+        }
+        s.close();
+        
+        GetListPartResponse listPartResponse = (GetListPartResponse) rep; 
+        
+        switch(listPartResponse.getCode()){
+        case GetListPartResponse.SUCCESS: 
+                    listVoyInscrit = listPartResponse.getList();
+                    //Affichage
+                    DefaultTableModel model = (DefaultTableModel) VoyageursTable.getModel();
+                    model.setRowCount(0);
+                    for(Voyageurs v : listVoyInscrit ){
+                        model.addRow(v.toVector());
+                    }
+                    VoyageursTable.setModel(model);
+                break;
+                
+            case GetListPartResponse.BADDB:
+                JOptionPane.showMessageDialog(this, "Erreur Base de Donnée: " + listPartResponse.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+                break;
+                
+            case GetListPartResponse.UNKOWN:
+            default:
+                JOptionPane.showMessageDialog(this, "Erreur Inconnue: " + listPartResponse.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
+                break;
+        }
+    }
+    
+    
+    private LinkedList<Voyageurs> getComboClients() throws IOException, ClassNotFoundException{
         Socket s = new Socket();
         s.connect(address);
         ObjectOutputStream oos = new ObjectOutputStream(s.getOutputStream());
@@ -439,23 +525,6 @@ public class Client_Activities extends javax.swing.JDialog {
                 return new LinkedList<Voyageurs>();
         }
     }
-    
-    private void Supprimer_ParticipantActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Supprimer_ParticipantActionPerformed
-        int selected = VoyageursTable.getSelectedRow();
-        if(selected <0){
-            return;
-        }
-        
-        int retval = JOptionPane.showConfirmDialog(this, "Etes vous sur de vouloir supprimer ?");
-        if(retval != 0){
-            return;
-        }
-        //On envoie la requète de supression:
-        
-        //On reçois et traite les réponses:
-        
-    }//GEN-LAST:event_Supprimer_ParticipantActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTable ActivitiesTable;
     private javax.swing.JButton Ajouter_Participant;
