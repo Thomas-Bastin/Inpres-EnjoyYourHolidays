@@ -11,10 +11,8 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
-import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,11 +24,11 @@ import java.util.logging.Logger;
  */
 public class ServerTCP extends Thread {
     private final ServerSocket ssock;
-    private ServerConsole Log;
-    private TasksSource tasks;
+    private final ServerConsole Log;
+    private final TasksSource tasks;
     
     private final int ThreadsCount;
-    private LinkedList<ThreadSocketService> threads;
+    private final LinkedList<ThreadSocketService> threads;
     
     
     public ServerTCP(int port, TasksSource s, ServerConsole l, int countthreads) throws IOException{
@@ -74,13 +72,17 @@ public class ServerTCP extends Thread {
         ServerTCP.listDebugThreads();
         
         Socket serviceSock;
+        int j = 0;
         //le Is Interrupted() permet de quitter la boucle du thread en cas d'interruption.
         while(!isInterrupted()){
+            j++;
+            
             try {
                 System.out.println("************ Serveur en attente");
-                Log.Trace("serveur#attente accept#main");
+                if(j == 1) Log.Trace("serveur#attente accept#main");
+                
                 serviceSock = ssock.accept(); 
-                Log.Trace(serviceSock.getRemoteSocketAddress().toString()+"#accept success#thread serveur");
+                if(j == 1) Log.Trace(serviceSock.getRemoteSocketAddress().toString()+"#accept success#thread serveur");
                 
             } catch (IOException ex) {
                 Logger.getLogger(ServerTCP.class.getName()).log(Level.SEVERE, null, ex);
@@ -120,13 +122,11 @@ public class ServerTCP extends Thread {
             {
                     //On ajoute la nouvelle Connexion dans la liste des requètes a traitée
                     tasks.recordTask(todo);
-                    System.out.println("Nouvelle Connexion mise dans la File d'attente.");
-                    Log.Trace(serviceSock.getRemoteSocketAddress().toString()+"#Tentative Nouvelle Connexion Réussie#thread serveur");   
+                    if(j == 1) Log.Trace(serviceSock.getRemoteSocketAddress().toString()+"#Tentative Nouvelle Connexion Réussie#thread serveur");   
             }
             else{
                 //On ne fait rien
-                System.out.println("Nouvelle Connexion mise dans la File d'attente.");
-                Log.Trace(serviceSock.getRemoteSocketAddress().toString()+"#Tentative Nouvelle Connexion Annulée#thread serveur");
+                if(j == 1) Log.Trace(serviceSock.getRemoteSocketAddress().toString()+"#Tentative Nouvelle Connexion Annulée#thread serveur");
             } 
         }
     }
