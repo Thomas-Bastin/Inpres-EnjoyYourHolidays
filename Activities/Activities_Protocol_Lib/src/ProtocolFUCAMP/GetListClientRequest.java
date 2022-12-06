@@ -46,6 +46,7 @@ public class GetListClientRequest implements Request, Serializable{
             list = db.getClients();
             if(list != null){
                 oos.writeObject(new GetListClientResponse(GetListClientResponse.SUCCESS, "row: " + list.size(), list));
+                log.Trace(sock.getRemoteSocketAddress().toString() + "# GetListClientRequest #" + Thread.currentThread().getName());
                 return;
             }
             
