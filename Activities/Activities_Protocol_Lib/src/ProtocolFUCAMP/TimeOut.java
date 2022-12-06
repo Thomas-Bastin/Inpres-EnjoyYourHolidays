@@ -13,8 +13,11 @@ import networklib.Server.Response;
  * @author Arkios
  */
 public class TimeOut implements Response, Serializable{
-    private int Code;
-    private String Msg;
+    public static final int LOGOUT = 201;
+    public static final int TIMEOUT = 500;
+    
+    private final int Code;
+    private final String Msg;
     
     TimeOut(int c, String m){
         Code = c;
