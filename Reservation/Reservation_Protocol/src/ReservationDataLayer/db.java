@@ -5,6 +5,7 @@
  */
 package ReservationDataLayer;
 
+
 import ReservationDataLayer.entities.*;
 import JDBC.MySqlConnexion;
 import java.sql.Connection;
@@ -109,24 +110,7 @@ public class db {
     }
     
     
-    
-    public synchronized static LinkedList<Activites> getActivities() throws SQLException{
-        String sql="SELECT * FROM activites"; 
-        
-        //Création d'un nouveau modèle
-        LinkedList<Activites> list = new LinkedList<Activites>();
-        ResultSet rs = mysql.createStatement().executeQuery(sql);
-        
-        
-        while (rs.next()) {    
-            Activites a = new Activites(rs.getInt("idActivite"), rs.getString("typeActivite"), rs.getInt("nombreMaxParticipants"), 
-                                        rs.getInt("nombreParticipantsInscrits"), rs.getInt("dureeActivite"), rs.getFloat("prixHTVA"), 
-                                        rs.getDate("dateDebut"));
-            list.add(a);
-        }
-        //return du modèle
-        return list;
-    }
+  
     
     
     public synchronized static LinkedList getRegisteredClients(Activites act) throws SQLException{
