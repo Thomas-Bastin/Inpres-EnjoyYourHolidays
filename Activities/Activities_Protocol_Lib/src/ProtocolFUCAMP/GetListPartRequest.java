@@ -32,7 +32,6 @@ public class GetListPartRequest implements Request, Serializable{
     @Override
     public Runnable createRunnable(Socket s, ServerConsole cs) {
         return () -> {
-            System.out.println( Thread.currentThread().getName() + ": Execution d'une Tache pour " +  s.getRemoteSocketAddress().toString());
             try {
                 s.getOutputStream().flush();
                 task(s,cs);
@@ -50,6 +49,7 @@ public class GetListPartRequest implements Request, Serializable{
             list = db.getRegisteredClients(activities);
             if(list != null){
                 oos.writeObject(new GetListPartResponse(GetListPartResponse.SUCCESS, "row: " + list.size(), list));
+                log.Trace(sock.getRemoteSocketAddress().toString() + "# GetListPartRequest #" + Thread.currentThread().getName());
                 return;
             }
             throw new Exception("La liste récupéré est égal à NULL");

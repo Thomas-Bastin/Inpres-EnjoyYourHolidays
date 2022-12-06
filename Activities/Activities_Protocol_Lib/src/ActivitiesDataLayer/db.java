@@ -81,11 +81,16 @@ public class db {
         String sql = "INSERT INTO inscriptionactivites ( voyageurRef, activiteRef, paye) VALUES ("+ cl.getNumeroClient() 
                    + ", "+ act.getIdActivite() + ", " + bool + ")";
         statement.execute(sql);
-        return;
     }
     
-    public synchronized static void UnlistToActivities(Activities act, Voyageurs cl, Date dateDebut) throws SQLException{
-        return;
+    public synchronized static void UnlistToActivities(Activities act, Voyageurs cl) throws SQLException{
+        Statement statement = mysql.createStatement();
+        
+        
+        String sql = "DELETE FROM `bd_holidays`.`inscriptionactivites` "
+                   + "WHERE  `voyageurRef`=" + cl.getNumeroClient() + " AND `activiteRef`=" + act.getIdActivite();
+        
+        statement.execute(sql);
     }
     
     

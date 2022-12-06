@@ -23,16 +23,14 @@ import networklib.Server.ServerConsole;
  *
  * @author Thomas
  */
-public class RegisterRequest implements Request, Serializable{
+public class UnlistRequest implements Request, Serializable{
     
     Activities activities;
     Voyageurs voyageurs;
-    boolean isPayed;
     
-    public RegisterRequest(Activities act, Voyageurs v, boolean isp){
+    public UnlistRequest(Activities act, Voyageurs v){
         activities = act;
         voyageurs = v;
-        isPayed = isp;
     }
     
     @Override
@@ -41,40 +39,40 @@ public class RegisterRequest implements Request, Serializable{
             System.out.println( Thread.currentThread().getName() + ": Execution d'une Tache pour " +  s.getRemoteSocketAddress().toString());
             try {
                 s.getOutputStream().flush();
-                GetListActTASK(s,cs);
+                TASK(s,cs);
             } catch (IOException ex) {
-                Logger.getLogger(RegisterRequest.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(UnlistRequest.class.getName()).log(Level.SEVERE, null, ex);
             }
         };
     }
     
-    private void GetListActTASK(Socket sock, ServerConsole log) throws IOException{
+    private void TASK(Socket sock, ServerConsole log) throws IOException{
         ObjectOutputStream oos = new ObjectOutputStream( sock.getOutputStream());
         if(activities == null){
             log.Trace(sock.getRemoteSocketAddress().toString() + "# Register error: unkown activities#" + Thread.currentThread().getName());
-            oos.writeObject(new RegisterResponse(RegisterResponse.UNKOWNACTIVITIES, "Activitiée inconnue"));
+            oos.writeObject(new UnlistResponse(UnlistResponse.UNKOWNACTIVITIES, "Activitiée inconnue"));
             return;
         }
         
         if(voyageurs == null){
             log.Trace(sock.getRemoteSocketAddress().toString() + "# Register error: unkown Client#" + Thread.currentThread().getName());
-            oos.writeObject(new RegisterResponse(RegisterResponse.UNKNOWNCLIENT, "Voyageur inconnu"));
+            oos.writeObject(new UnlistResponse(UnlistResponse.UNKNOWNCLIENT, "Client inconnu"));
             return;
         }
         
         
         try {
-            db.RegisterToActivities(activities, voyageurs, isPayed);
-            oos.writeObject(new RegisterResponse(RegisterResponse.SUCCESS, "Client inscrit"));
-            log.Trace(sock.getRemoteSocketAddress().toString() + "# RegisterRequest: " + voyageurs.getNomVoyageur() + ", " 
+            db.UnlistToActivities(activities, voyageurs);
+            oos.writeObject(new UnlistResponse(UnlistResponse.SUCCESS, "Client Désinscrit"));
+            log.Trace(sock.getRemoteSocketAddress().toString() + "# UnlistRequest: " + voyageurs.getNomVoyageur() + ", " 
                     + voyageurs.getPrenomVoyageur() + " #" + Thread.currentThread().getName());
             
         } catch (SQLException ex) {
             log.Trace(sock.getRemoteSocketAddress().toString() + "# Register SQL Error: " + ex.getErrorCode() + " #" + Thread.currentThread().getName());
-            oos.writeObject(new RegisterResponse(RegisterResponse.BADDB, ex.getMessage()));
+            oos.writeObject(new UnlistResponse(UnlistResponse.BADDB, ex.getMessage()));
         } catch(Exception ex){
             log.Trace(sock.getRemoteSocketAddress().toString() + "# Register Unkown Error: " + ex.getMessage() + " #" + Thread.currentThread().getName());
-            oos.writeObject(new RegisterResponse(RegisterResponse.UNKOWN, ex.getMessage()));
+            oos.writeObject(new UnlistResponse(UnlistResponse.UNKOWN, ex.getMessage()));
         }
     }
 }

@@ -2,20 +2,6 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group>
-            <file>file:/C:/Users/Arkios/Desktop/Inpres-EnjoyYourHolidays/Activities/Activities_Protocol_Lib/src/ProtocolFUCAMP/GetListPartRequest.java</file>
-            <file>file:/C:/Users/Arkios/Desktop/Inpres-EnjoyYourHolidays/Activities/Activities_Protocol_Lib/src/ActivitiesDataLayer/entities/Employes.java</file>
-            <file>file:/C:/Users/Arkios/Desktop/Inpres-EnjoyYourHolidays/Activities/Activities_Protocol_Lib/src/ProtocolFUCAMP/GetListClientRequest.java</file>
-            <file>file:/C:/Users/Arkios/Desktop/Inpres-EnjoyYourHolidays/Activities/Activities_Protocol_Lib/src/ProtocolFUCAMP/GetListActResponse.java</file>
-            <file>file:/C:/Users/Arkios/Desktop/Inpres-EnjoyYourHolidays/Activities/Activities_Protocol_Lib/src/ActivitiesDataLayer/db.java</file>
-            <file>file:/C:/Users/Arkios/Desktop/Inpres-EnjoyYourHolidays/Activities/Activities_Protocol_Lib/src/ProtocolFUCAMP/RegisterResponse.java</file>
-            <file>file:/C:/Users/Arkios/Desktop/Inpres-EnjoyYourHolidays/Activities/Activities_Protocol_Lib/src/ActivitiesDataLayer/entities/Inscriptionactivites.java</file>
-            <file>file:/C:/Users/Arkios/Desktop/Inpres-EnjoyYourHolidays/Activities/Activities_Protocol_Lib/src/ProtocolFUCAMP/LoginResponse.java</file>
-            <file>file:/C:/Users/Arkios/Desktop/Inpres-EnjoyYourHolidays/Activities/Activities_Protocol_Lib/src/ActivitiesDataLayer/entities/Activities.java</file>
-            <file>file:/C:/Users/Arkios/Desktop/Inpres-EnjoyYourHolidays/Activities/Activities_Protocol_Lib/src/ProtocolFUCAMP/GetListActRequest.java</file>
-            <file>file:/C:/Users/Arkios/Desktop/Inpres-EnjoyYourHolidays/Activities/Activities_Protocol_Lib/src/ActivitiesDataLayer/entities/Voyageurs.java</file>
-            <file>file:/C:/Users/Arkios/Desktop/Inpres-EnjoyYourHolidays/Activities/Activities_Protocol_Lib/src/ProtocolFUCAMP/RegisterRequest.java</file>
-            <file>file:/C:/Users/Arkios/Desktop/Inpres-EnjoyYourHolidays/Activities/Activities_Protocol_Lib/src/ProtocolFUCAMP/LoginRequest.java</file>
-        </group>
+        <group/>
     </open-files>
 </project-private>
