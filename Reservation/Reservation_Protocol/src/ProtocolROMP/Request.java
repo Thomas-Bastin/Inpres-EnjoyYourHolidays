@@ -24,11 +24,11 @@ public abstract class Request implements networklib.Server.Request, Serializable
             try {
                 s.getOutputStream().flush();
                 Task(s,cs);
-            } catch (IOException ex) {
+            } catch (IOException | ClassNotFoundException ex) {
                 Logger.getLogger(Request.class.getName()).log(Level.SEVERE, null, ex);
             }
         };
     }
     
-    protected abstract void Task(Socket sock,ServerConsole log) throws IOException;
+    public abstract void Task(Socket sock,ServerConsole log) throws IOException, ClassNotFoundException;
 }

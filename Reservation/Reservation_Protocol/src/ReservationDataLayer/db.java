@@ -6,8 +6,8 @@
 package ReservationDataLayer;
 
 
-import ReservationDataLayer.entities.*;
 import JDBC.MySqlConnexion;
+import ReservationDataLayer.entities.*;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.ResultSet;
@@ -34,6 +34,7 @@ public class db {
             Logger.getLogger(db.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(db.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("DataBase Not Reachable...");
         }
     }
     
@@ -78,18 +79,6 @@ public class db {
         LinkedList cur = select("acred","employes INNER JOIN Acreditation","email =  AND Acred = Activities" + login, false);
         return !cur.isEmpty();
     }
-
-    
-    
-    public synchronized static boolean RegisterToActivities(Activites act,  Voyageurs cl, int nbrePart, boolean payed) throws SQLException{
-        return true;
-    }
-    
-    public synchronized static boolean UnlistToActivities(Activites act, Voyageurs cl, Date dateDebut) throws SQLException{
-        return true;
-    }
-    
-    
     
     public synchronized static LinkedList<Voyageurs> getClients() throws SQLException{
         String sql="SELECT * FROM voyageurs"; 
@@ -97,7 +86,6 @@ public class db {
         //Création d'un nouveau modèle
         LinkedList<Voyageurs> list = new LinkedList<Voyageurs>();
         ResultSet rs = mysql.createStatement().executeQuery(sql);
-
         
         while (rs.next()) {    
             Voyageurs v = new Voyageurs(rs.getInt("numeroClient") , rs.getString("nomVoyageur"), rs.getString("prenomVoyageur"),
@@ -110,18 +98,27 @@ public class db {
     }
     
     
-  
-    
-    
-    public synchronized static LinkedList getRegisteredClients(Activites act) throws SQLException{
-        return null;
+    public synchronized static LinkedList getReservationRoom() throws SQLException {
+        LinkedList list = new LinkedList<>();
+        return list;
     }
     
+    public synchronized static LinkedList<Chambres> getRooms() throws SQLException {
+        LinkedList<Chambres> list = new LinkedList<Chambres>();
+        return list;
+    }
     
+    public synchronized static boolean BookRoom() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public synchronized static boolean PayRoom() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
     
-    
-    
-    
+    public synchronized static boolean CancelRoom() {
+        return true;
+    }
     
     
     
@@ -172,19 +169,4 @@ public class db {
         //return du modèle
         return list;
     }
-
-    public static LinkedList update(String Update, String set, String where, boolean isHeader) throws SQLException {
-        Statement statement = mysql.createStatement();
-        String sql = "UPDATE " + Update + " SET " + set + " WHERE " + where;
-        statement.executeUpdate(sql);
-        return select("*", Update, where, isHeader);
-    }
-
-    public static LinkedList delete(String DeleteFrom, String where, boolean isHeader) throws SQLException {
-        Statement statement = mysql.createStatement();
-        String sql = "DELETE FROM " + DeleteFrom + " WHERE " + where;
-        statement.executeUpdate(sql);
-        return select("*", DeleteFrom, where, isHeader);
-    }
-
 }

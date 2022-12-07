@@ -15,6 +15,8 @@ import networklib.Server.ServerConsole;
  */
 public class LoginRequest extends Request {
     
+    public boolean Logged;
+    
     private final String login;
     private final String hash;
     
@@ -24,8 +26,10 @@ public class LoginRequest extends Request {
     }
     
     @Override
-    protected void Task(Socket sock, ServerConsole log) throws IOException {
+    public void Task(Socket sock, ServerConsole log) throws IOException {
         //Todo
+        //Login Things:
+        Logged = false;
     }
 
     /**
