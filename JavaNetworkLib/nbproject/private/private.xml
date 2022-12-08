@@ -4,7 +4,14 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/C:/Users/Arkios/Desktop/Inpres-EnjoyYourHolidays/JavaNetworkLib/src/networklib/Server/ThreadSocketService.java</file>
+            <file>file:/C:/Users/Arkios/Desktop/Inpres-EnjoyYourHolidays/JavaNetworkLib/src/networklib/Server/Response.java</file>
+            <file>file:/C:/Users/Arkios/Desktop/Inpres-EnjoyYourHolidays/JavaNetworkLib/src/networklib/Server/Requestv2.java</file>
+            <file>file:/C:/Users/Arkios/Desktop/Inpres-EnjoyYourHolidays/JavaNetworkLib/src/networklib/Server/Request.java</file>
+            <file>file:/C:/Users/Arkios/Desktop/Inpres-EnjoyYourHolidays/JavaNetworkLib/src/networklib/Server/ServerTCPv2.java</file>
+            <file>file:/C:/Users/Arkios/Desktop/Inpres-EnjoyYourHolidays/JavaNetworkLib/src/networklib/Server/ServerConsole.java</file>
+            <file>file:/C:/Users/Arkios/Desktop/Inpres-EnjoyYourHolidays/JavaNetworkLib/src/networklib/Server/ServerBuisness.java</file>
             <file>file:/C:/Users/Arkios/Desktop/Inpres-EnjoyYourHolidays/JavaNetworkLib/src/networklib/Server/ServerTCP.java</file>
+            <file>file:/C:/Users/Arkios/Desktop/Inpres-EnjoyYourHolidays/JavaNetworkLib/src/networklib/Server/TasksSource.java</file>
         </group>
     </open-files>
 </project-private>

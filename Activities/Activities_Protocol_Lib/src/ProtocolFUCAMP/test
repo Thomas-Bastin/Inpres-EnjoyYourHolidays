@@ -1,0 +1,5 @@
+public Complexes(Integer idComplexe, String nomComplexe, String typeComplexe) {
+    this.idComplexe = idComplexe;
+    this.nomComplexe = nomComplexe;
+    this.typeComplexe = typeComplexe;
+}

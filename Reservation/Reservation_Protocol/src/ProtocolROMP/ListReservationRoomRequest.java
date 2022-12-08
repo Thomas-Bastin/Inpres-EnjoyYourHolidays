@@ -6,11 +6,15 @@
 package ProtocolROMP;
 
 import ReservationDataLayer.db;
+import ReservationDataLayer.entities.CalendRow;
+import ReservationDataLayer.entities.Chambres;
+import ReservationDataLayer.entities.Complexes;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.LinkedList;
 import networklib.Server.ServerConsole;
 
@@ -19,23 +23,27 @@ import networklib.Server.ServerConsole;
  * @author Thomas
  */
 public class ListReservationRoomRequest extends Request {
+    private final Complexes complex;
+    private final LocalDate date;
     
-    ListReservationRoomRequest(){}
+    public ListReservationRoomRequest(Complexes cp, LocalDate d) {
+        complex = cp;
+        date = d;
+    }
     
     @Override
-    public void Task(Socket sock, ServerConsole log) throws IOException, ClassNotFoundException {
-        ObjectOutputStream oos = new ObjectOutputStream(sock.getOutputStream());
-        LinkedList l = new LinkedList<>();
+    public void Task(Socket sock, ServerConsole log, ObjectOutputStream oos) throws IOException, ClassNotFoundException {
+        LinkedList<CalendRow> l = new LinkedList<CalendRow>();
+        
         try{
-            l = db.getReservationRoom();
+            l = db.getReservationRoom(complex, date);
             
             if(l != null){
+                log.Trace(sock.getRemoteSocketAddress().toString() + "# ListReservationRoom Success #" + Thread.currentThread().getName());
                 oos.writeObject(new ListReservationRoomResponse(
                     ListReservationRoomResponse.SUCCESS, "Reservation Reussie", l
                 ));
             }
-            
-            throw new Exception("La liste récupéré est égal à NULL");
         }
         catch (SQLException ex) {
             log.Trace(sock.getRemoteSocketAddress().toString() + "# ListReservationRoom SQL Error: " + ex.getErrorCode() + " #" + Thread.currentThread().getName());

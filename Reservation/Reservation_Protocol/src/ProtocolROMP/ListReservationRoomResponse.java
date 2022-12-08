@@ -5,6 +5,7 @@
  */
 package ProtocolROMP;
 
+import ReservationDataLayer.entities.CalendRow;
 import java.util.LinkedList;
 
 /**
@@ -13,14 +14,14 @@ import java.util.LinkedList;
  */
 public class ListReservationRoomResponse extends Response {
     
-    private final LinkedList list;
+    private final LinkedList<CalendRow> list;
     
-    public ListReservationRoomResponse(int c, String m, LinkedList l) {
+    public ListReservationRoomResponse(int c, String m, LinkedList<CalendRow> l) {
         super(c, m);
         list = l;
     }
 
-    public LinkedList getList() {
+    public LinkedList<CalendRow> getList() {
         return list;
     }
 }

@@ -6,6 +6,7 @@
 package reservation_server;
 
 import ReservationDataLayer.db;
+import ServBuisness.MainServBuisness;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -28,7 +29,7 @@ import networklib.Server.*;
  */
 public class ReservationServerApp extends javax.swing.JFrame implements ServerConsole{
     
-    private ServerTCP serveur;
+    private ServerTCPv2 serveur;
     private Properties config;
     
     /**
@@ -195,7 +196,7 @@ public class ReservationServerApp extends javax.swing.JFrame implements ServerCo
             Trace("serveur#initialisation#main");
             int port = Integer.parseInt( Port.getText() );
             Trace("serveur#acquisition du port#main");
-            serveur = new ServerTCP(port, new ListTask(), this, 5);
+            serveur = new ServerTCPv2(port, new ListTask(), this, 5, new MainServBuisness());
             serveur.setName("Serveur-TCP ListenSocket");
             serveur.start();
             

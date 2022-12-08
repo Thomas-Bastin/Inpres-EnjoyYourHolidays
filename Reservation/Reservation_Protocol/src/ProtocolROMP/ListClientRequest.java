@@ -7,6 +7,7 @@ package ProtocolROMP;
 
 import ReservationDataLayer.db;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.sql.SQLException;
@@ -21,8 +22,7 @@ public class ListClientRequest extends Request{
     
     public ListClientRequest(){}
     
-    public void Task(Socket sock, ServerConsole log) throws IOException{
-        ObjectOutputStream oos = new ObjectOutputStream( sock.getOutputStream());
+    public void Task(Socket sock, ServerConsole log, ObjectOutputStream oos) throws IOException{
         LinkedList list = null;
         
         try {
@@ -35,10 +35,10 @@ public class ListClientRequest extends Request{
             
             throw new Exception("La liste récupéré est égal à NULL");
         } catch (SQLException ex) {
-            log.Trace(sock.getRemoteSocketAddress().toString() + "# GetListCLIENT SQL Error: " + ex.getErrorCode() + " #" + Thread.currentThread().getName());
+            log.Trace(sock.getRemoteSocketAddress().toString() + "# ListClientRequest SQL Error: " + ex.getErrorCode() + " #" + Thread.currentThread().getName());
             oos.writeObject(new ListClientResponse(ListClientResponse.BADDB, ex.getMessage()));
         } catch(Exception ex){
-            log.Trace(sock.getRemoteSocketAddress().toString() + "# GetListCLIENT Unkown Error: " + ex.getMessage() + " #" + Thread.currentThread().getName());
+            log.Trace(sock.getRemoteSocketAddress().toString() + "# ListClientRequest Unkown Error: " + ex.getMessage() + " #" + Thread.currentThread().getName());
             oos.writeObject(new ListClientResponse(ListClientResponse.UNKOWN, ex.getMessage()));
         }
     }

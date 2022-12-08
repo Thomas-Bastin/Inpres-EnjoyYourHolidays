@@ -20,4 +20,8 @@ public class ListRoomResponse extends Response {
         list = l;
     }
     
+    public LinkedList<Chambres> getList() {
+        return list;
+    }
+    
 }

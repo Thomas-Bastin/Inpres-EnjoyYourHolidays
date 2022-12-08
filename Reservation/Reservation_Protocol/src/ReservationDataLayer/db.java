@@ -10,10 +10,14 @@ import JDBC.MySqlConnexion;
 import ReservationDataLayer.entities.*;
 import java.sql.Connection;
 import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.LinkedList;
 import java.util.Vector;
 import java.util.logging.Level;
@@ -97,32 +101,136 @@ public class db {
         return list;
     }
     
-    
-    public synchronized static LinkedList getReservationRoom() throws SQLException {
-        LinkedList list = new LinkedList<>();
+    public synchronized static LinkedList<Complexes> getComplex() throws SQLException {
+        PreparedStatement pStmt = mysql.prepareStatement(
+            "SELECT * FROM complexes;"
+        );
+        ResultSet rs = pStmt.executeQuery();
+        
+        //Création d'un nouveau modèle
+        LinkedList<Complexes> list = new LinkedList<Complexes>();
+        while (rs.next()) {    
+            Complexes v = new Complexes(
+                    rs.getInt("idComplexe"), rs.getString("nomComplexe"), rs.getString("typeComplexe")
+            );
+            list.add(v);
+        }
+        //return du modèle
         return list;
     }
     
-    public synchronized static LinkedList<Chambres> getRooms() throws SQLException {
+    public synchronized static LinkedList<Chambres> getRooms(Complexes c) throws SQLException {
         LinkedList<Chambres> list = new LinkedList<Chambres>();
+        
+        PreparedStatement pStmt = mysql.prepareStatement(
+            "SELECT * FROM chambres WHERE idComplexe = ? ;"
+        );
+        pStmt.setInt(1, c.getIdComplexe());
+        ResultSet rs = pStmt.executeQuery();
+        
+        //Création d'un nouveau modèle
+        
+        while (rs.next()){
+            Chambres ch = new Chambres( rs.getInt("numChambre"), rs.getInt("idComplexe"), rs.getString("Type"), 
+                    rs.getString("equipements"), rs.getInt("nombreLits"), rs.getFloat("prixHTVA"));
+            
+            list.add(ch);
+        }
+        //return du modèle
         return list;
     }
     
-    public synchronized static boolean BookRoom() {
+    public synchronized static LinkedList<CalendRow> getReservationRoom(Complexes c, LocalDate date) throws SQLException {
+        LinkedList<CalendRow> listRow = new LinkedList<CalendRow>();
+        LinkedList<Chambres> Chambres =  getSubRooms(c);
+        LocalDate myDate = LocalDate.from(date);
+        
+        for(Chambres ch : Chambres){            
+            CalendRow tmpRow = new CalendRow(ch);
+            
+            PreparedStatement pStmt = mysql.prepareStatement(
+                "SELECT idComplexe, idChambre, idVoyageur, " +
+                "dateArrive, (dateArrive + INTERVAL  nbJours DAY ) AS dateFin, nbJours, nomVoyageur " +
+                "FROM reservationchambre " +
+                "INNER JOIN voyageurs ON (voyageurs.numeroClient = reservationchambre.idVoyageur) " +
+                "WHERE idComplexe = ? AND idChambre = ?"
+            );
+            pStmt.setInt(1, c.getIdComplexe());
+            pStmt.setInt(2, ch.getNumChambre());
+            
+            ResultSet rs = pStmt.executeQuery();
+            
+            
+            while(rs.next()){
+                LocalDate dBeg = LocalDate.from(myDate);
+                LocalDate dEnd = LocalDate.from(myDate.plusDays(6));
+                LocalDate tmpArr = LocalDate.from(rs.getDate("dateArrive").toLocalDate());
+                LocalDate tmpFin = LocalDate.from(rs.getDate("dateFin").toLocalDate());
+                
+                Reservationchambre tmp = new Reservationchambre(
+                        rs.getInt("idComplexe"),
+                        rs.getInt("idChambre"),
+                        rs.getInt("idVoyageur"),
+                        rs.getDate("dateArrive"),
+                        rs.getInt("nbJours"),
+                        rs.getString("nomVoyageur")
+                );
+                
+             
+                LocalDate tmpDate = LocalDate.from(tmpArr);
+                while(tmpDate.isBefore(tmpFin)){
+                    if((tmpDate.isEqual(dBeg)||tmpDate.isAfter(dBeg)) && (tmpDate.isBefore(dEnd)||tmpDate.isEqual(dEnd))) {
+                        tmpRow.setReserv( tmpDate.getDayOfWeek() , tmp);
+                    }
+                        
+                    tmpDate = tmpDate.plusDays(1);
+                }
+            }
+            
+            listRow.add(tmpRow);
+        }
+        
+        for(CalendRow ctest : listRow){
+            System.out.println(ctest.toVector());
+        }
+        
+        return listRow;
+    }
+    
+    public static LinkedList<Chambres> getSubRooms(Complexes c) throws SQLException {
+        LinkedList<Chambres> list = new LinkedList<Chambres>();
+        
+        PreparedStatement pStmt = mysql.prepareStatement(
+            "SELECT * FROM chambres WHERE idComplexe = ? ;"
+        );
+        pStmt.setInt(1, c.getIdComplexe());
+        ResultSet rs = pStmt.executeQuery();
+        
+        //Création d'un nouveau modèle
+        
+        while (rs.next()){
+            Chambres ch = new Chambres( rs.getInt("numChambre"), rs.getInt("idComplexe"), rs.getString("Type"), 
+                    rs.getString("equipements"), rs.getInt("nombreLits"), rs.getFloat("prixHTVA"));
+            
+            list.add(ch);
+        }
+        //return du modèle
+        return list;
+    }
+    
+    
+    
+    public synchronized static boolean BookRoom() throws SQLException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    public synchronized static boolean PayRoom() {
+    public synchronized static boolean PayRoom() throws SQLException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
-    public synchronized static boolean CancelRoom() {
+    public synchronized static boolean CancelRoom() throws SQLException {
         return true;
     }
-    
-    
-    
-    
     
     public static LinkedList select(String select, String from, String where, boolean isheader) throws SQLException {
         //Création d'un nouveau modèle
@@ -169,4 +277,6 @@ public class db {
         //return du modèle
         return list;
     }
+
+    
 }

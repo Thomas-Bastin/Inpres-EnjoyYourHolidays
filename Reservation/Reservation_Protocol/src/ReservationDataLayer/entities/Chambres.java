@@ -6,33 +6,53 @@
 package ReservationDataLayer.entities;
 
 import java.io.Serializable;
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.EmbeddedId;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
+import java.util.Vector;
 
 /**
  *
  * @author Arkios
  */
-public class Chambres implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+public class Chambres implements Serializable {
     private int numChambre;
     private int idComplexe;
+
+
+    private String type;
     private String equipements;
     private Integer nombreLits;
     private Float prixHTVA;
-    private int complexes;
 
-    public Chambres() {
+    public Chambres(int numChambre, int idComplexe, String type, String equipements, Integer nombreLits, Float prixHTVA) {
+        this.numChambre = numChambre;
+        this.idComplexe = idComplexe;
+        this.type = type;
+        this.equipements = equipements;
+        this.nombreLits = nombreLits;
+        this.prixHTVA = prixHTVA;
     }
 
+    public Vector toVector(){
+        Vector<String> vec = new Vector<String>();
+        
+        vec.add("" + numChambre);
+        vec.add("" + idComplexe);
+        vec.add("" + type);
+        vec.add("" + equipements);
+        vec.add("" + nombreLits);
+        vec.add("" + prixHTVA);
+        
+        return vec;
+    }
+    
+    @Override
+    public String toString() {
+        return "Chambres{" + "numChambre=" + numChambre + ", idComplexe=" + idComplexe + ", type=" + type + ", equipements=" + equipements + ", nombreLits=" + nombreLits + ", prixHTVA=" + prixHTVA + '}';
+    }
+
+    
+    
+    
     public int getNumChambre() {
         return numChambre;
     }
@@ -47,6 +67,14 @@ public class Chambres implements Serializable {
 
     public void setIdComplexe(int idComplexe) {
         this.idComplexe = idComplexe;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public String getEquipements() {
@@ -71,23 +99,6 @@ public class Chambres implements Serializable {
 
     public void setPrixHTVA(Float prixHTVA) {
         this.prixHTVA = prixHTVA;
-    }
-
-    public int getComplexes() {
-        return complexes;
-    }
-
-    public void setComplexes(int complexes) {
-        this.complexes = complexes;
-    }
-
-    public Chambres(int numChambre, int idComplexe, String equipements, Integer nombreLits, Float prixHTVA, int complexes) {
-        this.numChambre = numChambre;
-        this.idComplexe = idComplexe;
-        this.equipements = equipements;
-        this.nombreLits = nombreLits;
-        this.prixHTVA = prixHTVA;
-        this.complexes = complexes;
     }
     
     

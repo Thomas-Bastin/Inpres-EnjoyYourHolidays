@@ -8,6 +8,7 @@ package ProtocolROMP;
 import ReservationDataLayer.db;
 import ReservationDataLayer.entities.Voyageurs;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.sql.Date;
@@ -30,9 +31,7 @@ public class CancelRoomRequest extends Request{
     }    
     
     
-    @Override
-    public void Task(Socket sock, ServerConsole log) throws IOException, ClassNotFoundException {
-        ObjectOutputStream oos = new ObjectOutputStream( sock.getOutputStream());
+    public void Task(Socket sock, ServerConsole log, ObjectOutputStream oos) throws IOException, ClassNotFoundException {
         LinkedList list = null;
         Date datedep;
         
@@ -59,5 +58,5 @@ public class CancelRoomRequest extends Request{
             log.Trace(sock.getRemoteSocketAddress().toString() + "# CancelRoomResponse Unkown Error: " + ex.getMessage() + " #" + Thread.currentThread().getName());
             oos.writeObject(new CancelRoomResponse(CancelRoomResponse.UNKOWN, ex.getMessage(), null));
         }
-    } 
+    }
 }

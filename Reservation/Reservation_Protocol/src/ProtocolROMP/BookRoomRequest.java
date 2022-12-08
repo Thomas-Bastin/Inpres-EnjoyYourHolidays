@@ -8,6 +8,7 @@ package ProtocolROMP;
 import ReservationDataLayer.db;
 import ReservationDataLayer.entities.Voyageurs;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.sql.Date;
@@ -28,7 +29,7 @@ public class BookRoomRequest extends Request {
     private final Voyageurs clientRef;
     
     
-    BookRoomRequest(String Category, String Type, Date dateBeg, int Nights, Voyageurs ClientRef){
+    public BookRoomRequest(String Category, String Type, Date dateBeg, int Nights, Voyageurs ClientRef){
         this.category = Category;
         this.type = Type;
         this.dateBeg = dateBeg;
@@ -37,8 +38,7 @@ public class BookRoomRequest extends Request {
     }
     
     @Override
-    public void Task(Socket sock, ServerConsole log) throws IOException {
-        ObjectOutputStream oos = new ObjectOutputStream( sock.getOutputStream());
+    public void Task(Socket sock, ServerConsole log, ObjectOutputStream oos) throws IOException {
         LinkedList list = null;
         int numCh = -1;
         float prix = -1;

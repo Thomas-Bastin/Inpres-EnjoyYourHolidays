@@ -6,18 +6,7 @@
 package ReservationDataLayer.entities;
 
 import java.io.Serializable;
-import java.util.List;
-import javax.persistence.Basic;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import java.util.Vector;
 
 /**
  *
@@ -30,7 +19,16 @@ public class Complexes implements Serializable {
     private Integer idComplexe;
     private String nomComplexe;
     private String typeComplexe;
-
+    
+    public Vector toVector(){
+        Vector<String> s = new Vector<String>();
+        
+        s.add(nomComplexe);
+        s.add(typeComplexe);
+        
+        return s;
+    }
+    
     public Complexes() {
     }
 

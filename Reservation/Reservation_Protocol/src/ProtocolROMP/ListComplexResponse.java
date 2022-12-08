@@ -5,6 +5,7 @@
  */
 package ProtocolROMP;
 
+import ReservationDataLayer.entities.Complexes;
 import ReservationDataLayer.entities.Voyageurs;
 import java.util.LinkedList;
 
@@ -12,27 +13,27 @@ import java.util.LinkedList;
  *
  * @author Thomas
  */
-public class ListClientResponse extends Response{
+public class ListComplexResponse extends Response{
 
-    private final LinkedList<Voyageurs> list;
+    private final LinkedList<Complexes> list;
     
-    public ListClientResponse(int c, String m){
+    public ListComplexResponse(int c, String m){
         super(c,m);
         list = null;
     }
     
-    public ListClientResponse(int c, String m, LinkedList<Voyageurs> l){
+    public ListComplexResponse(int c, String m, LinkedList<Complexes> l){
         super(c,m);
         
         if(c == SUCCESS){
             list = l;
         }
         else{
-            list = new LinkedList<Voyageurs>();
+            list = new LinkedList<Complexes>();
         }
     }
     
-    public LinkedList<Voyageurs> getList(){
+    public LinkedList<Complexes> getList(){
         return list;
     }
 }
