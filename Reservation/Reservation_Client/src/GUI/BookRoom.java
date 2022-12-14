@@ -213,8 +213,7 @@ public class BookRoom extends javax.swing.JDialog {
         final DecimalFormat df = new DecimalFormat("#.##");
         df.setRoundingMode(RoundingMode.UP);
         
-        final int ret = JOptionPane.showConfirmDialog(this, 
-                
+        final int ret = JOptionPane.showConfirmDialog(this,
                 "êtes vous sur de réserver la chambre du "+selectDate+" pendant "+selectNbNights+
                 " jour\nau nom de "+selectUser.getNomVoyageur()+"                                    Prix: "+selectNbNights+"x" 
                 + df.format(selectRoom.getPrixHTVA()*1.21) + "=" + df.format(selectNbNights*selectRoom.getPrixHTVA()*1.21) + "€", 

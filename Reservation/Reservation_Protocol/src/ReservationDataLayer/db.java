@@ -15,6 +15,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -282,12 +283,16 @@ public class db {
     
     
     public synchronized static boolean PayRoom() throws SQLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
+        return true;
     }
     
     
     
     public synchronized static boolean CancelRoom(Chambres room, Date dateBeg) throws SQLException {
+        Date nowDate = (Date) Date.from(Instant.now());
+        if(nowDate.compareTo(dateBeg) >= 0){ return false;}
+        
         PreparedStatement pStmt = mysql.prepareStatement(
             "DELETE FROM reservationchambre WHERE idChambre = ? AND idComplexe = ? AND dateArrive = ? ;"
         );

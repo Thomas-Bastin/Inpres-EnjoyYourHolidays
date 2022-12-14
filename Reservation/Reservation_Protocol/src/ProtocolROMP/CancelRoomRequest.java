@@ -33,17 +33,16 @@ public class CancelRoomRequest extends Request{
     
     
     public void Task(Socket sock, ServerConsole log, ObjectOutputStream oos) throws IOException, ClassNotFoundException {
-        LinkedList list = null;
         Date datedep;
         
         try {
+            datedep = (Date) Date.from(Instant.now());
             //Try Cancel the Room
             boolean ret = db.CancelRoom(room, dateBeg);
-            datedep = (Date) Date.from(Instant.now());
             
             
             if(ret){
-                oos.writeObject(new CancelRoomResponse(CancelRoomResponse.SUCCESS, "CancelRoom Success", datedep));
+                oos.writeObject(new CancelRoomResponse(CancelRoomResponse.SUCCESS, "CancelRoom Success"));
                 log.Trace(sock.getRemoteSocketAddress().toString() + "# CancelRoomResponse SUCCESS #" + Thread.currentThread().getName());
             }
             else{
@@ -54,10 +53,10 @@ public class CancelRoomRequest extends Request{
             throw new Exception("Erreur");
         } catch (SQLException ex) {
             log.Trace(sock.getRemoteSocketAddress().toString() + "# CancelRoomResponse SQL Error: " + ex.getErrorCode() + " #" + Thread.currentThread().getName());
-            oos.writeObject(new CancelRoomResponse(CancelRoomResponse.BADDB, ex.getMessage(), null));
+            oos.writeObject(new CancelRoomResponse(CancelRoomResponse.BADDB, ex.getMessage()));
         } catch(Exception ex){
             log.Trace(sock.getRemoteSocketAddress().toString() + "# CancelRoomResponse Unkown Error: " + ex.getMessage() + " #" + Thread.currentThread().getName());
-            oos.writeObject(new CancelRoomResponse(CancelRoomResponse.UNKOWN, ex.getMessage(), null));
+            oos.writeObject(new CancelRoomResponse(CancelRoomResponse.UNKOWN, ex.getMessage()));
         }
     }
 }

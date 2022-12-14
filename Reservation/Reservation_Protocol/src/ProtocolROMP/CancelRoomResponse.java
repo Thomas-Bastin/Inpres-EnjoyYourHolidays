@@ -19,6 +19,11 @@ public class CancelRoomResponse extends Response {
         super(c, m);
         dateDepasse = dateDespasse;
     }
+
+    CancelRoomResponse(int c, String m) {
+        super(c,m);
+        dateDepasse = null;
+    }
     
     public Date getDateDepasse() {
         return dateDepasse;

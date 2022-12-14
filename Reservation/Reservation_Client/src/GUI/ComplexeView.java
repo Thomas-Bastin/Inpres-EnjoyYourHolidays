@@ -23,7 +23,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.TemporalAdjusters;
-import java.util.Date;
+import java.sql.Date;
 import java.util.LinkedList;
 import java.util.Vector;
 import java.util.logging.Level;
@@ -270,6 +270,11 @@ public class ComplexeView extends javax.swing.JDialog {
         });
 
         UnList.setText("Libérer");
+        UnList.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                UnListActionPerformed(evt);
+            }
+        });
 
         Payed.setText("Marquer comme Payé");
 
@@ -373,7 +378,7 @@ public class ComplexeView extends javax.swing.JDialog {
         }
         row--;
         
-        if(! isValidSelection(col,row, listRow)){
+        if(!isValidSelection(col,row, listRow)){
             JOptionPane.showMessageDialog(this, "Le crénaux n'est pas libre.", "Warning", JOptionPane.WARNING_MESSAGE);
             return;
         }
@@ -415,6 +420,77 @@ public class ComplexeView extends javax.swing.JDialog {
         }
     }//GEN-LAST:event_BookedActionPerformed
 
+    private void UnListActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_UnListActionPerformed
+        final int ret = JOptionPane.showConfirmDialog(this,"Êtes vous sur de vouloir supprimer cette réservation ?", "Confirmation Supression", JOptionPane.OK_CANCEL_OPTION);
+        if(ret !=0) return;
+        
+        int col = Calendar.getSelectedColumn();
+        int row = Calendar.getSelectedRow();
+                
+        Chambres selectedRoom;
+        LocalDate selectedDate;
+        LinkedList<Voyageurs> userList;
+        LinkedList<Chambres> roomList;
+        
+        if(col < 1 || row < 1){
+            JOptionPane.showMessageDialog(this, "Vous devez sélectionner un crénaux horaires", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        row--;
+        
+        if(isValidSelection(col,row, listRow)){
+            JOptionPane.showMessageDialog(this, "Aucune réservation sélectionnée", "Warning", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        selectedRoom = listRow.get(row).getChambre();
+        selectedDate = (LocalDate) getRowDate().get(col);
+        
+        try {
+            CancelReservation(selectedRoom, Date.valueOf(selectedDate));
+        } catch (IOException | ClassNotFoundException ex) {
+            JOptionPane.showMessageDialog(this, "Erreur: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+    }//GEN-LAST:event_UnListActionPerformed
+
+    
+    private boolean CancelReservation(Chambres room, Date begdate) throws IOException, ClassNotFoundException{
+        oos.writeObject(new CancelRoomRequest(room, begdate));
+        Object r = ios.readObject();
+        
+        if (r instanceof TimeOut) {
+            JOptionPane.showMessageDialog(this, "Le serveur est éteint pour maintenance.", "Disconnect", JOptionPane.INFORMATION_MESSAGE);
+            return false;
+        }
+        
+        if (r instanceof CancelRoomResponse) {
+            CancelRoomResponse req = (CancelRoomResponse) r;
+            
+            switch (req.getCode()) {
+                case CancelRoomResponse.SUCCESS:
+                    JOptionPane.showMessageDialog(this, "Reservation Réussie", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    return true;
+                
+                case CancelRoomResponse.KO:
+                    JOptionPane.showMessageDialog(this, "Reservation Impossible:\nDate sélectionnée déjà passée", "Warning", JOptionPane.WARNING_MESSAGE);
+                    return false;
+
+                case CancelRoomResponse.BADDB:
+                    JOptionPane.showMessageDialog(this, "Erreur BDD: " + req.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    break;
+
+                case CancelRoomResponse.UNKOWN:
+                default:
+                    JOptionPane.showMessageDialog(this, "Erreur: " + req.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    break;
+            }
+        }
+        return false;
+    }
+    
+    
+    
     private boolean isValidSelection(int col, int row, LinkedList<CalendRow> tmpRows){
         //System.err.println("col: " + col + ", row: " + row);
         //System.err.println(listRow.get(row));
