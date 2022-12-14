@@ -55,13 +55,13 @@ public class CalendRow implements Serializable {
         Vector vec = new Vector();
         
         vec.add(chambre.getType() + " n°" + chambre.getNumChambre());
-        vec.add(d1 == null ? " ": !d1.isPaye() ? d1.getVoyageurName() : d1.getVoyageurName()+unpaidString);
-        vec.add(d2 == null ? " ": !d2.isPaye() ? d2.getVoyageurName() : d2.getVoyageurName()+unpaidString);
-        vec.add(d3 == null ? " ": !d3.isPaye() ? d3.getVoyageurName() : d3.getVoyageurName()+unpaidString);
-        vec.add(d4 == null ? " ": !d4.isPaye() ? d4.getVoyageurName() : d4.getVoyageurName()+unpaidString);
-        vec.add(d5 == null ? " ": !d5.isPaye() ? d5.getVoyageurName() : d5.getVoyageurName()+unpaidString);
-        vec.add(d6 == null ? " ": !d6.isPaye() ? d6.getVoyageurName() : d6.getVoyageurName()+unpaidString);
-        vec.add(d7 == null ? " ": !d7.isPaye() ? d7.getVoyageurName() : d7.getVoyageurName()+unpaidString);
+        vec.add(d1 == null ? " ": d1.isIsPayed() ? d1.getVoyageurName() : d1.getVoyageurName() + unpaidString);
+        vec.add(d2 == null ? " ": d2.isIsPayed() ? d2.getVoyageurName() : d2.getVoyageurName() + unpaidString);
+        vec.add(d3 == null ? " ": d3.isIsPayed() ? d3.getVoyageurName() : d3.getVoyageurName() + unpaidString);
+        vec.add(d4 == null ? " ": d4.isIsPayed() ? d4.getVoyageurName() : d4.getVoyageurName() + unpaidString);
+        vec.add(d5 == null ? " ": d5.isIsPayed() ? d5.getVoyageurName() : d5.getVoyageurName() + unpaidString);
+        vec.add(d6 == null ? " ": d6.isIsPayed() ? d6.getVoyageurName() : d6.getVoyageurName() + unpaidString);
+        vec.add(d7 == null ? " ": d7.isIsPayed() ? d7.getVoyageurName() : d7.getVoyageurName() + unpaidString);
         
         return vec;
     }

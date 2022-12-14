@@ -189,7 +189,8 @@ public class MainApp extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void LogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LogoutActionPerformed
-               
+        TestConnection();
+        
         try {
             //Closed Sock
             sock.close();
@@ -204,6 +205,8 @@ public class MainApp extends javax.swing.JFrame {
     }//GEN-LAST:event_LogoutActionPerformed
 
     private void ExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExitActionPerformed
+        TestConnection();
+        
         try {
             sock.close();
         } catch (IOException ex) {
@@ -213,6 +216,8 @@ public class MainApp extends javax.swing.JFrame {
     }//GEN-LAST:event_ExitActionPerformed
 
     private void ComplexeListMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ComplexeListMouseClicked
+        TestConnection();
+        
         if (evt.getClickCount() == 2) {
             Complexes comp = CompList.get(ComplexeList.getSelectedRow());
             
@@ -221,6 +226,7 @@ public class MainApp extends javax.swing.JFrame {
             try {
                 window = new ComplexeView(this, true, comp);
             } catch (IOException | ClassNotFoundException ex) {
+                JOptionPane.showMessageDialog(this, "La connexion avec le serveur a été interrompue", "Error", JOptionPane.ERROR_MESSAGE);
                 Logger.getLogger(MainApp.class.getName()).log(Level.SEVERE, null, ex);
                 return;
             }
@@ -241,7 +247,12 @@ public class MainApp extends javax.swing.JFrame {
     }
     
     
-    
+    public void TestConnection(){
+        if(sock.isInputShutdown() || sock.isOutputShutdown() || sock.isClosed()){
+            JOptionPane.showMessageDialog(this, "La connexion avec le serveur a été interrompue", "Error", JOptionPane.ERROR_MESSAGE);
+            this.dispose();
+        }
+    }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTable ComplexeList;

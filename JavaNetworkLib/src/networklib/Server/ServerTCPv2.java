@@ -30,7 +30,7 @@ public class ServerTCPv2 extends Thread {
     
     private final int ThreadsCount;
     private final LinkedList<ThreadSocketService> threads;
-    
+    private final LinkedList<Socket> socks;
     
     public ServerTCPv2(int port, TasksSource s, ServerConsole l, int countthreads, ServerBuisness MainProg) throws IOException{
         ssock = new ServerSocket();
@@ -41,11 +41,16 @@ public class ServerTCPv2 extends Thread {
         ThreadsCount = countthreads;
         MainProgram = MainProg;
         threads = new LinkedList<>();
+        socks = new LinkedList<>();
     }
     
     
     public void Shutdown() throws IOException{
         //A l'avenir il faudra que le serveur envoi un message de fermeture au client
+        for(Socket s : socks){
+            s.close();
+        }
+        
         for(ThreadSocketService th : threads){
             th.interrupt();
             th.Shutdown();
@@ -84,6 +89,7 @@ public class ServerTCPv2 extends Thread {
                 
                 serviceSock = ssock.accept(); 
                 if(j == 1) Log.Trace(serviceSock.getRemoteSocketAddress().toString()+"#accept success#thread serveur");
+                socks.add(serviceSock);
                 
             } catch (IOException ex) {
                 Logger.getLogger(ServerTCPv2.class.getName()).log(Level.SEVERE, null, ex);

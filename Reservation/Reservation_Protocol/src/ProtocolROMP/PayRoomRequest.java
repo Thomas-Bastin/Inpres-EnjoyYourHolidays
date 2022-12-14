@@ -7,6 +7,7 @@ package ProtocolROMP;
 
 import ReservationDataLayer.db;
 import ReservationDataLayer.entities.Chambres;
+import ReservationDataLayer.entities.CreditCard;
 import ReservationDataLayer.entities.Voyageurs;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -26,16 +27,16 @@ public class PayRoomRequest extends Request {
     private final Chambres room;
     private final Date begDate;
     private final Voyageurs client;
-    private final String creditCard;
+    private final CreditCard creditCard;
 
-    public PayRoomRequest(Chambres ch, Date begd, Voyageurs cl, String cC) {
+    public PayRoomRequest(Chambres ch, Date begd, Voyageurs cl, CreditCard cC) {
         this.room = ch;
         this.begDate = begd;
         this.client = cl;
         this.creditCard = cC;
     }
 
-    public String getCreditCard() {
+    public CreditCard getCreditCard() {
         return creditCard;
     }
 
@@ -54,16 +55,8 @@ public class PayRoomRequest extends Request {
     
     @Override
     public void Task(Socket sock, ServerConsole log, ObjectOutputStream oos) throws IOException, ClassNotFoundException {
-        LinkedList list = null;
-        
-        try {
-            //Try Cancel the Room
-            boolean ret = db.PayRoom();
-            
-        } catch (SQLException ex) {
-            log.Trace(sock.getRemoteSocketAddress().toString() + "# PayRoomResponse SQL Error: " + ex.getErrorCode() + " #" + Thread.currentThread().getName());
-        } catch(Exception ex){
-            log.Trace(sock.getRemoteSocketAddress().toString() + "# PayRoomResponse Unkown Error: " + ex.getMessage() + " #" + Thread.currentThread().getName());
-        }
+        //TODO
+        oos.writeObject(new PayRoomResponse(PayRoomResponse.SUCCESS, "Success"));
+        log.Trace(sock.getRemoteSocketAddress().toString() + "# PayRoomResponse SUCCESS #" + Thread.currentThread().getName());
     }
 }

@@ -52,6 +52,7 @@ public class ReservationServerApp extends javax.swing.JFrame implements ServerCo
             if(f.createNewFile()){
                 OutputStream os = new FileOutputStream(f.getPath());
                 config.setProperty("server_port", "50006");
+                config.setProperty("threadNumber", "5");
                 config.setProperty("dbSocket", "192.168.1.63:3560");
                 config.setProperty("dbName", "bd_holidays");
                 config.setProperty("dbUserName", "db_access_tools");
@@ -66,6 +67,7 @@ public class ReservationServerApp extends javax.swing.JFrame implements ServerCo
                 if(config.isEmpty()){
                     OutputStream os = new FileOutputStream(f.getPath());
                 config.setProperty("server_port", "50006");
+                config.setProperty("threadNumber", "5");
                 config.setProperty("dbSocket", "192.168.1.63:3560");
                 config.setProperty("dbName", "bd_holidays");
                 config.setProperty("dbUserName", "db_access_tools");
@@ -93,7 +95,7 @@ public class ReservationServerApp extends javax.swing.JFrame implements ServerCo
         Launch_StopButton = new javax.swing.JToggleButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Serveur Activitées");
+        setTitle("Serveur Reservation");
         setMinimumSize(new java.awt.Dimension(400, 440));
 
         Port.setText("50005");
@@ -195,8 +197,9 @@ public class ReservationServerApp extends javax.swing.JFrame implements ServerCo
         try {
             Trace("serveur#initialisation#main");
             int port = Integer.parseInt( Port.getText() );
+            int threadscount = Integer.parseInt( config.getProperty("threadNumber", "3") );
             Trace("serveur#acquisition du port#main");
-            serveur = new ServerTCPv2(port, new ListTask(), this, 5, new MainServBuisness());
+            serveur = new ServerTCPv2(port, new ListTask(), this, threadscount, new MainServBuisness());
             serveur.setName("Serveur-TCP ListenSocket");
             serveur.start();
             

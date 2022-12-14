@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.LinkedList;
+import java.util.TimeZone;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -151,7 +152,7 @@ public class db {
             
             PreparedStatement pStmt = mysql.prepareStatement(
                 "SELECT idComplexe, idChambre, idVoyageur, " +
-                "dateArrive, (dateArrive + INTERVAL  nbJours DAY ) AS dateFin, nbJours, nomVoyageur, paye " +
+                "dateArrive, (dateArrive + INTERVAL  nbJours DAY ) AS dateFin, nbJours, nomVoyageur " +
                 "FROM reservationchambre " +
                 "INNER JOIN voyageurs ON (voyageurs.numeroClient = reservationchambre.idVoyageur) " +
                 "WHERE idComplexe = ? AND idChambre = ?"
@@ -167,6 +168,7 @@ public class db {
                 LocalDate tmpArr = LocalDate.from(rs.getDate("dateArrive").toLocalDate());
                 LocalDate tmpFin = LocalDate.from(rs.getDate("dateFin").toLocalDate());
                 
+                
                 Reservationchambre tmp = new Reservationchambre(
                         rs.getInt("idComplexe"),
                         rs.getInt("idChambre"),
@@ -174,9 +176,10 @@ public class db {
                         rs.getDate("dateArrive"),
                         rs.getInt("nbJours"),
                         rs.getString("nomVoyageur"),
-                        rs.getInt("paye")
+                        false
                 );
                 
+                checkReservPaied(ch, tmp);
                 
                 LocalDate tmpDate = LocalDate.from(tmpArr);
                 while(tmpDate.isBefore(tmpFin)){
@@ -196,6 +199,67 @@ public class db {
         }
         
         return listRow;
+    }
+    
+    public static void checkReservPaied(Chambres ch, Reservationchambre tmp) throws SQLException{
+        int nbJ = tmp.getNbJours();
+        double toPayHTVA = nbJ * ch.getPrixHTVA();
+        final double TVA = (float) 1.21;
+        double toPay = toPayHTVA * TVA;
+        
+        double sumAlreadyPaied = 0;
+        PreparedStatement pStmt = mysql.prepareStatement(
+            "SELECT montant FROM payementchambre WHERE idComplexe = ? AND idChambre = ? AND dateArrive = ?;"
+        );
+        
+        pStmt.setInt(1,  tmp.getIdComplexe());
+        pStmt.setInt(2,  tmp.getIdChambre());
+        pStmt.setDate(3, new java.sql.Date(tmp.getDateArrive().getTime()));
+        ResultSet rs = pStmt.executeQuery();
+        int i = 0;
+        //Création d'un nouveau modèle
+        while (rs.next()){
+            //Somme des payements TVAC
+            sumAlreadyPaied += rs.getFloat("montant");
+            i++;
+        }
+        
+        System.out.println("RowFound: " + i);
+        System.out.println("AlreadyPaied: " + sumAlreadyPaied);
+        System.out.println("Topay: " + toPay);
+        //Check si sumAlreadyPaied == ...
+        if(sumAlreadyPaied >= toPay){
+            tmp.setIsPayed(true);
+        }
+    }
+    
+    
+    public synchronized static double howMuchToPay(Chambres ch, Reservationchambre reserv) throws SQLException{
+        int nbJ = reserv.getNbJours();
+        double toPayHTVA = nbJ * ch.getPrixHTVA();
+        final double TVA = (float) 1.21;
+        double toPay = toPayHTVA * TVA;
+        
+        double sumAlreadyPaied = 0;
+        PreparedStatement pStmt = mysql.prepareStatement(
+            "SELECT montant FROM payementchambre WHERE idComplexe = ? AND idChambre = ? AND dateArrive = ?;"
+        );
+        
+        pStmt.setInt(1,  reserv.getIdComplexe());
+        pStmt.setInt(2,  reserv.getIdChambre());
+        pStmt.setDate(3, new java.sql.Date(reserv.getDateArrive().getTime()));
+        ResultSet rs = pStmt.executeQuery();
+        
+        //Création d'un nouveau modèle
+        while (rs.next()){
+            //Somme des payements TVAC
+            sumAlreadyPaied += rs.getFloat("montant");
+        }
+        return toPay - sumAlreadyPaied;
+    }
+    
+    public LocalDate DatetoLocal(java.util.Date dateToConvert) {
+        return Instant.ofEpochMilli(dateToConvert.getTime()).atZone(ZoneId.systemDefault()).toLocalDate();
     }
     
     public static LinkedList<Chambres> getSubRooms(Complexes c) throws SQLException {
@@ -221,7 +285,7 @@ public class db {
     
     
     
-    public synchronized static int BookRoom(Chambres ch, Date dateBeg, int Nights, Voyageurs ClientRef) throws SQLException, Exception {
+    public synchronized static int BookRoom(Chambres ch, java.sql.Date dateBeg, int Nights, Voyageurs ClientRef) throws SQLException, Exception {
         mysql.setAutoCommit(false);
         if(!checkDate(ch, dateBeg, Nights)){
             mysql.rollback();
@@ -237,7 +301,7 @@ public class db {
         pStmt.setInt(1, ch.getNumChambre());
         pStmt.setInt(2, ch.getIdComplexe());
         pStmt.setInt(3, ClientRef.getNumeroClient());
-        pStmt.setDate(4, dateBeg);
+        pStmt.setObject(4, dateBeg);
         pStmt.setInt(5, Nights);
         
         int rs = pStmt.executeUpdate();
@@ -247,7 +311,7 @@ public class db {
         return rs;
     }
     
-    public static boolean checkDate(Chambres ch, Date dateBeg, int Nights) throws SQLException {
+    public static boolean checkDate(Chambres ch, java.sql.Date dateBeg, int Nights) throws SQLException {
         boolean errored = false;
         
         LocalDate dbeg = dateBeg.toLocalDate();
@@ -283,14 +347,18 @@ public class db {
     
     
     public synchronized static boolean PayRoom() throws SQLException {
+        //Select and calcul price
+        
+        //
         
         return true;
     }
     
     
     
-    public synchronized static boolean CancelRoom(Chambres room, Date dateBeg) throws SQLException {
-        Date nowDate = (Date) Date.from(Instant.now());
+    public synchronized static boolean CancelRoom(Chambres room, java.sql.Date dateBeg) throws SQLException {
+        java.sql.Date nowDate = java.sql.Date.valueOf( LocalDate.now(TimeZone.getDefault().toZoneId()));
+        
         if(nowDate.compareTo(dateBeg) >= 0){ return false;}
         
         PreparedStatement pStmt = mysql.prepareStatement(
@@ -304,11 +372,6 @@ public class db {
         int rs = pStmt.executeUpdate();
         return true;
     }
-    
-    
-    
-    
-    
     
     
     

@@ -205,6 +205,7 @@ public class BookRoom extends javax.swing.JDialog {
     }//GEN-LAST:event_KOActionPerformed
 
     private void OKActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_OKActionPerformed
+        TestConnection();
         final Chambres selectRoom = (Chambres) ComboRooms.getSelectedItem();
         final Voyageurs selectUser = (Voyageurs) ComboUser.getSelectedItem();
         final java.sql.Date selectDate = java.sql.Date.valueOf(LocalDate.from(ComboDate.getDate().toInstant().atZone(ZoneId.systemDefault())));
@@ -273,4 +274,11 @@ public class BookRoom extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     // End of variables declaration//GEN-END:variables
+
+    public void TestConnection(){
+        if(sock.isInputShutdown() || sock.isOutputShutdown() || sock.isClosed()){
+            JOptionPane.showMessageDialog(this, "La connexion avec le serveur a été interrompue", "Error", JOptionPane.ERROR_MESSAGE);
+            this.dispose();
+        }
+    }
 }

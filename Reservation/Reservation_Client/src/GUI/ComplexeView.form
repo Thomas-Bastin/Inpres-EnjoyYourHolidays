@@ -43,10 +43,11 @@
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="Booked" min="-2" pref="130" max="-2" attributes="0"/>
-                      <EmptySpace max="32767" attributes="0"/>
-                      <Component id="UnList" min="-2" pref="130" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="42" max="-2" attributes="0"/>
-                      <Component id="Payed" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace type="separate" max="-2" attributes="0"/>
+                      <Component id="UnList" min="-2" pref="158" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="150" max="-2" attributes="0"/>
+                      <Component id="Payed" min="-2" pref="144" max="-2" attributes="0"/>
+                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -178,7 +179,7 @@
     </Component>
     <Component class="javax.swing.JButton" name="UnList">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Lib&#xe9;rer"/>
+        <Property name="text" type="java.lang.String" value="Retirer Reservation"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="UnListActionPerformed"/>
@@ -186,8 +187,11 @@
     </Component>
     <Component class="javax.swing.JButton" name="Payed">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Marquer comme Pay&#xe9;"/>
+        <Property name="text" type="java.lang.String" value="Payement"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="PayedActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="weekLater">
       <Properties>

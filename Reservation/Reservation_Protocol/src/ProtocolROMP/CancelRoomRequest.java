@@ -33,13 +33,13 @@ public class CancelRoomRequest extends Request{
     
     
     public void Task(Socket sock, ServerConsole log, ObjectOutputStream oos) throws IOException, ClassNotFoundException {
-        Date datedep;
+        java.sql.Date datedep;
         
         try {
-            datedep = (Date) Date.from(Instant.now());
+            java.util.Date date = new java.util.Date();
+            datedep = new Date(date.getTime());
             //Try Cancel the Room
             boolean ret = db.CancelRoom(room, dateBeg);
-            
             
             if(ret){
                 oos.writeObject(new CancelRoomResponse(CancelRoomResponse.SUCCESS, "CancelRoom Success"));
@@ -48,9 +48,7 @@ public class CancelRoomRequest extends Request{
             else{
                 oos.writeObject(new CancelRoomResponse(CancelRoomResponse.KO, "Can't Cancel this room", datedep));
                 log.Trace(sock.getRemoteSocketAddress().toString() + "# CancelRoomResponse KO #" + Thread.currentThread().getName());
-            }            
-    
-            throw new Exception("Erreur");
+            }
         } catch (SQLException ex) {
             log.Trace(sock.getRemoteSocketAddress().toString() + "# CancelRoomResponse SQL Error: " + ex.getErrorCode() + " #" + Thread.currentThread().getName());
             oos.writeObject(new CancelRoomResponse(CancelRoomResponse.BADDB, ex.getMessage()));

@@ -18,36 +18,19 @@ public class Reservationchambre implements Serializable {
     private int idComplexe;
     private int idChambre;
     private int idVoyageur;
-    
     private Date dateArrive;
     private int nbJours;
-    private boolean paye;
-
     private String VoyageurName;
+    private boolean isPayed;
 
-    public Reservationchambre(int idComplexe, int idChambre, int idVoyageur, Date dateArrive, int nbJours, String VoyageurName) {
+    public Reservationchambre(int idComplexe, int idChambre, int idVoyageur, Date dateArrive, int nbJours, String VoyageurName, boolean isPayed) {
         this.idComplexe = idComplexe;
         this.idChambre = idChambre;
         this.idVoyageur = idVoyageur;
         this.dateArrive = dateArrive;
         this.nbJours = nbJours;
         this.VoyageurName = VoyageurName;
-        this.paye = false;
-    }
-    
-    public Reservationchambre(int idComplexe, int idChambre, int idVoyageur, Date dateArrive, int nbJours, String VoyageurName, int pay) {
-        this.idComplexe = idComplexe;
-        this.idChambre = idChambre;
-        this.idVoyageur = idVoyageur;
-        this.dateArrive = dateArrive;
-        this.nbJours = nbJours;
-        this.VoyageurName = VoyageurName;
-        if(pay == 1){
-            this.paye = true;
-        }
-        else{
-            this.paye = false;
-        }
+        this.isPayed = isPayed;
     }
     
     @Override
@@ -149,11 +132,13 @@ public class Reservationchambre implements Serializable {
         this.VoyageurName = VoyageurName;
     }
 
-    public boolean isPaye() {
-        return paye;
+    public boolean isIsPayed() {
+        return isPayed;
     }
 
-    public void setPaye(boolean paye) {
-        this.paye = paye;
+    public void setIsPayed(boolean isPayed) {
+        this.isPayed = isPayed;
     }
+    
+    
 }
