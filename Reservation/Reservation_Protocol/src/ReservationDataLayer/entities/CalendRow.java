@@ -50,16 +50,18 @@ public class CalendRow implements Serializable {
     }
     
     public Vector toVector(){
+        final String unpaidString = " -$-";
+        
         Vector vec = new Vector();
         
         vec.add(chambre.getType() + " n°" + chambre.getNumChambre());
-        vec.add(d1 == null ? " ": d1.getVoyageurName());
-        vec.add(d2 == null ? " ": d2.getVoyageurName());
-        vec.add(d3 == null ? " ": d3.getVoyageurName());
-        vec.add(d4 == null ? " ": d4.getVoyageurName());
-        vec.add(d5 == null ? " ": d5.getVoyageurName());
-        vec.add(d6 == null ? " ": d6.getVoyageurName());
-        vec.add(d7 == null ? " ": d7.getVoyageurName());
+        vec.add(d1 == null ? " ": !d1.isPaye() ? d1.getVoyageurName() : d1.getVoyageurName()+unpaidString);
+        vec.add(d2 == null ? " ": !d2.isPaye() ? d2.getVoyageurName() : d2.getVoyageurName()+unpaidString);
+        vec.add(d3 == null ? " ": !d3.isPaye() ? d3.getVoyageurName() : d3.getVoyageurName()+unpaidString);
+        vec.add(d4 == null ? " ": !d4.isPaye() ? d4.getVoyageurName() : d4.getVoyageurName()+unpaidString);
+        vec.add(d5 == null ? " ": !d5.isPaye() ? d5.getVoyageurName() : d5.getVoyageurName()+unpaidString);
+        vec.add(d6 == null ? " ": !d6.isPaye() ? d6.getVoyageurName() : d6.getVoyageurName()+unpaidString);
+        vec.add(d7 == null ? " ": !d7.isPaye() ? d7.getVoyageurName() : d7.getVoyageurName()+unpaidString);
         
         return vec;
     }
@@ -129,4 +131,15 @@ public class CalendRow implements Serializable {
     public void setD7(Reservationchambre d7) {
         this.d7 = d7;
     }
+
+    public Chambres getChambre() {
+        return chambre;
+    }
+
+    @Override
+    public String toString() {
+        return "CalendRow{" + "chambre=" + chambre + ", d1=" + d1 + ", d2=" + d2 + ", d3=" + d3 + ", d4=" + d4 + ", d5=" + d5 + ", d6=" + d6 + ", d7=" + d7 + '}';
+    }
+    
+    
 }

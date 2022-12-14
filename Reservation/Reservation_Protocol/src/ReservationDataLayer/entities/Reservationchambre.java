@@ -21,6 +21,7 @@ public class Reservationchambre implements Serializable {
     
     private Date dateArrive;
     private int nbJours;
+    private boolean paye;
 
     private String VoyageurName;
 
@@ -31,6 +32,22 @@ public class Reservationchambre implements Serializable {
         this.dateArrive = dateArrive;
         this.nbJours = nbJours;
         this.VoyageurName = VoyageurName;
+        this.paye = false;
+    }
+    
+    public Reservationchambre(int idComplexe, int idChambre, int idVoyageur, Date dateArrive, int nbJours, String VoyageurName, int pay) {
+        this.idComplexe = idComplexe;
+        this.idChambre = idChambre;
+        this.idVoyageur = idVoyageur;
+        this.dateArrive = dateArrive;
+        this.nbJours = nbJours;
+        this.VoyageurName = VoyageurName;
+        if(pay == 1){
+            this.paye = true;
+        }
+        else{
+            this.paye = false;
+        }
     }
     
     @Override
@@ -131,5 +148,12 @@ public class Reservationchambre implements Serializable {
     public void setVoyageurName(String VoyageurName) {
         this.VoyageurName = VoyageurName;
     }
-    
+
+    public boolean isPaye() {
+        return paye;
+    }
+
+    public void setPaye(boolean paye) {
+        this.paye = paye;
+    }
 }

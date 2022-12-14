@@ -6,6 +6,7 @@
 package ProtocolROMP;
 
 import ReservationDataLayer.db;
+import ReservationDataLayer.entities.Chambres;
 import ReservationDataLayer.entities.Voyageurs;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -22,12 +23,12 @@ import networklib.Server.ServerConsole;
  * @author Thomas
  */
 public class CancelRoomRequest extends Request{
-    private final int numChambre;
-    private final Voyageurs client;
+    private final Chambres room;
+    private final Date dateBeg;
 
-    public CancelRoomRequest(int numChambre, Voyageurs client) {
-        this.numChambre = numChambre;
-        this.client = client;
+    public CancelRoomRequest(Chambres roo, Date dBeg) {
+        dateBeg = dBeg;
+        room = roo;
     }    
     
     
@@ -37,7 +38,7 @@ public class CancelRoomRequest extends Request{
         
         try {
             //Try Cancel the Room
-            boolean ret = db.CancelRoom();
+            boolean ret = db.CancelRoom(room, dateBeg);
             datedep = (Date) Date.from(Instant.now());
             
             

@@ -11,8 +11,10 @@ import ProtocolROMP.TimeOut;
 import ReservationDataLayer.entities.Chambres;
 import ReservationDataLayer.entities.Complexes;
 import ReservationDataLayer.entities.Reservationchambre;
+import ReservationDataLayer.entities.Voyageurs;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Frame;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -36,11 +38,15 @@ import javax.swing.table.DefaultTableModel;
  * @author Arkios
  */
 public class ComplexeView extends javax.swing.JDialog {
-    private final Complexes selectedComp;
+    
     private ObjectOutputStream oos;
     private ObjectInputStream ios;
     private Socket sock;
+    
+    private final Complexes selectedComp;
+    private final LocalDate minDay;
     private LocalDate firstWeekDay;
+    private LinkedList<CalendRow> listRow;
     
     /**
      * Creates new form ComplexeView
@@ -77,11 +83,12 @@ public class ComplexeView extends javax.swing.JDialog {
         selectedComp = c;
         
         firstWeekDay = LocalDate.now( ZoneId.systemDefault()).with( TemporalAdjusters.previous( DayOfWeek.MONDAY ) );
+        minDay = LocalDate.now( ZoneId.systemDefault()).with( TemporalAdjusters.previous( DayOfWeek.MONDAY ) );
         refreshCalendar();
     }
     
-    private void refreshCalendar() throws IOException, ClassNotFoundException{
-        LinkedList<CalendRow> listRow = new LinkedList<CalendRow>();
+    private void refreshCalendar() throws IOException, ClassNotFoundException{        
+        listRow = new LinkedList<>();
         listRow = getReservations();
         
         if(listRow == null) return;
@@ -93,17 +100,16 @@ public class ComplexeView extends javax.swing.JDialog {
         for( CalendRow row : listRow){
             model.addRow(row.toVector());
         }
-        
         Calendar.setModel(model);
     }
     
-    private Vector getRowDate(){
-        Vector vec = new Vector();
+    private Vector<LocalDate> getRowDate(){
+        Vector<LocalDate> vec = new Vector<>();
         
-        vec.add("Chambres:");
+        vec.add(null);
         LocalDate date = firstWeekDay;
         for(int i = 0; i<7 ; i++){
-            vec.add(date.toString());
+            vec.add(date);
             date = date.plusDays(1);
         }
         return vec;
@@ -172,6 +178,36 @@ public class ComplexeView extends javax.swing.JDialog {
         return list;
     }
     
+    private LinkedList<Voyageurs> getUsers() throws IOException, ClassNotFoundException{
+        
+        oos.writeObject(new ListClientRequest());
+        Object r = ios.readObject();
+        
+        if (r instanceof TimeOut) {
+            JOptionPane.showMessageDialog(this, "Le serveur est éteint pour maintenance.", "Disconnect", JOptionPane.INFORMATION_MESSAGE);
+            return null;
+        }
+        
+        if (r instanceof ListClientResponse) {
+            ListClientResponse req = (ListClientResponse) r;
+            
+            switch (req.getCode()) {
+                case ListClientResponse.SUCCESS:
+                    return req.getList();
+
+                case ListClientResponse.BADDB:
+                    JOptionPane.showMessageDialog(this, "Erreur BDD: " + req.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    break;
+
+                case ListClientResponse.UNKOWN:
+                default:
+                    JOptionPane.showMessageDialog(this, "Erreur: " + req.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    break;
+            }
+        }
+        return null;
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -201,7 +237,7 @@ public class ComplexeView extends javax.swing.JDialog {
                 {null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"
+                "Chambres", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"
             }
         ) {
             boolean[] canEdit = new boolean [] {
@@ -227,6 +263,11 @@ public class ComplexeView extends javax.swing.JDialog {
         jLabel5.setText("Chambres Reservée :");
 
         Booked.setText("Reserver");
+        Booked.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BookedActionPerformed(evt);
+            }
+        });
 
         UnList.setText("Libérer");
 
@@ -298,6 +339,8 @@ public class ComplexeView extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void weekBeforeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_weekBeforeActionPerformed
+        if(minDay.isAfter(firstWeekDay.minusWeeks(1))) return;
+        
         firstWeekDay = firstWeekDay.minusWeeks(1);
         try {
             refreshCalendar();
@@ -315,6 +358,77 @@ public class ComplexeView extends javax.swing.JDialog {
         }
     }//GEN-LAST:event_weekLaterActionPerformed
 
+    private void BookedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BookedActionPerformed
+        int col = Calendar.getSelectedColumn();
+        int row = Calendar.getSelectedRow();
+                
+        Chambres selectedRoom;
+        LocalDate selectedDate;
+        LinkedList<Voyageurs> userList;
+        LinkedList<Chambres> roomList;
+        
+        if(col < 1 || row < 1){
+            JOptionPane.showMessageDialog(this, "Vous devez sélectionner un crénaux horaires", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        row--;
+        
+        if(! isValidSelection(col,row, listRow)){
+            JOptionPane.showMessageDialog(this, "Le crénaux n'est pas libre.", "Warning", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        //Recuperation chambre selectionner
+        selectedRoom = listRow.get(row).getChambre();
+        selectedDate = (LocalDate) getRowDate().get(col);
+        
+        try {
+            userList = getUsers();
+            if(userList == null){
+                JOptionPane.showMessageDialog(this, "Connexion au serveur interrompue, veuillez réessayer plus tard.", "Warning", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+        } catch (IOException | ClassNotFoundException ex) {
+            Logger.getLogger(ComplexeView.class.getName()).log(Level.SEVERE, null, ex);
+            return;
+        }
+        
+        try {
+            roomList = getChambresList();
+            if(roomList == null){
+                JOptionPane.showMessageDialog(this, "Connexion au serveur interrompue, veuillez réessayer plus tard.", "Warning", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+        } catch (IOException | ClassNotFoundException ex) {
+            Logger.getLogger(ComplexeView.class.getName()).log(Level.SEVERE, null, ex);
+            return;
+        }
+        
+        //Creation d'un dialog
+        BookRoom window = new BookRoom(null, true,oos,ios,sock, selectedRoom, selectedDate, userList, roomList);
+        window.setVisible(true);
+        
+        try {
+            this.refreshCalendar();
+        } catch (IOException | ClassNotFoundException ex) {
+            JOptionPane.showMessageDialog(this, "Connexion au serveur interrompue, veuillez réessayer plus tard.", "Warning", JOptionPane.WARNING_MESSAGE);
+        }
+    }//GEN-LAST:event_BookedActionPerformed
+
+    private boolean isValidSelection(int col, int row, LinkedList<CalendRow> tmpRows){
+        //System.err.println("col: " + col + ", row: " + row);
+        //System.err.println(listRow.get(row));
+        
+        if(tmpRows.get(row).getD1() == null && col == 1) return true;
+        if(tmpRows.get(row).getD2() == null && col == 2) return true;
+        if(tmpRows.get(row).getD3() == null && col == 3) return true;
+        if(tmpRows.get(row).getD4() == null && col == 4) return true;
+        if(tmpRows.get(row).getD5() == null && col == 5) return true;
+        if(tmpRows.get(row).getD6() == null && col == 6) return true;
+        if(tmpRows.get(row).getD7() == null && col == 7) return true;
+        
+        return false;
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton Booked;
     private javax.swing.JTable Calendar;

@@ -74,6 +74,7 @@ public class MainServBuisness implements ServerBuisness {
                 Task(s, cs);
             } catch (IOException | ClassNotFoundException ex) {
                 if(ex instanceof java.io.EOFException) return;
+                if(ex instanceof java.net.SocketException && ex.getCause().equals("Connection reset")) return;
                 Logger.getLogger(Request.class.getName()).log(Level.SEVERE, null, ex);
             }
         };

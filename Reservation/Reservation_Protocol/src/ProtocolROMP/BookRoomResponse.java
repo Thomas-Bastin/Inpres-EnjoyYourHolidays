@@ -10,7 +10,7 @@ package ProtocolROMP;
  * @author Thomas
  */
 public class BookRoomResponse extends Response{
-    public static final int KO = 201;
+    public static final int INVALIDDATE = 406;
     
     
     private final int nChambre;

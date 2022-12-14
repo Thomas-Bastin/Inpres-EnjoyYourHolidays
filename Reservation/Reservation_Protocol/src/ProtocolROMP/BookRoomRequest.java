@@ -6,6 +6,7 @@
 package ProtocolROMP;
 
 import ReservationDataLayer.db;
+import ReservationDataLayer.entities.Chambres;
 import ReservationDataLayer.entities.Voyageurs;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -22,16 +23,14 @@ import networklib.Server.ServerConsole;
  * @author Thomas
  */
 public class BookRoomRequest extends Request {
-    private final String category;
-    private final String type;
+    private final Chambres chambre;
     private final Date dateBeg;
     private final int nights;
     private final Voyageurs clientRef;
     
     
-    public BookRoomRequest(String Category, String Type, Date dateBeg, int Nights, Voyageurs ClientRef){
-        this.category = Category;
-        this.type = Type;
+    public BookRoomRequest(Chambres ch, Date dateBeg, int Nights, Voyageurs ClientRef){
+        this.chambre = ch;
         this.dateBeg = dateBeg;
         this.nights = Nights;
         this.clientRef = ClientRef;
@@ -45,22 +44,21 @@ public class BookRoomRequest extends Request {
         
         try {
             //Try Cancel the Room
-            boolean ret = db.BookRoom();
+            int ret = db.BookRoom(chambre, dateBeg, nights, clientRef);
+            System.out.println("SQL Insert: "+ret);
+            oos.writeObject(new BookRoomResponse(BookRoomResponse.SUCCESS, "BookRoom Success", numCh, prix));
+            log.Trace(sock.getRemoteSocketAddress().toString() + "# BookRoomResponse SUCCESS #" + Thread.currentThread().getName());
             
-            if(ret){
-                oos.writeObject(new BookRoomResponse(BookRoomResponse.SUCCESS, "BookRoom Success", numCh, prix));
-                log.Trace(sock.getRemoteSocketAddress().toString() + "# BookRoomResponse SUCCESS #" + Thread.currentThread().getName());
-            }
-            else{
-                oos.writeObject(new BookRoomResponse(BookRoomResponse.KO, "Can't Book this room", numCh, prix));
-                log.Trace(sock.getRemoteSocketAddress().toString() + "# BookRoomResponse KO #" + Thread.currentThread().getName());
-            }            
-    
-            throw new Exception("Erreur");
         } catch (SQLException ex) {
             log.Trace(sock.getRemoteSocketAddress().toString() + "# BookRoomResponse SQL Error: " + ex.getErrorCode() + " #" + Thread.currentThread().getName());
             oos.writeObject(new BookRoomResponse(BookRoomResponse.BADDB, ex.getMessage()));
         } catch(Exception ex){
+            if(ex.getMessage().equalsIgnoreCase("DateInvalid")){
+                log.Trace(sock.getRemoteSocketAddress().toString() + "# BookRoomResponse DateInvalid Error: " + ex.getMessage() + " #" + Thread.currentThread().getName());
+                oos.writeObject(new BookRoomResponse(BookRoomResponse.INVALIDDATE, "Une autre réservation est déjà en cours aux dates choisies"));
+                return;
+            }
+            
             log.Trace(sock.getRemoteSocketAddress().toString() + "# BookRoomResponse Unkown Error: " + ex.getMessage() + " #" + Thread.currentThread().getName());
             oos.writeObject(new BookRoomResponse(BookRoomResponse.UNKOWN, ex.getMessage()));
         }

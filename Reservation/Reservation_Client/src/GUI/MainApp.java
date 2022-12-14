@@ -117,7 +117,7 @@ public class MainApp extends javax.swing.JFrame {
         Logout = new javax.swing.JMenuItem();
         Exit = new javax.swing.JMenuItem();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Reservation Rooms App");
 
         ComplexeList.setModel(new javax.swing.table.DefaultTableModel(
@@ -222,6 +222,7 @@ public class MainApp extends javax.swing.JFrame {
                 window = new ComplexeView(this, true, comp);
             } catch (IOException | ClassNotFoundException ex) {
                 Logger.getLogger(MainApp.class.getName()).log(Level.SEVERE, null, ex);
+                return;
             }
             window.setVisible(true);
         }

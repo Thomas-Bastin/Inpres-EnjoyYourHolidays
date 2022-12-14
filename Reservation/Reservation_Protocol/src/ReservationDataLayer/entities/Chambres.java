@@ -6,6 +6,8 @@
 package ReservationDataLayer.entities;
 
 import java.io.Serializable;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.Vector;
 
 /**
@@ -47,11 +49,10 @@ public class Chambres implements Serializable {
     
     @Override
     public String toString() {
-        return "Chambres{" + "numChambre=" + numChambre + ", idComplexe=" + idComplexe + ", type=" + type + ", equipements=" + equipements + ", nombreLits=" + nombreLits + ", prixHTVA=" + prixHTVA + '}';
+        DecimalFormat df = new DecimalFormat("#.##");
+        df.setRoundingMode(RoundingMode.UP);
+        return "Chambre n°" + numChambre + " " + type + " - " +  df.format(prixHTVA*1.21) + "€";
     }
-
-    
-    
     
     public int getNumChambre() {
         return numChambre;

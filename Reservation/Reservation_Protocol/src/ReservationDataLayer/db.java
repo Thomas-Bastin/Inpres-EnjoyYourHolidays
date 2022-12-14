@@ -131,7 +131,7 @@ public class db {
         //Création d'un nouveau modèle
         
         while (rs.next()){
-            Chambres ch = new Chambres( rs.getInt("numChambre"), rs.getInt("idComplexe"), rs.getString("Type"), 
+            Chambres ch = new Chambres( rs.getInt("idChambre"), rs.getInt("idComplexe"), rs.getString("Type"), 
                     rs.getString("equipements"), rs.getInt("nombreLits"), rs.getFloat("prixHTVA"));
             
             list.add(ch);
@@ -150,7 +150,7 @@ public class db {
             
             PreparedStatement pStmt = mysql.prepareStatement(
                 "SELECT idComplexe, idChambre, idVoyageur, " +
-                "dateArrive, (dateArrive + INTERVAL  nbJours DAY ) AS dateFin, nbJours, nomVoyageur " +
+                "dateArrive, (dateArrive + INTERVAL  nbJours DAY ) AS dateFin, nbJours, nomVoyageur, paye " +
                 "FROM reservationchambre " +
                 "INNER JOIN voyageurs ON (voyageurs.numeroClient = reservationchambre.idVoyageur) " +
                 "WHERE idComplexe = ? AND idChambre = ?"
@@ -159,7 +159,6 @@ public class db {
             pStmt.setInt(2, ch.getNumChambre());
             
             ResultSet rs = pStmt.executeQuery();
-            
             
             while(rs.next()){
                 LocalDate dBeg = LocalDate.from(myDate);
@@ -173,16 +172,17 @@ public class db {
                         rs.getInt("idVoyageur"),
                         rs.getDate("dateArrive"),
                         rs.getInt("nbJours"),
-                        rs.getString("nomVoyageur")
+                        rs.getString("nomVoyageur"),
+                        rs.getInt("paye")
                 );
                 
-             
+                
                 LocalDate tmpDate = LocalDate.from(tmpArr);
                 while(tmpDate.isBefore(tmpFin)){
                     if((tmpDate.isEqual(dBeg)||tmpDate.isAfter(dBeg)) && (tmpDate.isBefore(dEnd)||tmpDate.isEqual(dEnd))) {
                         tmpRow.setReserv( tmpDate.getDayOfWeek() , tmp);
                     }
-                        
+                    
                     tmpDate = tmpDate.plusDays(1);
                 }
             }
@@ -209,7 +209,7 @@ public class db {
         //Création d'un nouveau modèle
         
         while (rs.next()){
-            Chambres ch = new Chambres( rs.getInt("numChambre"), rs.getInt("idComplexe"), rs.getString("Type"), 
+            Chambres ch = new Chambres( rs.getInt("idChambre"), rs.getInt("idComplexe"), rs.getString("Type"), 
                     rs.getString("equipements"), rs.getInt("nombreLits"), rs.getFloat("prixHTVA"));
             
             list.add(ch);
@@ -220,17 +220,92 @@ public class db {
     
     
     
-    public synchronized static boolean BookRoom() throws SQLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public synchronized static int BookRoom(Chambres ch, Date dateBeg, int Nights, Voyageurs ClientRef) throws SQLException, Exception {
+        mysql.setAutoCommit(false);
+        if(!checkDate(ch, dateBeg, Nights)){
+            mysql.rollback();
+            mysql.setAutoCommit(true);
+            throw new Exception("DateInvalid");
+        }
+        
+        PreparedStatement pStmt = mysql.prepareStatement(
+            "INSERT INTO reservationchambre (idChambre, idComplexe, idVoyageur, dateArrive, nbJours)\n" +
+                            "VALUES ( ? , ? , ? , ? , ?);"
+        );
+        
+        pStmt.setInt(1, ch.getNumChambre());
+        pStmt.setInt(2, ch.getIdComplexe());
+        pStmt.setInt(3, ClientRef.getNumeroClient());
+        pStmt.setDate(4, dateBeg);
+        pStmt.setInt(5, Nights);
+        
+        int rs = pStmt.executeUpdate();
+        mysql.commit();
+        mysql.setAutoCommit(true);
+        
+        return rs;
+    }
+    
+    public static boolean checkDate(Chambres ch, Date dateBeg, int Nights) throws SQLException {
+        boolean errored = false;
+        
+        LocalDate dbeg = dateBeg.toLocalDate();
+        LocalDate dend = dbeg.plusDays(Nights);
+        
+        PreparedStatement pStmt = mysql.prepareStatement(
+            " SELECT dateArrive, nbJours, idVoyageur "
+          + " FROM reservationchambre"
+          + " WHERE idChambre = ? AND idComplexe = ?; "
+        );
+        pStmt.setInt(1, ch.getNumChambre());
+        pStmt.setInt(2, ch.getIdComplexe());    
+        ResultSet rs = pStmt.executeQuery();
+            
+        while(rs.next()){
+            LocalDate tmpbeg = rs.getDate("dateArrive").toLocalDate();
+            LocalDate tmpend = tmpbeg.plusDays(rs.getInt("nbJours"));
+            
+            LocalDate tmpDate = LocalDate.from(tmpbeg);
+            while (tmpDate.isBefore(tmpend)) {
+                if ((tmpDate.isEqual(dbeg) || tmpDate.isAfter(dbeg)) && (tmpDate.isBefore(dend))) {
+                    errored = true;
+                    break;
+                }
+                tmpDate = tmpDate.plusDays(1);
+            }
+        }
+        
+        return !errored;
     }
 
+    
+    
+    
     public synchronized static boolean PayRoom() throws SQLException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
-    public synchronized static boolean CancelRoom() throws SQLException {
+    
+    
+    public synchronized static boolean CancelRoom(Chambres room, Date dateBeg) throws SQLException {
+        PreparedStatement pStmt = mysql.prepareStatement(
+            "DELETE FROM reservationchambre WHERE idChambre = ? AND idComplexe = ? AND dateArrive = ? ;"
+        );
+        
+        pStmt.setInt(1, room.getNumChambre());
+        pStmt.setInt(2, room.getIdComplexe());
+        pStmt.setDate(3, dateBeg);
+        
+        int rs = pStmt.executeUpdate();
         return true;
     }
+    
+    
+    
+    
+    
+    
+    
     
     public static LinkedList select(String select, String from, String where, boolean isheader) throws SQLException {
         //Création d'un nouveau modèle

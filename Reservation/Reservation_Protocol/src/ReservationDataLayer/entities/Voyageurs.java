@@ -175,7 +175,7 @@ public class Voyageurs implements Serializable {
 
     @Override
     public String toString() {
-        return "ReservationDataLayer.entities.Voyageurs[ numeroClient=" + numeroClient + " ]";
+        return nomVoyageur + " " + prenomVoyageur;
     }
     
 }
