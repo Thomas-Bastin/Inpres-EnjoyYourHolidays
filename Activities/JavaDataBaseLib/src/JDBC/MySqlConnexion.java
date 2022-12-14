@@ -58,6 +58,7 @@ public class MySqlConnexion {
             if(f.createNewFile()){
                 OutputStream os = new FileOutputStream(f.getPath());
                 config.setProperty("server_port", "50005");
+                config.setProperty("threadNumber", "5");
                 config.setProperty("dbSocket", "192.168.1.63:3560");
                 config.setProperty("dbName", "bd_holidays");
                 config.setProperty("dbUserName", "db_access_tools");

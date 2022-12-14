@@ -10,6 +10,9 @@ package ProtocolROMP;
  * @author Thomas
  */
 public class LoginResponse extends Response {
+    public static final int BADMAIL = 401;
+    public static final int BADPSWD = 402;
+    
     public LoginResponse(int c, String m) {
         super(c, m);
     }

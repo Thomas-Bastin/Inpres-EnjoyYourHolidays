@@ -5,15 +5,22 @@
  */
 package ReservationDataLayer;
 
-import ReservationDataLayer.entities.*;
+
 import JDBC.MySqlConnexion;
+import ReservationDataLayer.entities.*;
 import java.sql.Connection;
 import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.LinkedList;
+import java.util.TimeZone;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -33,6 +40,7 @@ public class db {
             Logger.getLogger(db.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(db.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("DataBase Not Reachable...");
         }
     }
     
@@ -77,18 +85,6 @@ public class db {
         LinkedList cur = select("acred","employes INNER JOIN Acreditation","email =  AND Acred = Activities" + login, false);
         return !cur.isEmpty();
     }
-
-    
-    
-    public synchronized static boolean RegisterToActivities(Activites act,  Voyageurs cl, int nbrePart, boolean payed) throws SQLException{
-        return true;
-    }
-    
-    public synchronized static boolean UnlistToActivities(Activites act, Voyageurs cl, Date dateDebut) throws SQLException{
-        return true;
-    }
-    
-    
     
     public synchronized static LinkedList<Voyageurs> getClients() throws SQLException{
         String sql="SELECT * FROM voyageurs"; 
@@ -96,7 +92,6 @@ public class db {
         //Création d'un nouveau modèle
         LinkedList<Voyageurs> list = new LinkedList<Voyageurs>();
         ResultSet rs = mysql.createStatement().executeQuery(sql);
-
         
         while (rs.next()) {    
             Voyageurs v = new Voyageurs(rs.getInt("numeroClient") , rs.getString("nomVoyageur"), rs.getString("prenomVoyageur"),
@@ -108,38 +103,275 @@ public class db {
         return list;
     }
     
-    
-    
-    public synchronized static LinkedList<Activites> getActivities() throws SQLException{
-        String sql="SELECT * FROM activites"; 
+    public synchronized static LinkedList<Complexes> getComplex() throws SQLException {
+        PreparedStatement pStmt = mysql.prepareStatement(
+            "SELECT * FROM complexes;"
+        );
+        ResultSet rs = pStmt.executeQuery();
         
         //Création d'un nouveau modèle
-        LinkedList<Activites> list = new LinkedList<Activites>();
-        ResultSet rs = mysql.createStatement().executeQuery(sql);
-        
-        
+        LinkedList<Complexes> list = new LinkedList<Complexes>();
         while (rs.next()) {    
-            Activites a = new Activites(rs.getInt("idActivite"), rs.getString("typeActivite"), rs.getInt("nombreMaxParticipants"), 
-                                        rs.getInt("nombreParticipantsInscrits"), rs.getInt("dureeActivite"), rs.getFloat("prixHTVA"), 
-                                        rs.getDate("dateDebut"));
-            list.add(a);
+            Complexes v = new Complexes(
+                    rs.getInt("idComplexe"), rs.getString("nomComplexe"), rs.getString("typeComplexe")
+            );
+            list.add(v);
+        }
+        //return du modèle
+        return list;
+    }
+    
+    public synchronized static LinkedList<Chambres> getRooms(Complexes c) throws SQLException {
+        LinkedList<Chambres> list = new LinkedList<Chambres>();
+        
+        PreparedStatement pStmt = mysql.prepareStatement(
+            "SELECT * FROM chambres WHERE idComplexe = ? ;"
+        );
+        pStmt.setInt(1, c.getIdComplexe());
+        ResultSet rs = pStmt.executeQuery();
+        
+        //Création d'un nouveau modèle
+        
+        while (rs.next()){
+            Chambres ch = new Chambres( rs.getInt("idChambre"), rs.getInt("idComplexe"), rs.getString("Type"), 
+                    rs.getString("equipements"), rs.getInt("nombreLits"), rs.getFloat("prixHTVA"));
+            
+            list.add(ch);
+        }
+        //return du modèle
+        return list;
+    }
+    
+    public synchronized static LinkedList<CalendRow> getReservationRoom(Complexes c, LocalDate date) throws SQLException {
+        LinkedList<CalendRow> listRow = new LinkedList<CalendRow>();
+        LinkedList<Chambres> Chambres =  getSubRooms(c);
+        LocalDate myDate = LocalDate.from(date);
+        
+        for(Chambres ch : Chambres){            
+            CalendRow tmpRow = new CalendRow(ch);
+            
+            PreparedStatement pStmt = mysql.prepareStatement(
+                "SELECT idComplexe, idChambre, idVoyageur, " +
+                "dateArrive, (dateArrive + INTERVAL  nbJours DAY ) AS dateFin, nbJours, nomVoyageur " +
+                "FROM reservationchambre " +
+                "INNER JOIN voyageurs ON (voyageurs.numeroClient = reservationchambre.idVoyageur) " +
+                "WHERE idComplexe = ? AND idChambre = ?"
+            );
+            pStmt.setInt(1, c.getIdComplexe());
+            pStmt.setInt(2, ch.getNumChambre());
+            
+            ResultSet rs = pStmt.executeQuery();
+            
+            while(rs.next()){
+                LocalDate dBeg = LocalDate.from(myDate);
+                LocalDate dEnd = LocalDate.from(myDate.plusDays(6));
+                LocalDate tmpArr = LocalDate.from(rs.getDate("dateArrive").toLocalDate());
+                LocalDate tmpFin = LocalDate.from(rs.getDate("dateFin").toLocalDate());
+                
+                
+                Reservationchambre tmp = new Reservationchambre(
+                        rs.getInt("idComplexe"),
+                        rs.getInt("idChambre"),
+                        rs.getInt("idVoyageur"),
+                        rs.getDate("dateArrive"),
+                        rs.getInt("nbJours"),
+                        rs.getString("nomVoyageur"),
+                        false
+                );
+                
+                checkReservPaied(ch, tmp);
+                
+                LocalDate tmpDate = LocalDate.from(tmpArr);
+                while(tmpDate.isBefore(tmpFin)){
+                    if((tmpDate.isEqual(dBeg)||tmpDate.isAfter(dBeg)) && (tmpDate.isBefore(dEnd)||tmpDate.isEqual(dEnd))) {
+                        tmpRow.setReserv( tmpDate.getDayOfWeek() , tmp);
+                    }
+                    
+                    tmpDate = tmpDate.plusDays(1);
+                }
+            }
+            
+            listRow.add(tmpRow);
+        }
+        
+        for(CalendRow ctest : listRow){
+            System.out.println(ctest.toVector());
+        }
+        
+        return listRow;
+    }
+    
+    public static void checkReservPaied(Chambres ch, Reservationchambre tmp) throws SQLException{
+        int nbJ = tmp.getNbJours();
+        double toPayHTVA = nbJ * ch.getPrixHTVA();
+        final double TVA = (float) 1.21;
+        double toPay = toPayHTVA * TVA;
+        
+        double sumAlreadyPaied = 0;
+        PreparedStatement pStmt = mysql.prepareStatement(
+            "SELECT montant FROM payementchambre WHERE idComplexe = ? AND idChambre = ? AND dateArrive = ?;"
+        );
+        
+        pStmt.setInt(1,  tmp.getIdComplexe());
+        pStmt.setInt(2,  tmp.getIdChambre());
+        pStmt.setDate(3, new java.sql.Date(tmp.getDateArrive().getTime()));
+        ResultSet rs = pStmt.executeQuery();
+        int i = 0;
+        //Création d'un nouveau modèle
+        while (rs.next()){
+            //Somme des payements TVAC
+            sumAlreadyPaied += rs.getFloat("montant");
+            i++;
+        }
+        
+        System.out.println("RowFound: " + i);
+        System.out.println("AlreadyPaied: " + sumAlreadyPaied);
+        System.out.println("Topay: " + toPay);
+        //Check si sumAlreadyPaied == ...
+        if(sumAlreadyPaied >= toPay){
+            tmp.setIsPayed(true);
+        }
+    }
+    
+    
+    public synchronized static double howMuchToPay(Chambres ch, Reservationchambre reserv) throws SQLException{
+        int nbJ = reserv.getNbJours();
+        double toPayHTVA = nbJ * ch.getPrixHTVA();
+        final double TVA = (float) 1.21;
+        double toPay = toPayHTVA * TVA;
+        
+        double sumAlreadyPaied = 0;
+        PreparedStatement pStmt = mysql.prepareStatement(
+            "SELECT montant FROM payementchambre WHERE idComplexe = ? AND idChambre = ? AND dateArrive = ?;"
+        );
+        
+        pStmt.setInt(1,  reserv.getIdComplexe());
+        pStmt.setInt(2,  reserv.getIdChambre());
+        pStmt.setDate(3, new java.sql.Date(reserv.getDateArrive().getTime()));
+        ResultSet rs = pStmt.executeQuery();
+        
+        //Création d'un nouveau modèle
+        while (rs.next()){
+            //Somme des payements TVAC
+            sumAlreadyPaied += rs.getFloat("montant");
+        }
+        return toPay - sumAlreadyPaied;
+    }
+    
+    public LocalDate DatetoLocal(java.util.Date dateToConvert) {
+        return Instant.ofEpochMilli(dateToConvert.getTime()).atZone(ZoneId.systemDefault()).toLocalDate();
+    }
+    
+    public static LinkedList<Chambres> getSubRooms(Complexes c) throws SQLException {
+        LinkedList<Chambres> list = new LinkedList<Chambres>();
+        
+        PreparedStatement pStmt = mysql.prepareStatement(
+            "SELECT * FROM chambres WHERE idComplexe = ? ;"
+        );
+        pStmt.setInt(1, c.getIdComplexe());
+        ResultSet rs = pStmt.executeQuery();
+        
+        //Création d'un nouveau modèle
+        
+        while (rs.next()){
+            Chambres ch = new Chambres( rs.getInt("idChambre"), rs.getInt("idComplexe"), rs.getString("Type"), 
+                    rs.getString("equipements"), rs.getInt("nombreLits"), rs.getFloat("prixHTVA"));
+            
+            list.add(ch);
         }
         //return du modèle
         return list;
     }
     
     
-    public synchronized static LinkedList getRegisteredClients(Activites act) throws SQLException{
-        return null;
+    
+    public synchronized static int BookRoom(Chambres ch, java.sql.Date dateBeg, int Nights, Voyageurs ClientRef) throws SQLException, Exception {
+        mysql.setAutoCommit(false);
+        if(!checkDate(ch, dateBeg, Nights)){
+            mysql.rollback();
+            mysql.setAutoCommit(true);
+            throw new Exception("DateInvalid");
+        }
+        
+        PreparedStatement pStmt = mysql.prepareStatement(
+            "INSERT INTO reservationchambre (idChambre, idComplexe, idVoyageur, dateArrive, nbJours)\n" +
+                            "VALUES ( ? , ? , ? , ? , ?);"
+        );
+        
+        pStmt.setInt(1, ch.getNumChambre());
+        pStmt.setInt(2, ch.getIdComplexe());
+        pStmt.setInt(3, ClientRef.getNumeroClient());
+        pStmt.setObject(4, dateBeg);
+        pStmt.setInt(5, Nights);
+        
+        int rs = pStmt.executeUpdate();
+        mysql.commit();
+        mysql.setAutoCommit(true);
+        
+        return rs;
+    }
+    
+    public static boolean checkDate(Chambres ch, java.sql.Date dateBeg, int Nights) throws SQLException {
+        boolean errored = false;
+        
+        LocalDate dbeg = dateBeg.toLocalDate();
+        LocalDate dend = dbeg.plusDays(Nights);
+        
+        PreparedStatement pStmt = mysql.prepareStatement(
+            " SELECT dateArrive, nbJours, idVoyageur "
+          + " FROM reservationchambre"
+          + " WHERE idChambre = ? AND idComplexe = ?; "
+        );
+        pStmt.setInt(1, ch.getNumChambre());
+        pStmt.setInt(2, ch.getIdComplexe());    
+        ResultSet rs = pStmt.executeQuery();
+            
+        while(rs.next()){
+            LocalDate tmpbeg = rs.getDate("dateArrive").toLocalDate();
+            LocalDate tmpend = tmpbeg.plusDays(rs.getInt("nbJours"));
+            
+            LocalDate tmpDate = LocalDate.from(tmpbeg);
+            while (tmpDate.isBefore(tmpend)) {
+                if ((tmpDate.isEqual(dbeg) || tmpDate.isAfter(dbeg)) && (tmpDate.isBefore(dend))) {
+                    errored = true;
+                    break;
+                }
+                tmpDate = tmpDate.plusDays(1);
+            }
+        }
+        
+        return !errored;
+    }
+
+    
+    
+    
+    public synchronized static boolean PayRoom() throws SQLException {
+        //Select and calcul price
+        
+        //
+        
+        return true;
     }
     
     
     
-    
-    
-    
-    
-    
+    public synchronized static boolean CancelRoom(Chambres room, java.sql.Date dateBeg) throws SQLException {
+        java.sql.Date nowDate = java.sql.Date.valueOf( LocalDate.now(TimeZone.getDefault().toZoneId()));
+        
+        if(nowDate.compareTo(dateBeg) >= 0){ return false;}
+        
+        PreparedStatement pStmt = mysql.prepareStatement(
+            "DELETE FROM reservationchambre WHERE idChambre = ? AND idComplexe = ? AND dateArrive = ? ;"
+        );
+        
+        pStmt.setInt(1, room.getNumChambre());
+        pStmt.setInt(2, room.getIdComplexe());
+        pStmt.setDate(3, dateBeg);
+        
+        int rs = pStmt.executeUpdate();
+        return true;
+    }
     
     
     
@@ -189,18 +421,5 @@ public class db {
         return list;
     }
 
-    public static LinkedList update(String Update, String set, String where, boolean isHeader) throws SQLException {
-        Statement statement = mysql.createStatement();
-        String sql = "UPDATE " + Update + " SET " + set + " WHERE " + where;
-        statement.executeUpdate(sql);
-        return select("*", Update, where, isHeader);
-    }
-
-    public static LinkedList delete(String DeleteFrom, String where, boolean isHeader) throws SQLException {
-        Statement statement = mysql.createStatement();
-        String sql = "DELETE FROM " + DeleteFrom + " WHERE " + where;
-        statement.executeUpdate(sql);
-        return select("*", DeleteFrom, where, isHeader);
-    }
-
+    
 }
