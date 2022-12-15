@@ -3,10 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package reservation_server;
+package server;
 
 import ReservationDataLayer.db;
-import ServBuisness.MainServBuisness;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -27,20 +26,19 @@ import networklib.Server.*;
  *
  * @author Arkios
  */
-public class ReservationServerApp extends javax.swing.JFrame implements ServerConsole{
+public class Serveur_Reservation extends javax.swing.JFrame implements ServerConsole{
     
-    private ServerTCPv2 serveur;
+    private ServerTCP serveur;
     private Properties config;
     
     /**
      * Creates new form Serveur_Activities
      */
-    public ReservationServerApp() {
+    public Serveur_Reservation() {
         initComponents();
-        
         loadProperties();
-        
         db.initdatabase();
+        
         Port.setText(config.getProperty("server_port"));
     }
     
@@ -52,7 +50,7 @@ public class ReservationServerApp extends javax.swing.JFrame implements ServerCo
             if(f.createNewFile()){
                 OutputStream os = new FileOutputStream(f.getPath());
                 config.setProperty("server_port", "50006");
-                config.setProperty("threadNumber", "5");
+                config.setProperty("threadNumber", "10");
                 config.setProperty("dbSocket", "192.168.1.63:3560");
                 config.setProperty("dbName", "bd_holidays");
                 config.setProperty("dbUserName", "db_access_tools");
@@ -63,20 +61,9 @@ public class ReservationServerApp extends javax.swing.JFrame implements ServerCo
             else{
                 FileInputStream fis = new FileInputStream(f.getPath());
                 config.load(fis);
-                
-                if(config.isEmpty()){
-                    OutputStream os = new FileOutputStream(f.getPath());
-                config.setProperty("server_port", "50006");
-                config.setProperty("threadNumber", "5");
-                config.setProperty("dbSocket", "192.168.1.63:3560");
-                config.setProperty("dbName", "bd_holidays");
-                config.setProperty("dbUserName", "db_access_tools");
-                config.setProperty("dbPassword", "p11eYu");
-                config.store(os, "Configuration du Serveur:");
-                }
             }
         } catch (IOException ex) {
-            Logger.getLogger(ReservationServerApp.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Serveur_Reservation.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -197,9 +184,10 @@ public class ReservationServerApp extends javax.swing.JFrame implements ServerCo
         try {
             Trace("serveur#initialisation#main");
             int port = Integer.parseInt( Port.getText() );
-            int threadscount = Integer.parseInt( config.getProperty("threadNumber", "3") );
             Trace("serveur#acquisition du port#main");
-            serveur = new ServerTCPv2(port, new ListTask(), this, threadscount, new MainServBuisness());
+            int threadCount = Integer.parseInt(config.getProperty("threadNumber", "3"));
+            
+            serveur = new ServerTCP(port, new ListTask(), this, 5);
             serveur.setName("Serveur-TCP ListenSocket");
             serveur.start();
             
@@ -241,13 +229,13 @@ public class ReservationServerApp extends javax.swing.JFrame implements ServerCo
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(ReservationServerApp.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Serveur_Reservation.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(ReservationServerApp.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Serveur_Reservation.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(ReservationServerApp.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Serveur_Reservation.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(ReservationServerApp.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Serveur_Reservation.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
         //</editor-fold>
@@ -257,7 +245,7 @@ public class ReservationServerApp extends javax.swing.JFrame implements ServerCo
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new ReservationServerApp().setVisible(true);
+                new Serveur_Reservation().setVisible(true);
             }
         });
     }

@@ -32,7 +32,8 @@ public class CancelRoomRequest extends Request{
     }    
     
     
-    public void Task(Socket sock, ServerConsole log, ObjectOutputStream oos) throws IOException, ClassNotFoundException {
+    public void Task(Socket sock, ServerConsole log) throws IOException, ClassNotFoundException {
+        ObjectOutputStream oos = new ObjectOutputStream( sock.getOutputStream());
         java.sql.Date datedep;
         
         try {

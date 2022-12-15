@@ -29,7 +29,8 @@ public class HowMuchToPayRequest extends Request{
     }
 
     @Override
-    public void Task(Socket sock, ServerConsole log, ObjectOutputStream oos) throws IOException, ClassNotFoundException {
+    public void Task(Socket sock, ServerConsole log) throws IOException, ClassNotFoundException {
+        ObjectOutputStream oos = new ObjectOutputStream( sock.getOutputStream());
         try {
             double ret = db.howMuchToPay(room, reserv);
             

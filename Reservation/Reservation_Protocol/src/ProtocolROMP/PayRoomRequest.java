@@ -54,8 +54,9 @@ public class PayRoomRequest extends Request {
     
     
     @Override
-    public void Task(Socket sock, ServerConsole log, ObjectOutputStream oos) throws IOException, ClassNotFoundException {
+    public void Task(Socket sock, ServerConsole log) throws IOException, ClassNotFoundException {
         //TODO
+        ObjectOutputStream oos = new ObjectOutputStream( sock.getOutputStream());
         oos.writeObject(new PayRoomResponse(PayRoomResponse.SUCCESS, "Success"));
         log.Trace(sock.getRemoteSocketAddress().toString() + "# PayRoomResponse SUCCESS #" + Thread.currentThread().getName());
     }

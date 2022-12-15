@@ -5,15 +5,17 @@
  */
 package ProtocolROMP;
 
+import java.io.Serializable;
+
 /**
  *
- * @author Thomas
+ * @author Arkios
  */
-public class LoginResponse extends Response {
+public class LoginResponse extends Response{
     public static final int BADMAIL = 401;
     public static final int BADPSWD = 402;
     
-    public LoginResponse(int c, String m) {
-        super(c, m);
+    LoginResponse(int c, String m){
+        super(c,m);
     }
 }

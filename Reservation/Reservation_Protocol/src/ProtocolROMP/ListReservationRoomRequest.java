@@ -32,7 +32,8 @@ public class ListReservationRoomRequest extends Request {
     }
     
     @Override
-    public void Task(Socket sock, ServerConsole log, ObjectOutputStream oos) throws IOException, ClassNotFoundException {
+    public void Task(Socket sock, ServerConsole log) throws IOException, ClassNotFoundException {
+        ObjectOutputStream oos = new ObjectOutputStream( sock.getOutputStream());
         LinkedList<CalendRow> l = new LinkedList<CalendRow>();
         
         try{

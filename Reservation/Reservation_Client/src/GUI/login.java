@@ -36,8 +36,7 @@ import javax.xml.bind.DatatypeConverter;
 public class login extends javax.swing.JFrame {
     private Socket sock;
     private final Properties config;
-    private ObjectOutputStream oos;
-    private ObjectInputStream ios;
+    private InetSocketAddress Addr;
     
     /**
      * Creates new form Client_Activities
@@ -83,7 +82,11 @@ public class login extends javax.swing.JFrame {
         Login.setText("Connexion");
         Login.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                LoginActionPerformed(evt);
+                try {
+                    LoginActionPerformed(evt);
+                } catch (IOException ex) {
+                    Logger.getLogger(login.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
 
@@ -139,7 +142,7 @@ public class login extends javax.swing.JFrame {
         System.exit(0);
     }                                  
 
-    private void LoginActionPerformed(java.awt.event.ActionEvent evt) {
+    private void LoginActionPerformed(java.awt.event.ActionEvent evt) throws IOException {
         try {
             InitSock();
         } catch(SocketException ex){
@@ -169,11 +172,13 @@ public class login extends javax.swing.JFrame {
         //Try Login
         try {
             
+            sock.connect(Addr);
+            ObjectOutputStream oos = new ObjectOutputStream(sock.getOutputStream());
             System.out.println("Envoie d'un Objet LoginRequest");
             //Send Login request 
             oos.writeObject(new LoginRequest(login, hash));
             
-            ios = new ObjectInputStream(sock.getInputStream());
+            ObjectInputStream ios = new ObjectInputStream(sock.getInputStream());
             System.out.println("Récupération des Input Stream");
             Object resp = ios.readObject();
             
@@ -222,6 +227,8 @@ public class login extends javax.swing.JFrame {
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(login.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
+        sock.close();
     }                                     
     
     
@@ -229,7 +236,7 @@ public class login extends javax.swing.JFrame {
     private void Construct_MainPage() throws IOException, ClassNotFoundException{
 
         System.out.println("LoginRéussi, construction de la fenètre main.");
-        MainApp window = new MainApp(sock,oos,ios);
+        MainApp window = new MainApp(sock,Addr);
         this.setVisible(false);
         window.setVisible(true);
         this.dispose();
@@ -252,11 +259,7 @@ public class login extends javax.swing.JFrame {
         }
         
         if(sock.isClosed() || !sock.isConnected()) {sock = new Socket();}
-        
-        sock.connect(new InetSocketAddress(ip,port));        
-        oos = new ObjectOutputStream(sock.getOutputStream());
-        ios = null;
-        
+        Addr = new InetSocketAddress(ip,port);
         System.out.println("Socket Lancer");
     }
     

@@ -24,7 +24,8 @@ public class ListComplexRequest extends Request{
     public ListComplexRequest(){}
     
     @Override
-    public void Task(Socket sock, ServerConsole log, ObjectOutputStream oos) throws IOException{
+    public void Task(Socket sock, ServerConsole log) throws IOException{
+        ObjectOutputStream oos = new ObjectOutputStream( sock.getOutputStream());
         LinkedList<Complexes> list = null;
         
         try {

@@ -16,8 +16,17 @@ import networklib.Server.ServerConsole;
  * @author Thomas
  */
 public class TimeOut extends Request {
+
+    /**
+     *
+     * @param sock
+     * @param log
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+
     @Override
-    public void Task(Socket sock, ServerConsole log, ObjectOutputStream oos) throws IOException, ClassNotFoundException {
+    public void Task(Socket sock, ServerConsole log) throws IOException, ClassNotFoundException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

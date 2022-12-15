@@ -22,7 +22,8 @@ public class ListClientRequest extends Request{
     
     public ListClientRequest(){}
     
-    public void Task(Socket sock, ServerConsole log, ObjectOutputStream oos) throws IOException{
+    public void Task(Socket sock, ServerConsole log) throws IOException{
+        ObjectOutputStream oos = new ObjectOutputStream( sock.getOutputStream());
         LinkedList list = null;
         
         try {

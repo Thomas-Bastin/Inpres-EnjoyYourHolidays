@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.math.RoundingMode;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.text.DecimalFormat;
 import java.time.DayOfWeek;
@@ -30,9 +31,7 @@ import javax.swing.JOptionPane;
  * @author Arkios
  */
 public class BookRoom extends javax.swing.JDialog {
-    private ObjectOutputStream oos;
-    private ObjectInputStream ios;
-    private Socket sock;
+    private InetSocketAddress Addr;
     
     private final Chambres selectedRoom;
     private final LinkedList<Voyageurs> userList;
@@ -42,12 +41,10 @@ public class BookRoom extends javax.swing.JDialog {
     /**
      * Creates new form BookRoom
      */
-    public BookRoom(java.awt.Frame parent, boolean modal, ObjectOutputStream o, ObjectInputStream i, Socket s,  Chambres ch, LocalDate dReserv, LinkedList<Voyageurs> uli, LinkedList<Chambres> chli) {
+    public BookRoom(java.awt.Frame parent, boolean modal, InetSocketAddress ad,  Chambres ch, LocalDate dReserv, LinkedList<Voyageurs> uli, LinkedList<Chambres> chli) {
         super(parent, modal);
         initComponents();
-        oos = o;
-        ios = i;
-        sock = s;
+        Addr = ad;
         
         selectedRoom = ch;
         userList = uli;
@@ -205,7 +202,7 @@ public class BookRoom extends javax.swing.JDialog {
     }//GEN-LAST:event_KOActionPerformed
 
     private void OKActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_OKActionPerformed
-        TestConnection();
+
         final Chambres selectRoom = (Chambres) ComboRooms.getSelectedItem();
         final Voyageurs selectUser = (Voyageurs) ComboUser.getSelectedItem();
         final java.sql.Date selectDate = java.sql.Date.valueOf(LocalDate.from(ComboDate.getDate().toInstant().atZone(ZoneId.systemDefault())));
@@ -222,14 +219,23 @@ public class BookRoom extends javax.swing.JDialog {
                 "Confirmation Reservation", JOptionPane.OK_CANCEL_OPTION);
         if(ret !=0) return;
         
+        Socket sock = new Socket();
         
-        
-        try {  oos.writeObject(new BookRoomRequest(selectRoom, selectDate, selectNbNights, selectUser));  } 
+        try {
+            sock.connect(Addr);
+            ObjectOutputStream oos = new ObjectOutputStream(sock.getOutputStream());
+            oos.writeObject(new BookRoomRequest(selectRoom, selectDate, selectNbNights, selectUser));  
+        } 
         catch(IOException ex) {Logger.getLogger(BookRoom.class.getName()).log(Level.SEVERE, null, ex);return;}
         
         Object r = null;
         
-        try {  r = ios.readObject();  } 
+        
+        
+        try {
+            ObjectInputStream ios = new ObjectInputStream(sock.getInputStream());
+            r = ios.readObject();  
+        } 
         catch(IOException | ClassNotFoundException ex) {Logger.getLogger(BookRoom.class.getName()).log(Level.SEVERE, null, ex);return;}
         
         if (r instanceof TimeOut) {
@@ -275,10 +281,4 @@ public class BookRoom extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel9;
     // End of variables declaration//GEN-END:variables
 
-    public void TestConnection(){
-        if(sock.isInputShutdown() || sock.isOutputShutdown() || sock.isClosed()){
-            JOptionPane.showMessageDialog(this, "La connexion avec le serveur a été interrompue", "Error", JOptionPane.ERROR_MESSAGE);
-            this.dispose();
-        }
-    }
 }

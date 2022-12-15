@@ -13,7 +13,9 @@ import java.awt.event.WindowListener;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.util.LinkedList;
 import java.util.Vector;
 import java.util.logging.Level;
@@ -27,31 +29,35 @@ import javax.swing.table.DefaultTableModel;
  * @author Arkios
  */
 public class MainApp extends javax.swing.JFrame {
-    private final Socket sock;
-    private final ObjectOutputStream oos;
-    private final ObjectInputStream ios;
+    private final InetSocketAddress Addr;
     private LinkedList<Complexes> CompList;
     
     /**
      * Creates new form MainApp
      */
-    public MainApp(Socket s, ObjectOutputStream o, ObjectInputStream i) {               
+    public MainApp(Socket s, InetSocketAddress ad) {               
         initComponents();
         ComplexeList.setFocusable(false);
         
-        sock = s;
         CompList = null;
         
-        oos = o;
-        ios = i;
+        Addr = ad;
         
         RefreshComplexe();
     }
     
     private LinkedList<Complexes> getComplexeList() throws IOException, ClassNotFoundException{
+        Socket sock = new Socket();
+        sock.connect(Addr);
+        ObjectOutputStream oos = new ObjectOutputStream(sock.getOutputStream());
+        
+            
+        
         LinkedList<Complexes> list = new LinkedList<Complexes>();
         
         oos.writeObject(new ListComplexRequest());
+        
+        ObjectInputStream ios = new ObjectInputStream(sock.getInputStream());    
         Object r = ios.readObject();
         
         if (r instanceof TimeOut) {
@@ -77,7 +83,7 @@ public class MainApp extends javax.swing.JFrame {
                     break;
             }
         }
-        
+        sock.close();
         return list;
     }
     
@@ -189,11 +195,10 @@ public class MainApp extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void LogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LogoutActionPerformed
-        TestConnection();
+
         
         try {
             //Closed Sock
-            sock.close();
             login window = new login();
             window.setVisible(true);
             this.dispose();
@@ -205,26 +210,18 @@ public class MainApp extends javax.swing.JFrame {
     }//GEN-LAST:event_LogoutActionPerformed
 
     private void ExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ExitActionPerformed
-        TestConnection();
-        
-        try {
-            sock.close();
-        } catch (IOException ex) {
-            Logger.getLogger(MainApp.class.getName()).log(Level.SEVERE, null, ex);
-        }
         System.exit(0);
     }//GEN-LAST:event_ExitActionPerformed
 
     private void ComplexeListMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ComplexeListMouseClicked
-        TestConnection();
-        
+       
         if (evt.getClickCount() == 2) {
             Complexes comp = CompList.get(ComplexeList.getSelectedRow());
             
             System.out.println("Selectionné: " + comp);
             ComplexeView window = null;
             try {
-                window = new ComplexeView(this, true, comp);
+                window = new ComplexeView(this, true, comp, Addr);
             } catch (IOException | ClassNotFoundException ex) {
                 JOptionPane.showMessageDialog(this, "La connexion avec le serveur a été interrompue", "Error", JOptionPane.ERROR_MESSAGE);
                 Logger.getLogger(MainApp.class.getName()).log(Level.SEVERE, null, ex);
@@ -233,26 +230,6 @@ public class MainApp extends javax.swing.JFrame {
             window.setVisible(true);
         }
     }//GEN-LAST:event_ComplexeListMouseClicked
-
-    public Socket getSock() {
-        return sock;
-    }
-
-    public ObjectOutputStream getOos() {
-        return oos;
-    }
-
-    public ObjectInputStream getIos() {
-        return ios;
-    }
-    
-    
-    public void TestConnection(){
-        if(sock.isInputShutdown() || sock.isOutputShutdown() || sock.isClosed()){
-            JOptionPane.showMessageDialog(this, "La connexion avec le serveur a été interrompue", "Error", JOptionPane.ERROR_MESSAGE);
-            this.dispose();
-        }
-    }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTable ComplexeList;

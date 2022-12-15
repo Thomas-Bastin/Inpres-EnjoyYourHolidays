@@ -7,34 +7,34 @@ package ProtocolROMP;
 
 import ReservationDataLayer.db;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.Socket;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import networklib.Server.ServerConsole;
 
 /**
  *
- * @author Thomas
+ * @author Arkios
  */
 public class LoginRequest extends Request {
-    
-    public boolean Logged;
-    
     private final String login;
     private final String hash;
     
-    public LoginRequest(String login, String hash){
-        this.login = login;
-        this.hash = hash;
-        Logged = false;
+    public LoginRequest(String l, String p){
+        login = l;
+        hash = p;
     }
     
+    //Sera executé côté serveur.
     @Override
-    public void Task(Socket sock, ServerConsole log, ObjectOutputStream oos) throws IOException {
+    public void Task(Socket sock, ServerConsole log) throws IOException{
         int count = 0;
         LoginResponse rep;
-        oos.flush();
+        
+        ObjectOutputStream oos = new ObjectOutputStream( sock.getOutputStream());
         
         log.Trace(sock.getRemoteSocketAddress().toString() + "#Login "+ login +"#" + Thread.currentThread().getName());
         
@@ -68,25 +68,9 @@ public class LoginRequest extends Request {
         if(hash.equals(hashdb)){
             log.Trace(sock.getRemoteSocketAddress().toString() + "#Login " + login + ": Success#" + Thread.currentThread().getName());
             oos.writeObject((Object) new LoginResponse(LoginResponse.SUCCESS, "Login Success"));
-            Logged = true;
         }else{
             log.Trace(sock.getRemoteSocketAddress().toString() + "#Login " + login + ": BadPassword#" + Thread.currentThread().getName());
             oos.writeObject((Object) new LoginResponse(LoginResponse.BADPSWD, "Bad Password"));
         }
-    }
-    
-    
-    /**
-     * @return the login
-     */
-    public String getLogin() {
-        return login;
-    }
-    
-    /**
-     * @return the hash
-     */
-    public String getHash() {
-        return hash;
     }
 }

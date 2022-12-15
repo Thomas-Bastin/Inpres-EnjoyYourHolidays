@@ -18,6 +18,7 @@ import java.awt.Component;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -39,23 +40,19 @@ import javax.swing.table.DefaultTableModel;
  * @author Arkios
  */
 public class ComplexeView extends javax.swing.JDialog {
-
-    private ObjectOutputStream oos;
-    private ObjectInputStream ios;
-    private Socket sock;
-
     private final Complexes selectedComp;
     private final LocalDate minDay;
     private LocalDate firstWeekDay;
     private LinkedList<CalendRow> listRow;
+    private final InetSocketAddress Addr;
 
     /**
      * Creates new form ComplexeView
      */
-    public ComplexeView(java.awt.Frame parent, boolean modal, Complexes c) throws IOException, ClassNotFoundException {
+    public ComplexeView(java.awt.Frame parent, boolean modal, Complexes c, InetSocketAddress ad) throws IOException, ClassNotFoundException {
         super(parent, modal);
         initComponents();
-
+        Addr = ad;
         Calendar.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
@@ -65,17 +62,6 @@ public class ComplexeView extends javax.swing.JDialog {
                 return c;
             }
         });
-
-        oos = null;
-        ios = null;
-        sock = null;
-
-        if (parent instanceof MainApp) {
-            MainApp p = (MainApp) parent;
-            oos = p.getOos();
-            ios = p.getIos();
-            sock = p.getSock();
-        }
 
         this.setTitle(c.getTypeComplexe() + ": " + c.getNomComplexe());
         selectedComp = c;
@@ -117,11 +103,17 @@ public class ComplexeView extends javax.swing.JDialog {
 
     private LinkedList<Chambres> getChambresList() throws IOException, ClassNotFoundException {
         LinkedList<Chambres> list = new LinkedList<Chambres>();
-
+        Socket sock = new Socket();
+        sock.connect(Addr);
+        ObjectOutputStream oos = new ObjectOutputStream(sock.getOutputStream());
+            
         oos.writeObject(new ListRoomRequest(selectedComp));
 
+        ObjectInputStream ios = new ObjectInputStream(sock.getInputStream());    
         Object r = ios.readObject();
-
+        
+        sock.close();
+        
         if (r instanceof TimeOut) {
             JOptionPane.showMessageDialog(this, "Le serveur est éteint pour maintenance.", "Disconnect", JOptionPane.INFORMATION_MESSAGE);
             return list;
@@ -150,8 +142,16 @@ public class ComplexeView extends javax.swing.JDialog {
     private LinkedList<CalendRow> getReservations() throws IOException, ClassNotFoundException {
         LinkedList<CalendRow> list = new LinkedList<CalendRow>();
         System.err.println("GetReservations: ");
+        Socket sock = new Socket();
+        sock.connect(Addr);
+        ObjectOutputStream oos = new ObjectOutputStream(sock.getOutputStream());
+            
+        
         oos.writeObject(new ListReservationRoomRequest(selectedComp, firstWeekDay));
+        
+        ObjectInputStream ios = new ObjectInputStream(sock.getInputStream());    
         Object r = ios.readObject();
+        sock.close();
         
         System.err.println("ReadReservation Response");
         
@@ -181,10 +181,17 @@ public class ComplexeView extends javax.swing.JDialog {
     }
 
     private LinkedList<Voyageurs> getUsers() throws IOException, ClassNotFoundException {
-
+        Socket sock = new Socket();
+        sock.connect(Addr);
+        
+        ObjectOutputStream oos = new ObjectOutputStream(sock.getOutputStream());    
         oos.writeObject(new ListClientRequest());
+        
+        ObjectInputStream ios = new ObjectInputStream(sock.getInputStream());
         Object r = ios.readObject();
 
+        
+        sock.close();
         if (r instanceof TimeOut) {
             JOptionPane.showMessageDialog(this, "Le serveur est éteint pour maintenance.", "Disconnect", JOptionPane.INFORMATION_MESSAGE);
             return null;
@@ -352,7 +359,7 @@ public class ComplexeView extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void weekBeforeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_weekBeforeActionPerformed
-        TestConnection();
+        
         if (minDay.isAfter(firstWeekDay.minusWeeks(1))) {
             return;
         }
@@ -366,7 +373,7 @@ public class ComplexeView extends javax.swing.JDialog {
     }//GEN-LAST:event_weekBeforeActionPerformed
 
     private void weekLaterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_weekLaterActionPerformed
-        TestConnection();
+        
         firstWeekDay = firstWeekDay.plusWeeks(1);
         try {
             refreshCalendar();
@@ -376,7 +383,7 @@ public class ComplexeView extends javax.swing.JDialog {
     }//GEN-LAST:event_weekLaterActionPerformed
 
     private void BookedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BookedActionPerformed
-        TestConnection();
+        
         int col = Calendar.getSelectedColumn();
         int row = Calendar.getSelectedRow();
 
@@ -423,7 +430,7 @@ public class ComplexeView extends javax.swing.JDialog {
         }
 
         //Creation d'un dialog
-        BookRoom window = new BookRoom(null, true, oos, ios, sock, selectedRoom, selectedDate, userList, roomList);
+        BookRoom window = new BookRoom(null, true, Addr, selectedRoom, selectedDate, userList, roomList);
         window.setVisible(true);
 
         try {
@@ -434,7 +441,7 @@ public class ComplexeView extends javax.swing.JDialog {
     }//GEN-LAST:event_BookedActionPerformed
 
     private void UnListActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_UnListActionPerformed
-        TestConnection();
+
         int col = Calendar.getSelectedColumn();
         int row = Calendar.getSelectedRow();
 
@@ -474,9 +481,16 @@ public class ComplexeView extends javax.swing.JDialog {
     }//GEN-LAST:event_UnListActionPerformed
 
     private boolean CancelReservation(Chambres room, java.sql.Date begdate) throws IOException, ClassNotFoundException {
+        Socket sock = new Socket();
+        sock.connect(Addr);
+        
+        ObjectOutputStream oos = new ObjectOutputStream(sock.getOutputStream());
         oos.writeObject(new CancelRoomRequest(room, begdate));
+        
+        ObjectInputStream ios = new ObjectInputStream(sock.getInputStream());        
         Object r = ios.readObject();
-
+        
+        sock.close();
         if (r instanceof TimeOut) {
             JOptionPane.showMessageDialog(this, "Le serveur est éteint pour maintenance.", "Disconnect", JOptionPane.INFORMATION_MESSAGE);
             return false;
@@ -533,7 +547,6 @@ public class ComplexeView extends javax.swing.JDialog {
     }
 
     private void PayedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_PayedActionPerformed
-        TestConnection();
         int col = Calendar.getSelectedColumn();
         int row = Calendar.getSelectedRow();
         CreditCard selectedCredit = null;
@@ -573,15 +586,19 @@ public class ComplexeView extends javax.swing.JDialog {
             this.refreshCalendar();
 
         } catch (IOException | ClassNotFoundException ex) {
-            Logger.getLogger(ComplexeView.class.getName()).log(Level.SEVERE, null, ex);
-            JOptionPane.showMessageDialog(this, "Erreur innatendue: 112", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         } catch (Exception ex) {
             Logger.getLogger(ComplexeView.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_PayedActionPerformed
 
     private void sendPayementRequest(Chambres room, java.sql.Date begd, Voyageurs cl, CreditCard cC) throws IOException, ClassNotFoundException {
+       Socket sock = new Socket();
+        sock.connect(Addr);
+        ObjectOutputStream oos = new ObjectOutputStream(sock.getOutputStream());
         oos.writeObject(new PayRoomRequest(room, begd, cl, cC));
+        
+        ObjectInputStream ios = new ObjectInputStream(sock.getInputStream());
         Object r = ios.readObject();
 
         if (r instanceof TimeOut) {
@@ -610,9 +627,16 @@ public class ComplexeView extends javax.swing.JDialog {
     }
 
     private double getHowMuchToPay(Chambres selectedRoom, Reservationchambre reserv) throws IOException, ClassNotFoundException {
+        Socket sock = new Socket();
+        sock.connect(Addr);
+        ObjectOutputStream oos = new ObjectOutputStream(sock.getOutputStream());
         oos.writeObject(new HowMuchToPayRequest(selectedRoom, reserv));
+        
+        ObjectInputStream ios = new ObjectInputStream(sock.getInputStream());
         Object r = ios.readObject();
 
+        
+        sock.close();
         if (r instanceof TimeOut) {
             JOptionPane.showMessageDialog(this, "Le serveur est éteint pour maintenance.", "Disconnect", JOptionPane.INFORMATION_MESSAGE);
             return -1;
@@ -664,13 +688,6 @@ public class ComplexeView extends javax.swing.JDialog {
 
     public java.sql.Date LocaltoDate(LocalDate dateToConvert) {
         return Date.valueOf(dateToConvert);
-    }
-
-    public void TestConnection() {
-        if (sock.isInputShutdown() || sock.isOutputShutdown() || sock.isClosed()) {
-            JOptionPane.showMessageDialog(this, "La connexion avec le serveur a été interrompue", "Error", JOptionPane.ERROR_MESSAGE);
-            this.dispose();
-        }
     }
 
     private Reservationchambre getReservation(int col, int row) {

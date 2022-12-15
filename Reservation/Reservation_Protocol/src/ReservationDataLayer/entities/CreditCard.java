@@ -5,11 +5,13 @@
  */
 package ReservationDataLayer.entities;
 
+import java.io.Serializable;
+
 /**
  *
  * @author Arkios
  */
-public class CreditCard {
+public class CreditCard implements Serializable {
     private long NumberCard;
     private int CVV;
     private String HolderName;

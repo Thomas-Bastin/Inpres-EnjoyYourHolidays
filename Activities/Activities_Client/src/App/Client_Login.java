@@ -176,7 +176,6 @@ public class Client_Login extends javax.swing.JFrame {
             sock = new Socket();
             addr = new InetSocketAddress(ip,port);
             sock.connect(addr);
-            sock.getOutputStream().flush();
             
             System.out.println("Récupération des Output Stream");
             ObjectOutputStream oos = new ObjectOutputStream(sock.getOutputStream());

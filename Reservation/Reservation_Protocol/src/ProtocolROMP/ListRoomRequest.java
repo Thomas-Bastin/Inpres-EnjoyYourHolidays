@@ -29,7 +29,9 @@ public class ListRoomRequest extends Request {
     
     
     @Override
-    public void Task(Socket sock, ServerConsole log, ObjectOutputStream oos) throws IOException, ClassNotFoundException {
+    public void Task(Socket sock, ServerConsole log) throws IOException, ClassNotFoundException {
+        ObjectOutputStream oos = new ObjectOutputStream( sock.getOutputStream());
+        
         LinkedList<Chambres> l = new LinkedList<Chambres>();
         try{
             l = db.getRooms(selectComp);
