@@ -43,6 +43,7 @@ public class ListReservationRoomRequest extends Request {
                 oos.writeObject(new ListReservationRoomResponse(
                     ListReservationRoomResponse.SUCCESS, "Reservation Reussie", l
                 ));
+                System.err.println("Send Reservation");
             }
         }
         catch (SQLException ex) {

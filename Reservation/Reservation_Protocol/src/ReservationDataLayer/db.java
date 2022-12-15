@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.LinkedList;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.Vector;
 import java.util.logging.Level;
@@ -420,6 +421,4 @@ public class db {
         //return du modèle
         return list;
     }
-
-    
 }

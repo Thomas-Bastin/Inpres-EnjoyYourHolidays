@@ -149,10 +149,12 @@ public class ComplexeView extends javax.swing.JDialog {
 
     private LinkedList<CalendRow> getReservations() throws IOException, ClassNotFoundException {
         LinkedList<CalendRow> list = new LinkedList<CalendRow>();
-
+        System.err.println("GetReservations: ");
         oos.writeObject(new ListReservationRoomRequest(selectedComp, firstWeekDay));
         Object r = ios.readObject();
-
+        
+        System.err.println("ReadReservation Response");
+        
         if (r instanceof TimeOut) {
             JOptionPane.showMessageDialog(this, "Le serveur est éteint pour maintenance.", "Disconnect", JOptionPane.INFORMATION_MESSAGE);
             return list;

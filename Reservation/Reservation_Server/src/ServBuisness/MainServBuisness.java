@@ -11,6 +11,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.Socket;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import networklib.Server.Requestv2;
@@ -37,7 +38,9 @@ public class MainServBuisness implements ServerBuisness {
         oos = new ObjectOutputStream(sock.getOutputStream());
         
         
-        while (!sock.isInputShutdown() && !sock.isOutputShutdown()) {
+        while(!sock.isInputShutdown() && !sock.isOutputShutdown()) {
+            oos.flush();
+            
             Object r = ios.readObject();
             if (!(r instanceof ProtocolROMP.Request)) {
                 isLogged = false;
@@ -60,17 +63,33 @@ public class MainServBuisness implements ServerBuisness {
             } else {
                 req.Task(sock, log, oos);
             }
+            
+            listDebugThreads();
         }
     }
 
     
     
+    public static void listDebugThreads(){
+        Set<Thread> threads = Thread.getAllStackTraces().keySet();
+ 
+        for (Thread t : threads) {
+            String name = t.getName();
+            Thread.State state = t.getState();
+            int priority = t.getPriority();
+            String type = t.isDaemon() ? "Daemon" : "Normal";
+            
+            if(name.contains("Serveur-TCP")){
+                System.out.printf("%-20s \t %s \t %d \t %s\n", name, state, priority, type);
+            }
+        }
+    }
+    
+    
     @Override
     public Runnable createRunnable(Socket s, ServerConsole cs) {
         return () -> {
-            System.out.println(Thread.currentThread().getName() + ": Execution d'une Tache pour " + s.getRemoteSocketAddress().toString());
             try {
-                s.getOutputStream().flush();
                 Task(s, cs);
             } catch (IOException | ClassNotFoundException ex) {
                 if(ex instanceof java.io.EOFException) return;

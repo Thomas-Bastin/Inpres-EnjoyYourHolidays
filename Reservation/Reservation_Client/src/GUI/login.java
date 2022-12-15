@@ -45,8 +45,7 @@ public class login extends javax.swing.JFrame {
      */
     public login() throws IOException {
         sock = new Socket();
-        sock.setSoTimeout(5000);
-        sock.setSoLinger(true, 5000);
+        //sock.setSoTimeout(5000);
         initComponents();
         
         File f = new File("client.cfg");

@@ -109,6 +109,8 @@ public class ServerTCPv2 extends Thread {
                 //On ne fait rien
                 if(j == 1) Log.Trace(serviceSock.getRemoteSocketAddress().toString()+"#Tentative Nouvelle Connexion Annulée#thread serveur");
             } 
+            
+            serviceSock = null;
         }
     }
     
