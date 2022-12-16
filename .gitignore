@@ -1,10 +1,10 @@
-/Activities/Activities_Client/build
+/Activities/Activities_Client/build/*
 /Activities/Activities_Client/nbproject
 /Activities/Activities_Client/build.xml
 /Activities/Activities_Client/client.cfg
 /Activities/Activities_Client/manifest.mf
 
-/Activities/Activities_Server/build
+/Activities/Activities_Server/build/*
 /Activities/Activities_Server/nbproject
 /Activities/Activities_Server/build.xml
 /Activities/Activities_Server/server.cfg
@@ -16,7 +16,7 @@
 /Activities/Activities_Protocol_Lib/server.cfg
 /Activities/Activities_Protocol_Lib/manifest.mf
 
-/Activities/JavaDataBaseLib/build
+/Activities/JavaDataBaseLib/build/*
 /Activities/JavaDataBaseLib/nbproject
 /Activities/JavaDataBaseLib/build.xml
 /Activities/JavaDataBaseLib/manifest.mf
@@ -33,21 +33,20 @@
 
 /NetWorkLib/nbproject
 
-/Reservation/Reservation_Client/build
+/Reservation/Reservation_Client/build/*
 /Reservation/Reservation_Client/nbproject
 /Reservation/Reservation_Client/build.xml
 /Reservation/Reservation_Client/client.cfg
 /Reservation/Reservation_Client/manifest.mf
 
-/Reservation/Reservation_Server/build
+/Reservation/Reservation_Server/build/*
 /Reservation/Reservation_Server/nbproject
 /Reservation/Reservation_Server/build.xml
 /Reservation/Reservation_Server/server.cfg
 /Reservation/Reservation_Server/manifest.mf
 
-/Reservation/Reservation_Protocol/build
+/Reservation/Reservation_Protocol/build/*
 /Reservation/Reservation_Protocol/nbproject
 /Reservation/Reservation_Protocol/build.xml
 /Reservation/Reservation_Protocol/server.cfg
 /Reservation/Reservation_Protocol/manifest.mf
-/Reservation/Reservation_Server/dist/
