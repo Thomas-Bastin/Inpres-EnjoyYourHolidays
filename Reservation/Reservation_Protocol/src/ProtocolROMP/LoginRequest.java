@@ -5,14 +5,11 @@
  */
 package ProtocolROMP;
 
-import ReservationDataLayer.db;
+import DataBase.db;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.net.Socket;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import networklib.Server.ServerConsole;
 
 /**

@@ -5,14 +5,10 @@
  */
 package GUI;
 
-import ReservationDataLayer.entities.CalendRow;
+
 import ProtocolROMP.*;
-import ProtocolROMP.TimeOut;
-import ReservationDataLayer.entities.Chambres;
-import ReservationDataLayer.entities.Complexes;
-import ReservationDataLayer.entities.CreditCard;
-import ReservationDataLayer.entities.Reservationchambre;
-import ReservationDataLayer.entities.Voyageurs;
+import Entities.*;
+
 import java.awt.Color;
 import java.awt.Component;
 import java.io.IOException;

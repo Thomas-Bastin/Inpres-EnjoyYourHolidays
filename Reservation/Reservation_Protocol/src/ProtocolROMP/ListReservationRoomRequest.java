@@ -5,10 +5,8 @@
  */
 package ProtocolROMP;
 
-import ReservationDataLayer.db;
-import ReservationDataLayer.entities.CalendRow;
-import ReservationDataLayer.entities.Chambres;
-import ReservationDataLayer.entities.Complexes;
+import DataBase.db;
+import Entities.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;

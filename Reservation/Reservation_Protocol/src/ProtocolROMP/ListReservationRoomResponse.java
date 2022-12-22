@@ -5,7 +5,8 @@
  */
 package ProtocolROMP;
 
-import ReservationDataLayer.entities.CalendRow;
+
+import Entities.*;
 import java.util.LinkedList;
 
 /**

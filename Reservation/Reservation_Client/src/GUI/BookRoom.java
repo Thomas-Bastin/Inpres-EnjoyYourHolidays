@@ -6,7 +6,7 @@
 package GUI;
 
 import ProtocolROMP.*;
-import ReservationDataLayer.entities.*;
+import Entities.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -14,11 +14,8 @@ import java.math.RoundingMode;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.text.DecimalFormat;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.temporal.TemporalAdjusters;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.logging.Level;

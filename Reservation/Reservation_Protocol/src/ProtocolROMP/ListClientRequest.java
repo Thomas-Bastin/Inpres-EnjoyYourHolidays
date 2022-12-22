@@ -5,7 +5,8 @@
  */
 package ProtocolROMP;
 
-import ReservationDataLayer.db;
+import DataBase.db;
+import Entities.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;

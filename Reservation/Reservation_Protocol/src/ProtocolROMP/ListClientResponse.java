@@ -5,7 +5,7 @@
  */
 package ProtocolROMP;
 
-import ReservationDataLayer.entities.Voyageurs;
+import Entities.*;
 import java.util.LinkedList;
 
 /**

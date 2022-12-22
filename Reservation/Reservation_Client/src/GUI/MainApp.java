@@ -6,21 +6,15 @@
 package GUI;
 
 import ProtocolROMP.*;
-import ProtocolROMP.Request;
-import ReservationDataLayer.entities.Complexes;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowListener;
+import Entities.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.SocketAddress;
 import java.util.LinkedList;
-import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.stage.WindowEvent;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 

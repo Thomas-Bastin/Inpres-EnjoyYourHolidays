@@ -5,8 +5,7 @@
  */
 package GUI;
 
-import ReservationDataLayer.entities.CreditCard;
-import ReservationDataLayer.entities.Voyageurs;
+import Entities.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.JOptionPane;

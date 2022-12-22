@@ -5,16 +5,13 @@
  */
 package ProtocolROMP;
 
-import ReservationDataLayer.db;
-import ReservationDataLayer.entities.Chambres;
-import ReservationDataLayer.entities.Voyageurs;
+import DataBase.db;
+import Entities.*;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.sql.Date;
 import java.sql.SQLException;
-import java.time.Instant;
 import java.util.LinkedList;
 import networklib.Server.ServerConsole;
 
@@ -46,8 +43,7 @@ public class BookRoomRequest extends Request {
         
         try {
             //Try Cancel the Room
-            int ret = db.BookRoom(chambre, dateBeg, nights, clientRef);
-            System.out.println("SQL Insert: "+ret);
+            db.BookRoom(chambre, dateBeg, nights, clientRef);
             oos.writeObject(new BookRoomResponse(BookRoomResponse.SUCCESS, "BookRoom Success", numCh, prix));
             log.Trace(sock.getRemoteSocketAddress().toString() + "# BookRoomResponse SUCCESS #" + Thread.currentThread().getName());
             

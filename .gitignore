@@ -50,3 +50,12 @@
 /Reservation/Reservation_Protocol/build.xml
 /Reservation/Reservation_Protocol/server.cfg
 /Reservation/Reservation_Protocol/manifest.mf
+/Reservation/reservation-Web/nbproject/private/
+/Activities/JavaDataBaseLib/dist/
+/JavaNetworkLib/dist/
+/DataBaseAccess/nbproject/private/
+/DataBaseAccess/dist/
+/DataBaseAccess/build/
+/Reservation_Client/nbproject/private/
+/Reservation/reservation-Web/build/
+/Reservation/reservation-Web/dist/
