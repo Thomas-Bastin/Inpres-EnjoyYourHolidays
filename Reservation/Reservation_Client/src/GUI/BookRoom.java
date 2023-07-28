@@ -59,7 +59,7 @@ public class BookRoom extends javax.swing.JDialog {
         ComboRooms.setModel(model);
         
         
-        model = new DefaultComboBoxModel();;
+        model = new DefaultComboBoxModel();
         for(Voyageurs user : userList){
             model.addElement(user);
         }

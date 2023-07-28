@@ -260,7 +260,7 @@ public class Reservation_Server extends javax.swing.JFrame implements ServerCons
     private javax.swing.JTable TraceTable;
     private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
-
+    
     @Override
     public void Trace(String comment) {
         Vector ligne = new Vector();
